@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
+import { ref, computed } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import {
     Dialog,
     DialogContent,
@@ -13,7 +15,20 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Plus, Pencil, Trash2 } from '@lucide/vue';
+
+interface EventCategory {
+    id: number;
+    nama: string;
+    slug: string;
+}
 
 interface EventItem {
     id: number;
@@ -24,26 +39,68 @@ interface EventItem {
     tanggal_mulai: string;
     tanggal_selesai: string | null;
     status: string;
+    event_category_id: number | null;
+    event_category: EventCategory | null;
+    gambar: string | null;
+}
+
+interface EventsPaginated {
+    data: EventItem[];
+    current_page: number;
+    last_page: number;
+    from: number | null;
+    to: number | null;
+    total: number;
 }
 
 const props = defineProps<{
-    events: EventItem[];
+    events: EventsPaginated;
+    categories: EventCategory[];
 }>();
 
 const dialogOpen = ref(false);
 const editingEvent = ref<EventItem | null>(null);
 const deleteConfirmId = ref<number | null>(null);
 
+const deleteForm = useForm({});
 const form = useForm({
     judul: '',
+    event_category_id: '',
     deskripsi: '',
     lokasi: '',
     tanggal_mulai: '',
     tanggal_selesai: '',
     status: 'upcoming',
+    gambar: null as File | null,
 });
 
 const dialogTitle = computed(() => (editingEvent.value ? 'Edit Agenda' : 'Tambah Agenda'));
+
+const currentPage = computed(() => props.events.current_page);
+const lastPage = computed(() => props.events.last_page);
+
+const pageNumbers = computed(() => {
+    const pages: (number | string)[] = [];
+    const current = currentPage.value;
+    const last = lastPage.value;
+
+    if (last <= 7) {
+        for (let i = 1; i <= last; i++) pages.push(i);
+    } else {
+        pages.push(1);
+        if (current > 3) pages.push('...');
+        const start = Math.max(2, current - 1);
+        const end = Math.min(last - 1, current + 1);
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (current < last - 2) pages.push('...');
+        pages.push(last);
+    }
+    return pages;
+});
+
+const goToPage = (page: number) => {
+    form.get(`/admin/agenda?page=${page}`);
+};
 
 const openAddDialog = () => {
     editingEvent.value = null;
@@ -55,11 +112,13 @@ const openAddDialog = () => {
 const openEditDialog = (event: EventItem) => {
     editingEvent.value = event;
     form.judul = event.judul;
+    form.event_category_id = event.event_category_id?.toString() || '';
     form.deskripsi = event.deskripsi;
     form.lokasi = event.lokasi;
-    form.tanggal_mulai = event.tanggal_mulai?.split('T')[0] || '';
-    form.tanggal_selesai = event.tanggal_selesai?.split('T')[0] || '';
+    form.tanggal_mulai = event.tanggal_mulai?.slice(0, 16) || '';
+    form.tanggal_selesai = event.tanggal_selesai?.slice(0, 16) || '';
     form.status = event.status;
+    form.gambar = null;
     form.clearErrors();
     dialogOpen.value = true;
 };
@@ -88,7 +147,7 @@ const confirmDelete = (event: EventItem) => {
 
 const executeDelete = () => {
     if (deleteConfirmId.value) {
-        form.delete(`/admin/agenda/${deleteConfirmId.value}`, {
+        deleteForm.delete(`/admin/agenda/${deleteConfirmId.value}`, {
             onSuccess: () => {
                 deleteConfirmId.value = null;
                 toast.success('Agenda berhasil dihapus.');
@@ -136,7 +195,7 @@ const statusVariant = (status: string) => {
 </script>
 
 <template>
-    <Head title="Kelola Agenda" />
+    <Head title="Agenda" />
 
     <div class="space-y-6">
         <div class="flex items-center justify-between">
@@ -156,26 +215,24 @@ const statusVariant = (status: string) => {
                     <table class="w-full text-sm">
                         <thead>
                             <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
+                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400 w-12">#</th>
                                 <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Judul</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Lokasi</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Tanggal Mulai</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Tanggal Selesai</th>
+                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Kategori</th>
+                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Tanggal</th>
                                 <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Status</th>
                                 <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr
-                                v-for="(event, index) in events"
+                                v-for="(event, index) in events.data"
                                 :key="event.id"
                                 class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                             >
-                                <td class="px-4 py-3 text-zinc-500">{{ index + 1 }}</td>
+                                <td class="px-4 py-3 text-zinc-500">{{ (events.from ?? 1) + index }}</td>
                                 <td class="px-4 py-3 font-medium max-w-xs truncate">{{ event.judul }}</td>
-                                <td class="px-4 py-3">{{ event.lokasi }}</td>
+                                <td class="px-4 py-3 text-zinc-500">{{ event.event_category?.nama || '-' }}</td>
                                 <td class="px-4 py-3 text-zinc-500">{{ formatDate(event.tanggal_mulai) }}</td>
-                                <td class="px-4 py-3 text-zinc-500">{{ formatDate(event.tanggal_selesai) }}</td>
                                 <td class="px-4 py-3">
                                     <Badge :variant="statusVariant(event.status)">
                                         {{ statusLabel(event.status) }}
@@ -192,18 +249,57 @@ const statusVariant = (status: string) => {
                                     </div>
                                 </td>
                             </tr>
-                            <tr v-if="events.length === 0">
-                                <td colspan="7" class="px-4 py-12 text-center text-zinc-500">
+                            <tr v-if="events.data.length === 0">
+                                <td colspan="6" class="px-4 py-12 text-center text-zinc-500">
                                     Belum ada agenda.
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Pagination -->
+                <div
+                    v-if="lastPage > 1"
+                    class="flex items-center justify-between border-t px-4 py-3"
+                >
+                    <p class="text-sm text-zinc-500">
+                        Menampilkan {{ events.from }}–{{ events.to }} dari {{ events.total }}
+                    </p>
+                    <div class="flex items-center gap-1">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            :disabled="currentPage === 1"
+                            @click="goToPage(currentPage - 1)"
+                        >
+                            Sebelumnya
+                        </Button>
+                        <template v-for="page in pageNumbers" :key="page">
+                            <span v-if="page === '...'" class="px-2 text-zinc-400">...</span>
+                            <Button
+                                v-else
+                                :variant="currentPage === page ? 'default' : 'outline'"
+                                size="sm"
+                                @click="goToPage(page as number)"
+                            >
+                                {{ page }}
+                            </Button>
+                        </template>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            :disabled="currentPage === lastPage"
+                            @click="goToPage(currentPage + 1)"
+                        >
+                            Selanjutnya
+                        </Button>
+                    </div>
+                </div>
             </CardContent>
         </Card>
 
-        <!-- Dialog Tambah/Edit Agenda -->
+        <!-- Dialog Tambah/Edit -->
         <Dialog v-model:open="dialogOpen">
             <DialogContent class="sm:max-w-lg">
                 <DialogHeader>
@@ -218,20 +314,40 @@ const statusVariant = (status: string) => {
                         <Label for="judul">Judul</Label>
                         <Input id="judul" v-model="form.judul" required />
                     </div>
+
+                    <div class="grid gap-1.5">
+                        <Label for="event_category_id">Kategori</Label>
+                        <Select v-model="form.event_category_id">
+                            <SelectTrigger>
+                                <SelectValue placeholder="Pilih kategori" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem
+                                    v-for="cat in categories"
+                                    :key="cat.id"
+                                    :value="cat.id.toString()"
+                                >
+                                    {{ cat.nama }}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
                     <div class="grid gap-1.5">
                         <Label for="deskripsi">Deskripsi</Label>
                         <textarea
                             id="deskripsi"
                             v-model="form.deskripsi"
-                            required
                             rows="4"
                             class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
                         ></textarea>
                     </div>
+
                     <div class="grid gap-1.5">
                         <Label for="lokasi">Lokasi</Label>
-                        <Input id="lokasi" v-model="form.lokasi" required />
+                        <Input id="lokasi" v-model="form.lokasi" />
                     </div>
+
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-1.5">
                             <Label for="tanggal_mulai">Tanggal Mulai</Label>
@@ -242,6 +358,7 @@ const statusVariant = (status: string) => {
                             <Input id="tanggal_selesai" v-model="form.tanggal_selesai" type="datetime-local" />
                         </div>
                     </div>
+
                     <div class="grid gap-1.5">
                         <Label for="status">Status</Label>
                         <Select v-model="form.status">
@@ -256,6 +373,16 @@ const statusVariant = (status: string) => {
                         </Select>
                     </div>
 
+                    <div class="grid gap-1.5">
+                        <Label for="gambar">Gambar</Label>
+                        <Input
+                            id="gambar"
+                            type="file"
+                            accept="image/*"
+                            @input="(e: Event) => (form.gambar = (e.target as HTMLInputElement).files?.[0] ?? null)"
+                        />
+                    </div>
+
                     <DialogFooter class="mt-6">
                         <Button type="button" variant="outline" @click="dialogOpen = false">
                             Batal
@@ -268,8 +395,8 @@ const statusVariant = (status: string) => {
             </DialogContent>
         </Dialog>
 
-        <!-- Dialog Konfirmasi Hapus -->
-        <Dialog v-model:open="deleteConfirmId" :open="deleteConfirmId !== null" @update:open="deleteConfirmId = null">
+        <!-- Dialog Hapus -->
+        <Dialog :open="deleteConfirmId !== null" @update:open="() => (deleteConfirmId = null)">
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Konfirmasi Hapus</DialogTitle>
@@ -279,7 +406,7 @@ const statusVariant = (status: string) => {
                 </DialogHeader>
                 <DialogFooter>
                     <Button variant="outline" @click="deleteConfirmId = null">Batal</Button>
-                    <Button variant="destructive" :disabled="form.processing" @click="executeDelete">
+                    <Button variant="destructive" :disabled="deleteForm.processing" @click="executeDelete">
                         Hapus
                     </Button>
                 </DialogFooter>

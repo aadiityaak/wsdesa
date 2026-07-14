@@ -22,7 +22,7 @@ class EventFactory extends Factory
         return [
             'event_category_id' => EventCategory::factory(),
             'judul' => $judul,
-            'slug' => Str::slug($judul),
+            'slug' => Str::slug($judul).'-'.fake()->unique()->randomNumber(5),
             'deskripsi' => collect(fake('id_ID')->paragraphs(2))
                 ->map(fn ($p) => "<p>{$p}</p>")
                 ->implode(''),

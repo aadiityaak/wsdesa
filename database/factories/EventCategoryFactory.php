@@ -16,10 +16,11 @@ class EventCategoryFactory extends Factory
     public function definition(): array
     {
         $nama = fake()->randomElement(['Musyawarah', 'Gotong Royong', 'Pelatihan', 'Keagamaan', 'Olahraga', 'Sosial']);
+        $slug = Str::slug($nama).'-'.fake()->unique()->randomNumber(5);
 
         return [
             'nama' => $nama,
-            'slug' => Str::slug($nama),
+            'slug' => $slug,
         ];
     }
 }

@@ -22,7 +22,7 @@ class PostFactory extends Factory
         return [
             'post_category_id' => PostCategory::factory(),
             'judul' => $judul,
-            'slug' => Str::slug($judul),
+            'slug' => Str::slug($judul).'-'.fake()->unique()->randomNumber(5),
             'thumbnail' => null,
             'ringkasan' => fake('id_ID')->paragraph(2),
             'konten' => collect(fake('id_ID')->paragraphs(4))

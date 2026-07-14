@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
+import { computed, watch } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -47,17 +48,33 @@ const form = useForm({
     status: props.post?.status || 'draft',
 });
 
+const slugify = (text: string) => {
+    return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-+|-+$/g, '');
+};
+
 const submitForm = () => {
+    const data = {
+        ...form.data(),
+        slug: slugify(form.judul),
+    };
+
     if (isEdit.value) {
         form.put(`/admin/berita/${props.post!.id}`, {
+            ...data,
             onSuccess: () => {
-                window.location.href = '/admin/berita';
+                router.visit('/admin/berita');
             },
         });
     } else {
         form.post('/admin/berita', {
+            ...data,
             onSuccess: () => {
-                window.location.href = '/admin/berita';
+                router.visit('/admin/berita');
             },
         });
     }
@@ -90,7 +107,11 @@ const submitForm = () => {
                                 <SelectValue placeholder="Pilih kategori" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem v-for="cat in categories" :key="cat.id" :value="cat.id.toString()">
+                                <SelectItem
+                                    v-for="cat in categories"
+                                    :key="cat.id"
+                                    :value="cat.id.toString()"
+                                >
                                     {{ cat.nama }}
                                 </SelectItem>
                             </SelectContent>
@@ -119,14 +140,19 @@ const submitForm = () => {
                     </div>
 
                     <div class="grid gap-1.5">
-                        <Label for="gambar">Gambar</Label>
+                        <Label for="gambar">Thumbnail</Label>
                         <Input
                             id="gambar"
                             type="file"
                             accept="image/*"
                             @input="(e: Event) => (form.gambar = (e.target as HTMLInputElement).files?.[0] ?? null)"
                         />
-                        <p v-if="isEdit && post?.gambar" class="text-sm text-zinc-500">Upload gambar baru untuk mengganti gambar yang sudah ada.</p>
+                        <p
+                            v-if="isEdit && post?.gambar"
+                            class="text-sm text-zinc-500"
+                        >
+                            Upload gambar baru untuk mengganti gambar yang sudah ada.
+                        </p>
                     </div>
 
                     <div class="grid gap-1.5">
@@ -147,7 +173,7 @@ const submitForm = () => {
                         <Button type="submit" :disabled="form.processing">
                             {{ isEdit ? 'Simpan Perubahan' : 'Tambah Berita' }}
                         </Button>
-                        <Button type="button" variant="outline" @click="window.location.href = '/admin/berita'">
+                        <Button type="button" variant="outline" @click="router.visit('/admin/berita')">
                             Batal
                         </Button>
                     </div>
