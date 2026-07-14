@@ -91,11 +91,11 @@ const executeDelete = () => {
 
 const statusVariant = (status: string) => {
     switch (status) {
-        case 'published':
+        case 'publish':
             return 'default';
         case 'draft':
             return 'secondary';
-        case 'archived':
+        case 'archive':
             return 'outline';
         default:
             return 'secondary';
@@ -104,11 +104,11 @@ const statusVariant = (status: string) => {
 
 const statusLabel = (status: string) => {
     switch (status) {
-        case 'published':
+        case 'publish':
             return 'Dipublikasikan';
         case 'draft':
             return 'Draft';
-        case 'archived':
+        case 'archive':
             return 'Diarsipkan';
         default:
             return status;

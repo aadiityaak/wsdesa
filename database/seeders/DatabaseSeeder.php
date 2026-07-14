@@ -81,9 +81,9 @@ class DatabaseSeeder extends Seeder
         Video::factory(5)->create();
 
         // === KATEGORI BERITA + BERITA ===
-        $postCategoryNames = ['Berita Desa', 'Pengumuman', 'Kegiatan', 'Pembangunan', 'Pemerintahan'];
+        $postCategoryNames = ['Berita Desa', 'Pengumuman', 'Kegiatan', 'Pembangunan', 'Pemerintahan', 'Kesehatan'];
         foreach ($postCategoryNames as $nama) {
-            PostCategory::factory()->create(['nama' => $nama, 'slug' => Str::slug($nama)]);
+            PostCategory::firstOrCreate(['nama' => $nama], ['slug' => Str::slug($nama)]);
         }
 
         User::factory(3)->sequence(

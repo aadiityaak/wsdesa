@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import TiptapEditor from '@/components/TiptapEditor.vue';
 import {
     Select,
     SelectContent,
@@ -29,7 +30,7 @@ interface Post {
     published_at: string | null;
     ringkasan: string | null;
     konten: string;
-    gambar: string | null;
+    thumbnail: string | null;
 }
 
 const props = defineProps<{
@@ -44,9 +45,21 @@ const form = useForm({
     post_category_id: props.post?.post_category_id?.toString() || '',
     ringkasan: props.post?.ringkasan || '',
     konten: props.post?.konten || '',
-    gambar: null as File | null,
+    thumbnail: null as File | null,
     status: props.post?.status || 'draft',
 });
+
+const gambarPreview = ref<string | null>(
+    props.post?.thumbnail ? `/storage/${props.post.thumbnail}` : null,
+);
+
+const onGambarChange = (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0] ?? null;
+    form.thumbnail = file;
+    if (file) {
+        gambarPreview.value = URL.createObjectURL(file);
+    }
+};
 
 const slugify = (text: string) => {
     return text
@@ -120,39 +133,66 @@ const submitForm = () => {
 
                     <div class="grid gap-1.5">
                         <Label for="ringkasan">Ringkasan</Label>
-                        <textarea
+                        <TiptapEditor
                             id="ringkasan"
                             v-model="form.ringkasan"
-                            rows="3"
-                            class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        ></textarea>
+                            placeholder="Tulis ringkasan berita..."
+                            :min-height="'100px'"
+                        />
                     </div>
 
                     <div class="grid gap-1.5">
                         <Label for="konten">Konten</Label>
-                        <textarea
+                        <TiptapEditor
                             id="konten"
                             v-model="form.konten"
-                            required
-                            rows="12"
-                            class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring font-mono"
-                        ></textarea>
+                            placeholder="Tulis konten berita..."
+                            :min-height="'300px'"
+                        />
                     </div>
 
                     <div class="grid gap-1.5">
-                        <Label for="gambar">Thumbnail</Label>
-                        <Input
-                            id="gambar"
-                            type="file"
-                            accept="image/*"
-                            @input="(e: Event) => (form.gambar = (e.target as HTMLInputElement).files?.[0] ?? null)"
-                        />
-                        <p
-                            v-if="isEdit && post?.gambar"
-                            class="text-sm text-zinc-500"
-                        >
-                            Upload gambar baru untuk mengganti gambar yang sudah ada.
-                        </p>
+                        <Label for="thumbnail">Thumbnail</Label>
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="flex size-32 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-zinc-100 dark:bg-zinc-800"
+                            >
+                                <img
+                                    v-if="gambarPreview"
+                                    :src="gambarPreview"
+                                    alt="Thumbnail preview"
+                                    class="size-full object-cover"
+                                />
+                                <svg
+                                    v-else
+                                    class="size-8 text-zinc-400"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    width="24"
+                                    height="24"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                >
+                                    <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+                                    <circle cx="9" cy="9" r="2" />
+                                    <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+                                </svg>
+                            </div>
+                            <div class="grid gap-2">
+                                <Input
+                                    id="thumbnail"
+                                    type="file"
+                                    accept="image/*"
+                                    @input="onGambarChange"
+                                />
+                                <p class="text-sm text-zinc-500">
+                                    Format: JPG, PNG, WEBP. Maksimal 2MB.
+                                </p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid gap-1.5">
@@ -163,8 +203,8 @@ const submitForm = () => {
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="draft">Draft</SelectItem>
-                                <SelectItem value="published">Dipublikasikan</SelectItem>
-                                <SelectItem value="archived">Diarsipkan</SelectItem>
+                                <SelectItem value="publish">Dipublikasikan</SelectItem>
+                                <SelectItem value="archive">Diarsipkan</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>

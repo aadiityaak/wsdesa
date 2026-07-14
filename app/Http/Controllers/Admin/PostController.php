@@ -84,6 +84,8 @@ class PostController extends Controller
                 Storage::disk('public')->delete($post->thumbnail);
             }
             $validated['thumbnail'] = $request->file('thumbnail')->store('posts', 'public');
+        } else {
+            unset($validated['thumbnail']);
         }
 
         if ($validated['status'] === 'publish' && ! $post->published_at) {
