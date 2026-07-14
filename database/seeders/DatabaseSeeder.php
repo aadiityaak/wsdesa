@@ -36,6 +36,7 @@ use App\Models\UmkmCategory;
 use App\Models\UmkmImage;
 use App\Models\User;
 use App\Models\Video;
+use App\Models\Wilayah;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -54,6 +55,9 @@ class DatabaseSeeder extends Seeder
 
         // === PROFILE DESA ===
         Profile::factory()->create();
+
+        // === WILAYAH (data dari Kepmendagri) ===
+        $this->call(WilayahSeeder::class);
 
         // === PEMERINTAHAN ===
         GovernmentStaff::factory(10)->create();
@@ -103,14 +107,19 @@ class DatabaseSeeder extends Seeder
 
         // === LAYANAN SURAT ===
         $letterNames = [
-            'Surat Keterangan Domisili', 'Surat Keterangan Usaha',
-            'Surat Keterangan Tidak Mampu', 'Surat Keterangan Kelahiran',
-            'Surat Keterangan Kematian', 'Surat Pengantar KTP',
+            'Surat Keterangan Domisili',
+            'Surat Keterangan Usaha',
+            'Surat Keterangan Tidak Mampu',
+            'Surat Keterangan Kelahiran',
+            'Surat Keterangan Kematian',
+            'Surat Pengantar KTP',
             'Surat Keterangan Nikah',
         ];
         foreach ($letterNames as $i => $nama) {
             LetterCategory::factory()->create([
-                'nama' => $nama, 'slug' => Str::slug($nama), 'urutan' => $i,
+                'nama' => $nama,
+                'slug' => Str::slug($nama),
+                'urutan' => $i,
             ])->requirements()->createMany(
                 LetterRequirement::factory()->count(3)->make()->toArray()
             );
