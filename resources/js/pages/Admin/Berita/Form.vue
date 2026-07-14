@@ -71,21 +71,14 @@ const slugify = (text: string) => {
 };
 
 const submitForm = () => {
-    const data = {
-        ...form.data(),
-        slug: slugify(form.judul),
-    };
-
     if (isEdit.value) {
         form.put(`/admin/berita/${props.post!.id}`, {
-            ...data,
             onSuccess: () => {
                 router.visit('/admin/berita');
             },
         });
     } else {
         form.post('/admin/berita', {
-            ...data,
             onSuccess: () => {
                 router.visit('/admin/berita');
             },
