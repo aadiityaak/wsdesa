@@ -4,21 +4,24 @@ namespace Database\Factories;
 
 use App\Models\Page;
 use Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Support\Str;
 
 /**
  * @extends Factory<Page>
  */
 class PageFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Page::class;
+
     public function definition(): array
     {
+        $judul = $this->faker->sentence();
+
         return [
-            //
+            'judul' => $judul,
+            'slug' => Str::slug($judul),
+            'konten' => implode("\n\n", $this->faker->paragraphs(3)),
+            'status' => 'publish',
         ];
     }
 }

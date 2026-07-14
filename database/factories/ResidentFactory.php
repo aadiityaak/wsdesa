@@ -5,20 +5,15 @@ namespace Database\Factories;
 use App\Models\Resident;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Resident>
- */
 class ResidentFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Resident::class;
+
     public function definition(): array
     {
         return [
-            'nik' => fake()->unique()->numerify('################'),
+            'family_id' => null,
+            'nik' => fake()->unique()->numerify('###############'),
             'nama' => fake()->name(),
             'tempat_lahir' => fake()->city(),
             'tanggal_lahir' => fake()->dateTimeBetween('-80 years', '-1 year')->format('Y-m-d'),
@@ -31,6 +26,14 @@ class ResidentFactory extends Factory
             'dusun' => fake()->randomElement(['Dusun 1', 'Dusun 2', 'Dusun 3', 'Dusun 4']),
             'rt' => fake()->numerify('00#'),
             'rw' => fake()->numerify('00#'),
+            'hubungan_keluarga' => 'Anak',
         ];
+    }
+
+    public function kepalaKeluarga(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'hubungan_keluarga' => 'Kepala Keluarga',
+        ]);
     }
 }

@@ -16,7 +16,7 @@ class InstitutionFactory extends Factory
             ['nama' => 'Linmas', 'singkatan' => 'Linmas', 'jenis' => 'Linmas'],
         ];
 
-        $inst = fake()->unique()->randomElement($institutions);
+        $inst = fake()->randomElement($institutions);
 
         return [
             'nama' => $inst['nama'],

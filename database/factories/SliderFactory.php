@@ -5,20 +5,19 @@ namespace Database\Factories;
 use App\Models\Slider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends Factory<Slider>
- */
 class SliderFactory extends Factory
 {
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
+    protected $model = Slider::class;
+
     public function definition(): array
     {
         return [
-            //
+            'judul' => fake()->sentence(4),
+            'deskripsi' => fake()->sentence(),
+            'image' => fake()->word().'.jpg',
+            'link' => null,
+            'urutan' => fake()->numberBetween(0, 10),
+            'is_active' => true,
         ];
     }
 }

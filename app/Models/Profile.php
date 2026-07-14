@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Profile extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'nama_desa', 'kode_desa', 'kecamatan', 'kabupaten', 'provinsi',
         'alamat', 'kode_pos', 'telepon', 'email', 'website',
