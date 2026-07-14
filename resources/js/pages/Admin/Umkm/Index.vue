@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 import { ref, computed } from 'vue';
@@ -31,7 +31,7 @@ interface UmkmCategory {
 interface UmkmImage {
     id: number;
     umkm_id: number;
-    image: string;
+    file: string;
     caption: string | null;
 }
 
@@ -482,8 +482,8 @@ const executeDeleteCategory = () => {
                             class="group relative aspect-square overflow-hidden rounded-lg border"
                         >
                             <img
-                                :src="`/storage/${image.image}`"
-                                :alt="image.caption || ''"
+                                :src="`/storage/${image.file}`"
+                                :alt="image.file || ''"
                                 class="h-full w-full object-cover"
                             />
                             <Button

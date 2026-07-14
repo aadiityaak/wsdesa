@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 import { ref, computed } from 'vue';
@@ -160,7 +160,7 @@ const formatDate = (date: string) => {
                                 <td class="px-4 py-3 text-zinc-500">{{ item.nik }}</td>
                                 <td class="px-4 py-3">{{ item.jenis_surat }}</td>
                                 <td class="px-4 py-3">
-                                    <Badge :variant="statusVariant(item.status)">
+                                    <Badge :variant="statusClass(item.status)">
                                         {{ statusLabel(item.status) }}
                                     </Badge>
                                 </td>

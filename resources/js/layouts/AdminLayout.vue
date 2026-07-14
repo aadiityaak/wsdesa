@@ -1,6 +1,5 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
 import { Toaster } from '@/components/ui/sonner';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import {
@@ -11,10 +10,12 @@ import {
     SidebarGroupContent,
     SidebarGroupLabel,
     SidebarHeader,
+    SidebarInset,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarProvider,
+    SidebarTrigger,
 } from '@/components/ui/sidebar';
 import NavUser from '@/components/NavUser.vue';
 import {
@@ -80,6 +81,7 @@ const navGroups: NavGroup[] = [
             { title: 'Layanan Surat', href: '/admin/layanan-surat', icon: FileText },
             { title: 'Pengaduan', href: '/admin/pengaduan', icon: MessageSquare },
             { title: 'Galeri', href: '/admin/galeri', icon: Image },
+            { title: 'Video', href: '/admin/video', icon: Image },
             { title: 'UMKM', href: '/admin/umkm', icon: Store },
             { title: 'Potensi Desa', href: '/admin/potensi', icon: TrendingUp },
         ],
@@ -140,11 +142,19 @@ const page = usePage();
             </SidebarFooter>
         </Sidebar>
 
-        <main class="flex-1 overflow-auto">
-            <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <slot />
-            </div>
-        </main>
+        <SidebarInset>
+            <!-- Top header bar with trigger -->
+            <header class="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4 dark:bg-zinc-950">
+                <SidebarTrigger class="-ml-1" />
+                <div class="flex-1" />
+            </header>
+
+            <main class="flex-1">
+                <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+                    <slot />
+                </div>
+            </main>
+        </SidebarInset>
 
         <Toaster />
     </SidebarProvider>

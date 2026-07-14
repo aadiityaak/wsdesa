@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 import { ref } from 'vue';
@@ -94,7 +94,7 @@ const submitStatus = () => {
 
 const submitReply = () => {
     if (!selectedComplaint.value) return;
-    replyForm.post(`/admin/pengaduan/${selectedComplaint.value.id}/balas`, {
+    replyForm.post(`/admin/pengaduan/${selectedComplaint.value.id}/balasan`, {
         onSuccess: () => {
             replyForm.reset();
             toast.success('Balasan berhasil dikirim.');
@@ -180,7 +180,7 @@ const formatDate = (date: string) => {
                                 <td class="px-4 py-3 font-medium">{{ item.nama }}</td>
                                 <td class="px-4 py-3">{{ item.kategori }}</td>
                                 <td class="px-4 py-3">
-                                    <Badge :variant="statusVariant(item.status)">
+                                    <Badge :variant="statusClass(item.status)">
                                         {{ statusLabel(item.status) }}
                                     </Badge>
                                 </td>

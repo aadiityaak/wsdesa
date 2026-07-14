@@ -1,6 +1,17 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface Stats {
+    total_berita: number;
+    total_penduduk: number;
+    total_permohonan_surat: number;
+    total_pengaduan: number;
+}
+
+defineProps<{
+    stats: Stats;
+}>();
 </script>
 
 <template>
@@ -16,7 +27,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
                     <CardTitle class="text-sm font-medium text-zinc-600 dark:text-zinc-400">Total Berita</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p class="text-2xl font-bold">0</p>
+                    <p class="text-2xl font-bold">{{ stats.total_berita }}</p>
                 </CardContent>
             </Card>
             <Card>
@@ -24,7 +35,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
                     <CardTitle class="text-sm font-medium text-zinc-600 dark:text-zinc-400">Total Penduduk</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p class="text-2xl font-bold">0</p>
+                    <p class="text-2xl font-bold">{{ stats.total_penduduk }}</p>
                 </CardContent>
             </Card>
             <Card>
@@ -32,7 +43,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
                     <CardTitle class="text-sm font-medium text-zinc-600 dark:text-zinc-400">Pengajuan Surat</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p class="text-2xl font-bold">0</p>
+                    <p class="text-2xl font-bold">{{ stats.total_permohonan_surat }}</p>
                 </CardContent>
             </Card>
             <Card>
@@ -40,7 +51,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
                     <CardTitle class="text-sm font-medium text-zinc-600 dark:text-zinc-400">Pengaduan</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <p class="text-2xl font-bold">0</p>
+                    <p class="text-2xl font-bold">{{ stats.total_pengaduan }}</p>
                 </CardContent>
             </Card>
         </div>

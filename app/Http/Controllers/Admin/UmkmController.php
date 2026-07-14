@@ -18,7 +18,7 @@ class UmkmController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Umkm/Index', [
-            'umkms' => Umkm::with(['category', 'images'])->latest()->get(),
+            'umkms' => Umkm::with(['category', 'images'])->latest()->paginate(10),
             'categories' => UmkmCategory::orderBy('nama')->get(),
         ]);
     }
