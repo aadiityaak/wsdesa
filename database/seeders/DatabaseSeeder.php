@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // === PROFILE DESA ===
-        Profile::factory()->create();
+        $this->call(ProfileSeeder::class);
 
         // === WILAYAH (data dari Kepmendagri) ===
         $this->call(WilayahSeeder::class);

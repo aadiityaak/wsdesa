@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Profile;
+use App\Models\Wilayah;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -18,6 +19,12 @@ class ProfileController extends Controller
 
         return Inertia::render('Admin/Profil/Edit', [
             'profile' => $profile,
+            'provinsiList' => Wilayah::whereRaw('CHAR_LENGTH(kode) = 2')
+                ->orderBy('nama')->get(['kode', 'nama']),
+            'kabupatenList' => Wilayah::whereRaw('CHAR_LENGTH(kode) = 5')
+                ->orderBy('nama')->get(['kode', 'nama']),
+            'kecamatanList' => Wilayah::whereRaw('CHAR_LENGTH(kode) = 8')
+                ->orderBy('nama')->get(['kode', 'nama']),
         ]);
     }
 

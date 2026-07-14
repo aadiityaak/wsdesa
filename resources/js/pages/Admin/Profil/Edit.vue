@@ -6,7 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Camera } from '@lucide/vue';
-import { ref } from 'vue';
+import { computed, ref, watch } from 'vue';
+import TiptapEditor from '@/components/TiptapEditor.vue';
+
+interface WilayahItem {
+    kode: string;
+    nama: string;
+}
 
 interface Profile {
     id: number;
@@ -41,6 +47,9 @@ interface Profile {
 
 const props = defineProps<{
     profile: Profile;
+    provinsiList: WilayahItem[];
+    kabupatenList: WilayahItem[];
+    kecamatanList: WilayahItem[];
 }>();
 
 const form = useForm({
@@ -92,12 +101,56 @@ const submit = () => {
     });
 };
 
+// Find kode from nama for initial select
+const findKode = (list: WilayahItem[], nama: string): string =>
+    list.find((i) => i.nama === nama)?.kode ?? '';
+
+// Find nama from kode
+const findNama = (list: WilayahItem[], kode: string): string =>
+    list.find((i) => i.kode === kode)?.nama ?? '';
+
+const selectedProvinsiKode = ref(findKode(props.provinsiList, form.provinsi));
+const selectedKabupatenKode = ref(findKode(props.kabupatenList, form.kabupaten));
+const selectedKecamatanKode = ref(findKode(props.kecamatanList, form.kecamatan));
+
+// Filtered lists
+const filteredKabupaten = computed(() =>
+    selectedProvinsiKode.value
+        ? props.kabupatenList.filter((k) => k.kode.startsWith(selectedProvinsiKode.value))
+        : [],
+);
+
+const filteredKecamatan = computed(() =>
+    selectedKabupatenKode.value
+        ? props.kecamatanList.filter((k) => k.kode.startsWith(selectedKabupatenKode.value))
+        : [],
+);
+
+// When provinsi changes, update form + clear children
+watch(selectedProvinsiKode, (newKode) => {
+    form.provinsi = findNama(props.provinsiList, newKode);
+    if (!newKode.startsWith(selectedKabupatenKode.value.slice(0, 2))) {
+        selectedKabupatenKode.value = '';
+        selectedKecamatanKode.value = '';
+        form.kabupaten = '';
+        form.kecamatan = '';
+    }
+});
+
+watch(selectedKabupatenKode, (newKode) => {
+    form.kabupaten = findNama(props.kabupatenList, newKode);
+    if (!newKode.startsWith(selectedKecamatanKode.value.slice(0, 5))) {
+        selectedKecamatanKode.value = '';
+        form.kecamatan = '';
+    }
+});
+
+watch(selectedKecamatanKode, (newKode) => {
+    form.kecamatan = findNama(props.kecamatanList, newKode);
+});
+
+// Text / Media / Geo field arrays
 const textFields: { key: keyof typeof form; label: string; type?: string }[] = [
-    { key: 'nama_desa', label: 'Nama Desa' },
-    { key: 'kode_desa', label: 'Kode Desa' },
-    { key: 'kecamatan', label: 'Kecamatan' },
-    { key: 'kabupaten', label: 'Kabupaten' },
-    { key: 'provinsi', label: 'Provinsi' },
     { key: 'alamat', label: 'Alamat' },
     { key: 'kode_pos', label: 'Kode Pos' },
     { key: 'telepon', label: 'Telepon' },
@@ -129,7 +182,11 @@ const geoFields: { key: keyof typeof form; label: string }[] = [
     <Head title="Profil Desa" />
 
     <div class="space-y-6">
-        <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Profil Desa</h1>
+        <h1
+            class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white"
+        >
+            Profil Desa
+        </h1>
 
         <form @submit.prevent="submit" class="space-y-6">
             <!-- Data Dasar -->
@@ -137,9 +194,98 @@ const geoFields: { key: keyof typeof form; label: string }[] = [
                 <CardHeader>
                     <CardTitle>Data Dasar</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent class="space-y-5">
+                    <!-- Nama Desa & Kode Desa -->
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div v-for="field in textFields" :key="field.key" class="grid gap-1.5">
+                        <div class="grid gap-1.5">
+                            <Label for="nama_desa">Nama Desa</Label>
+                            <Input
+                                id="nama_desa"
+                                v-model="form.nama_desa"
+                                type="text"
+                            />
+                        </div>
+                        <div class="grid gap-1.5">
+                            <Label for="kode_desa">Kode Desa</Label>
+                            <Input
+                                id="kode_desa"
+                                v-model="form.kode_desa"
+                                type="text"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Wilayah (cascading selects) -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-3"
+                    >
+                        <div class="grid gap-1.5">
+                            <Label for="provinsi">Provinsi</Label>
+                            <select
+                                id="provinsi"
+                                v-model="selectedProvinsiKode"
+                                class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <option value="" disabled>Pilih Provinsi</option>
+                                <option
+                                    v-for="item in provinsiList"
+                                    :key="item.kode"
+                                    :value="item.kode"
+                                >
+                                    {{ item.nama }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="grid gap-1.5">
+                            <Label for="kabupaten">Kabupaten</Label>
+                            <select
+                                id="kabupaten"
+                                v-model="selectedKabupatenKode"
+                                :disabled="!selectedProvinsiKode"
+                                class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <option value="" disabled>
+                                    {{ selectedProvinsiKode ? 'Pilih Kabupaten' : 'Pilih provinsi dulu' }}
+                                </option>
+                                <option
+                                    v-for="item in filteredKabupaten"
+                                    :key="item.kode"
+                                    :value="item.kode"
+                                >
+                                    {{ item.nama }}
+                                </option>
+                            </select>
+                        </div>
+
+                        <div class="grid gap-1.5">
+                            <Label for="kecamatan">Kecamatan</Label>
+                            <select
+                                id="kecamatan"
+                                v-model="selectedKecamatanKode"
+                                :disabled="!selectedKabupatenKode"
+                                class="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                <option value="" disabled>
+                                    {{ selectedKabupatenKode ? 'Pilih Kecamatan' : 'Pilih kabupaten dulu' }}
+                                </option>
+                                <option
+                                    v-for="item in filteredKecamatan"
+                                    :key="item.kode"
+                                    :value="item.kode"
+                                >
+                                    {{ item.nama }}
+                                </option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Other text fields -->
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div
+                            v-for="field in textFields"
+                            :key="field.key"
+                            class="grid gap-1.5"
+                        >
                             <Label :for="field.key">{{ field.label }}</Label>
                             <Input
                                 :id="field.key"
@@ -189,7 +335,11 @@ const geoFields: { key: keyof typeof form; label: string }[] = [
                         </div>
                     </div>
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <div v-for="field in mediaFields" :key="field.key" class="grid gap-1.5">
+                        <div
+                            v-for="field in mediaFields"
+                            :key="field.key"
+                            class="grid gap-1.5"
+                        >
                             <Label :for="field.key">{{ field.label }}</Label>
                             <Input
                                 :id="field.key"
@@ -208,8 +358,14 @@ const geoFields: { key: keyof typeof form; label: string }[] = [
                     <CardTitle>Geografi</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                        <div v-for="field in geoFields" :key="field.key" class="grid gap-1.5">
+                    <div
+                        class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+                    >
+                        <div
+                            v-for="field in geoFields"
+                            :key="field.key"
+                            class="grid gap-1.5"
+                        >
                             <Label :for="field.key">{{ field.label }}</Label>
                             <Input
                                 :id="field.key"
@@ -229,21 +385,21 @@ const geoFields: { key: keyof typeof form; label: string }[] = [
                 <CardContent class="space-y-4">
                     <div class="grid gap-1.5">
                         <Label for="visi">Visi</Label>
-                        <textarea
+                        <TiptapEditor
                             id="visi"
                             v-model="form.visi"
-                            rows="3"
-                            class="w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30"
-                        ></textarea>
+                            placeholder="Tulis visi desa..."
+                            :min-height="'100px'"
+                        />
                     </div>
                     <div class="grid gap-1.5">
                         <Label for="misi">Misi</Label>
-                        <textarea
+                        <TiptapEditor
                             id="misi"
                             v-model="form.misi"
-                            rows="5"
-                            class="w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30"
-                        ></textarea>
+                            placeholder="Tulis misi desa..."
+                            :min-height="'160px'"
+                        />
                     </div>
                 </CardContent>
             </Card>
@@ -256,12 +412,12 @@ const geoFields: { key: keyof typeof form; label: string }[] = [
                 <CardContent>
                     <div class="grid gap-1.5">
                         <Label for="sejarah">Sejarah Desa</Label>
-                        <textarea
+                        <TiptapEditor
                             id="sejarah"
                             v-model="form.sejarah"
-                            rows="8"
-                            class="w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none transition-[color,box-shadow] placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 dark:bg-input/30"
-                        ></textarea>
+                            placeholder="Tulis sejarah desa..."
+                            :min-height="'250px'"
+                        />
                     </div>
                 </CardContent>
             </Card>
