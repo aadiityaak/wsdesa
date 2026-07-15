@@ -193,8 +193,9 @@ const isActive = computed(() => ({
 </template>
 
 <style scoped>
-.tiptap:focus {
-    outline: none;
+.tiptap:focus,
+.ProseMirror:focus {
+    outline: none !important;
 }
 
 .tiptap p {
