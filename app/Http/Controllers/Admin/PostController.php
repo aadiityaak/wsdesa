@@ -42,7 +42,13 @@ class PostController extends Controller
             'status' => ['required', 'in:draft,publish,archive'],
         ]);
 
-        $validated['slug'] = Str::slug($validated['judul']);
+        $baseSlug = Str::slug($validated['judul']);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Post::where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$counter++;
+        }
+        $validated['slug'] = $slug;
         $validated['user_id'] = $request->user()->id;
 
         if ($request->hasFile('thumbnail')) {
@@ -77,7 +83,15 @@ class PostController extends Controller
             'status' => ['required', 'in:draft,publish,archive'],
         ]);
 
-        $validated['slug'] = Str::slug($validated['judul']);
+        if ($validated['judul'] !== $post->judul) {
+            $baseSlug = Str::slug($validated['judul']);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (Post::where('slug', $slug)->where('id', '!=', $post->id)->exists()) {
+                $slug = $baseSlug.'-'.$counter++;
+            }
+            $validated['slug'] = $slug;
+        }
 
         if ($request->hasFile('thumbnail')) {
             if ($post->thumbnail) {

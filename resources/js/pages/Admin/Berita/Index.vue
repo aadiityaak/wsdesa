@@ -21,6 +21,7 @@ interface Post {
     judul: string;
     slug: string;
     post_category_id: number;
+    thumbnail_url: string | null;
     status: string;
     views: number;
     published_at: string | null;
@@ -160,6 +161,7 @@ const formatDate = (date: string | null) => {
                         <thead>
                             <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
                                 <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400 w-12">#</th>
+                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400 w-16">Thumbnail</th>
                                 <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Judul</th>
                                 <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Kategori</th>
                                 <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Status</th>
@@ -175,6 +177,15 @@ const formatDate = (date: string | null) => {
                                 class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                             >
                                 <td class="px-4 py-3 text-zinc-500">{{ (posts.from ?? 1) + index }}</td>
+                                <td class="px-4 py-3">
+                                    <img
+                                        v-if="post.thumbnail_url"
+                                        :src="post.thumbnail_url"
+                                        alt="Thumbnail"
+                                        class="size-10 rounded object-cover"
+                                    />
+                                    <span v-else class="text-zinc-400">-</span>
+                                </td>
                                 <td class="px-4 py-3 font-medium max-w-xs truncate">{{ post.judul }}</td>
                                 <td class="px-4 py-3 text-zinc-500">{{ post.category?.nama || '-' }}</td>
                                 <td class="px-4 py-3">
@@ -201,7 +212,7 @@ const formatDate = (date: string | null) => {
                                 </td>
                             </tr>
                             <tr v-if="posts.data.length === 0">
-                                <td colspan="7" class="px-4 py-12 text-center text-zinc-500">
+                                <td colspan="8" class="px-4 py-12 text-center text-zinc-500">
                                     Belum ada berita.
                                 </td>
                             </tr>

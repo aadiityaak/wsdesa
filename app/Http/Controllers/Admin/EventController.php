@@ -20,6 +20,12 @@ class EventController extends Controller
             'events' => Event::with('category')
                 ->orderBy('tanggal_mulai')
                 ->paginate(15),
+        ]);
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Agenda/Form', [
             'categories' => EventCategory::orderBy('nama')->get(),
         ]);
     }
@@ -37,7 +43,13 @@ class EventController extends Controller
             'image' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $validated['slug'] = Str::slug($validated['judul']);
+        $baseSlug = Str::slug($validated['judul']);
+        $slug = $baseSlug;
+        $counter = 1;
+        while (Event::where('slug', $slug)->exists()) {
+            $slug = $baseSlug.'-'.$counter++;
+        }
+        $validated['slug'] = $slug;
 
         if ($request->hasFile('image')) {
             $validated['image'] = $request->file('image')->store('events', 'public');
@@ -45,7 +57,15 @@ class EventController extends Controller
 
         Event::create($validated);
 
-        return back()->with('success', 'Agenda berhasil ditambahkan.');
+        return redirect()->route('admin.agenda.index')->with('success', 'Agenda berhasil ditambahkan.');
+    }
+
+    public function edit(Event $event): Response
+    {
+        return Inertia::render('Admin/Agenda/Form', [
+            'event' => $event->load('category'),
+            'categories' => EventCategory::orderBy('nama')->get(),
+        ]);
     }
 
     public function update(Request $request, Event $event): RedirectResponse
@@ -61,7 +81,15 @@ class EventController extends Controller
             'image' => ['nullable', 'image', 'max:2048'],
         ]);
 
-        $validated['slug'] = Str::slug($validated['judul']);
+        if ($validated['judul'] !== $event->judul) {
+            $baseSlug = Str::slug($validated['judul']);
+            $slug = $baseSlug;
+            $counter = 1;
+            while (Event::where('slug', $slug)->where('id', '!=', $event->id)->exists()) {
+                $slug = $baseSlug.'-'.$counter++;
+            }
+            $validated['slug'] = $slug;
+        }
 
         if ($request->hasFile('image')) {
             if ($event->image) {
@@ -72,7 +100,7 @@ class EventController extends Controller
 
         $event->update($validated);
 
-        return back()->with('success', 'Agenda berhasil diperbarui.');
+        return redirect()->route('admin.agenda.index')->with('success', 'Agenda berhasil diperbarui.');
     }
 
     public function destroy(Event $event): RedirectResponse

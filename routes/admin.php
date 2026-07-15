@@ -67,7 +67,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Agenda
     Route::get('/agenda', [EventController::class, 'index'])->name('agenda.index');
+    Route::get('/agenda/tambah', [EventController::class, 'create'])->name('agenda.create');
     Route::post('/agenda', [EventController::class, 'store'])->name('agenda.store');
+    Route::get('/agenda/{event}/edit', [EventController::class, 'edit'])->name('agenda.edit');
     Route::put('/agenda/{event}', [EventController::class, 'update'])->name('agenda.update');
     Route::delete('/agenda/{event}', [EventController::class, 'destroy'])->name('agenda.destroy');
 

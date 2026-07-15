@@ -183,8 +183,9 @@ const isActive = computed(() => ({
 
         <!-- Editor Content -->
         <div
-            class="prose prose-sm max-w-none px-3.5 py-3"
+            class="prose prose-sm max-w-none cursor-text px-3.5 py-3"
             :style="{ minHeight: minHeight ?? '120px' }"
+            @click="editor?.chain().focus().run()"
         >
             <EditorContent :editor="editor" />
         </div>

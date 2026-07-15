@@ -72,17 +72,14 @@ const slugify = (text: string) => {
 
 const submitForm = () => {
     if (isEdit.value) {
-        form.put(`/admin/berita/${props.post!.id}`, {
-            onSuccess: () => {
-                router.visit('/admin/berita');
-            },
-        });
+        const url = `/admin/berita/${props.post!.id}`;
+        if (form.thumbnail instanceof File) {
+            form.transform((data) => ({ ...data, _method: 'put' })).post(url);
+        } else {
+            form.put(url);
+        }
     } else {
-        form.post('/admin/berita', {
-            onSuccess: () => {
-                router.visit('/admin/berita');
-            },
-        });
+        form.post('/admin/berita');
     }
 };
 </script>
@@ -104,6 +101,7 @@ const submitForm = () => {
                     <div class="grid gap-1.5">
                         <Label for="judul">Judul</Label>
                         <Input id="judul" v-model="form.judul" required />
+                        <p v-if="form.errors.judul" class="text-sm text-red-500">{{ form.errors.judul }}</p>
                     </div>
 
                     <div class="grid gap-1.5">
@@ -122,6 +120,7 @@ const submitForm = () => {
                                 </SelectItem>
                             </SelectContent>
                         </Select>
+                        <p v-if="form.errors.post_category_id" class="text-sm text-red-500">{{ form.errors.post_category_id }}</p>
                     </div>
 
                     <div class="grid gap-1.5">
@@ -132,6 +131,7 @@ const submitForm = () => {
                             placeholder="Tulis ringkasan berita..."
                             :min-height="'100px'"
                         />
+                        <p v-if="form.errors.ringkasan" class="text-sm text-red-500">{{ form.errors.ringkasan }}</p>
                     </div>
 
                     <div class="grid gap-1.5">
@@ -142,6 +142,7 @@ const submitForm = () => {
                             placeholder="Tulis konten berita..."
                             :min-height="'300px'"
                         />
+                        <p v-if="form.errors.konten" class="text-sm text-red-500">{{ form.errors.konten }}</p>
                     </div>
 
                     <div class="grid gap-1.5">
@@ -184,6 +185,7 @@ const submitForm = () => {
                                 <p class="text-sm text-zinc-500">
                                     Format: JPG, PNG, WEBP. Maksimal 2MB.
                                 </p>
+                                <p v-if="form.errors.thumbnail" class="text-sm text-red-500">{{ form.errors.thumbnail }}</p>
                             </div>
                         </div>
                     </div>
@@ -200,6 +202,7 @@ const submitForm = () => {
                                 <SelectItem value="archive">Diarsipkan</SelectItem>
                             </SelectContent>
                         </Select>
+                        <p v-if="form.errors.status" class="text-sm text-red-500">{{ form.errors.status }}</p>
                     </div>
 
                     <div class="flex items-center gap-4 pt-4">
