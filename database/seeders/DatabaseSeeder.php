@@ -45,12 +45,26 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // === ADMIN USER ===
+        // === USERS ===
         User::factory()->create([
-            'name' => 'Administrator',
-            'email' => 'test@example.com',
+            'name' => 'Super Admin',
+            'email' => 'superadmin@example.com',
             'password' => Hash::make('password'),
             'role' => 'super_admin',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Pengurus Desa',
+            'email' => 'admin@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'operator',
+        ]);
+
+        User::factory()->create([
+            'name' => 'Warga',
+            'email' => 'warga@example.com',
+            'password' => Hash::make('password'),
+            'role' => 'operator',
         ]);
 
         // === PROFILE DESA ===

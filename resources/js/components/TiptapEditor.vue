@@ -1,9 +1,9 @@
-<script setup lang="ts">
+ <script setup lang="ts">
 import { useEditor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import { Bold, Italic, Heading2, Heading3, List, ListOrdered, Link as LinkIcon, Undo2, Redo2 } from '@lucide/vue';
-import { computed, watch, ref } from 'vue';
+import { computed, watch } from 'vue';
 
 const props = defineProps<{
     modelValue: string;
@@ -23,7 +23,9 @@ const editor = useEditor({
         }),
         Link.configure({
             openOnClick: false,
-            HTMLAttributes: { class: 'text-[#d4a056] underline underline-offset-2 hover:text-[#c08f40]' },
+            HTMLAttributes: {
+                class: 'text-rose-500 underline underline-offset-2 hover:text-rose-600',
+            },
         }),
     ],
     onUpdate: ({ editor }) => {
@@ -64,126 +66,65 @@ const isActive = computed(() => ({
     orderedList: editor.value?.isActive('orderedList') ?? false,
     link: editor.value?.isActive('link') ?? false,
 }));
+
+const btnClass = 'rounded-lg p-1.5 transition-colors';
+
+const btnActive = 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300';
+const btnInactive = 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200';
 </script>
 
 <template>
     <div
-        class="overflow-hidden rounded-lg border border-[#e3ddd2] bg-white shadow-sm transition-all duration-200 focus-within:border-[#d4a056] focus-within:ring-[#d4a056]/30 focus-within:ring-[3px]"
+        class="overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-xs transition-all duration-200 focus-within:border-rose-300 focus-within:ring-[3px] focus-within:ring-rose-200 dark:border-zinc-700 dark:bg-zinc-900 dark:focus-within:border-rose-400 dark:focus-within:ring-rose-900"
     >
         <!-- Toolbar -->
         <div
-            class="flex flex-wrap items-center gap-0.5 border-b border-[#e3ddd2] bg-[#faf8f5] px-2 py-1.5"
+            class="flex flex-wrap items-center gap-0.5 border-b border-zinc-200 bg-zinc-50 px-2 py-1.5 dark:border-zinc-700 dark:bg-zinc-800/50"
         >
-            <button
-                type="button"
-                title="Bold"
-                @click="editor?.chain().focus().toggleBold().run()"
-                :class="[
-                    'rounded-md p-1.5 transition-colors',
-                    isActive.bold ? 'bg-[#d4a056]/15 text-[#1a1410]' : 'text-[#5a5142] hover:bg-[#e3ddd2] hover:text-[#1a1410]',
-                ]"
-            >
+            <button type="button" title="Bold" @click="editor?.chain().focus().toggleBold().run()" :class="[btnClass, isActive.bold ? btnActive : btnInactive]">
                 <Bold class="size-4" />
             </button>
-            <button
-                type="button"
-                title="Italic"
-                @click="editor?.chain().focus().toggleItalic().run()"
-                :class="[
-                    'rounded-md p-1.5 transition-colors',
-                    isActive.italic ? 'bg-[#d4a056]/15 text-[#1a1410]' : 'text-[#5a5142] hover:bg-[#e3ddd2] hover:text-[#1a1410]',
-                ]"
-            >
+            <button type="button" title="Italic" @click="editor?.chain().focus().toggleItalic().run()" :class="[btnClass, isActive.italic ? btnActive : btnInactive]">
                 <Italic class="size-4" />
             </button>
 
-            <span class="mx-1 h-5 w-px bg-[#e3ddd2]" />
+            <span class="mx-1 h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
 
-            <button
-                type="button"
-                title="Heading 2"
-                @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
-                :class="[
-                    'rounded-md p-1.5 transition-colors',
-                    isActive.heading2 ? 'bg-[#d4a056]/15 text-[#1a1410]' : 'text-[#5a5142] hover:bg-[#e3ddd2] hover:text-[#1a1410]',
-                ]"
-            >
+            <button type="button" title="Heading 2" @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()" :class="[btnClass, isActive.heading2 ? btnActive : btnInactive]">
                 <Heading2 class="size-4" />
             </button>
-            <button
-                type="button"
-                title="Heading 3"
-                @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()"
-                :class="[
-                    'rounded-md p-1.5 transition-colors',
-                    isActive.heading3 ? 'bg-[#d4a056]/15 text-[#1a1410]' : 'text-[#5a5142] hover:bg-[#e3ddd2] hover:text-[#1a1410]',
-                ]"
-            >
+            <button type="button" title="Heading 3" @click="editor?.chain().focus().toggleHeading({ level: 3 }).run()" :class="[btnClass, isActive.heading3 ? btnActive : btnInactive]">
                 <Heading3 class="size-4" />
             </button>
 
-            <span class="mx-1 h-5 w-px bg-[#e3ddd2]" />
+            <span class="mx-1 h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
 
-            <button
-                type="button"
-                title="Bullet List"
-                @click="editor?.chain().focus().toggleBulletList().run()"
-                :class="[
-                    'rounded-md p-1.5 transition-colors',
-                    isActive.bulletList ? 'bg-[#d4a056]/15 text-[#1a1410]' : 'text-[#5a5142] hover:bg-[#e3ddd2] hover:text-[#1a1410]',
-                ]"
-            >
+            <button type="button" title="Bullet List" @click="editor?.chain().focus().toggleBulletList().run()" :class="[btnClass, isActive.bulletList ? btnActive : btnInactive]">
                 <List class="size-4" />
             </button>
-            <button
-                type="button"
-                title="Ordered List"
-                @click="editor?.chain().focus().toggleOrderedList().run()"
-                :class="[
-                    'rounded-md p-1.5 transition-colors',
-                    isActive.orderedList ? 'bg-[#d4a056]/15 text-[#1a1410]' : 'text-[#5a5142] hover:bg-[#e3ddd2] hover:text-[#1a1410]',
-                ]"
-            >
+            <button type="button" title="Ordered List" @click="editor?.chain().focus().toggleOrderedList().run()" :class="[btnClass, isActive.orderedList ? btnActive : btnInactive]">
                 <ListOrdered class="size-4" />
             </button>
 
-            <span class="mx-1 h-5 w-px bg-[#e3ddd2]" />
+            <span class="mx-1 h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
 
-            <button
-                type="button"
-                title="Link"
-                @click="setLink"
-                :class="[
-                    'rounded-md p-1.5 transition-colors',
-                    isActive.link ? 'bg-[#d4a056]/15 text-[#1a1410]' : 'text-[#5a5142] hover:bg-[#e3ddd2] hover:text-[#1a1410]',
-                ]"
-            >
+            <button type="button" title="Link" @click="setLink" :class="[btnClass, isActive.link ? btnActive : btnInactive]">
                 <LinkIcon class="size-4" />
             </button>
 
-            <span class="mx-1 h-5 w-px bg-[#e3ddd2]" />
+            <span class="mx-1 h-5 w-px bg-zinc-200 dark:bg-zinc-700" />
 
-            <button
-                type="button"
-                title="Undo"
-                @click="editor?.chain().focus().undo().run()"
-                class="rounded-md p-1.5 text-[#5a5142] transition-colors hover:bg-[#e3ddd2] hover:text-[#1a1410]"
-            >
+            <button type="button" title="Undo" @click="editor?.chain().focus().undo().run()" :class="btnInactive">
                 <Undo2 class="size-4" />
             </button>
-            <button
-                type="button"
-                title="Redo"
-                @click="editor?.chain().focus().redo().run()"
-                class="rounded-md p-1.5 text-[#5a5142] transition-colors hover:bg-[#e3ddd2] hover:text-[#1a1410]"
-            >
+            <button type="button" title="Redo" @click="editor?.chain().focus().redo().run()" :class="btnInactive">
                 <Redo2 class="size-4" />
             </button>
         </div>
 
         <!-- Editor Content -->
         <div
-            class="prose prose-sm max-w-none cursor-text px-3.5 py-3"
+            class="prose prose-sm max-w-none cursor-text px-3.5 py-3 dark:prose-invert"
             :style="{ minHeight: minHeight ?? '120px' }"
             @click="editor?.chain().focus().run()"
         >
@@ -193,8 +134,9 @@ const isActive = computed(() => ({
 </template>
 
 <style scoped>
-.tiptap:focus,
-.ProseMirror:focus {
+:deep(.tiptap:focus),
+:deep(.ProseMirror:focus),
+:deep(.ProseMirror-focused) {
     outline: none !important;
 }
 
@@ -206,14 +148,12 @@ const isActive = computed(() => ({
     font-size: 1.25rem;
     font-weight: 600;
     margin: 0.75em 0 0.25em;
-    color: #1a1410;
 }
 
 .tiptap h3 {
     font-size: 1.1rem;
     font-weight: 600;
     margin: 0.5em 0 0.25em;
-    color: #1a1410;
 }
 
 .tiptap ul,
@@ -227,17 +167,17 @@ const isActive = computed(() => ({
 }
 
 .tiptap a {
-    color: #d4a056;
+    color: #f43f5e;
     text-decoration: underline;
     text-underline-offset: 2px;
 }
 
 .tiptap a:hover {
-    color: #c08f40;
+    color: #e11d48;
 }
 
 .tiptap p.is-editor-empty:first-child::before {
-    color: #a89c8b;
+    color: #a1a1aa;
     content: attr(data-placeholder);
     float: left;
     height: 0;
