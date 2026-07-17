@@ -1,10 +1,10 @@
-<script setup lang="ts">
+ <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { computed, ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import TiptapEditor from '@/components/TiptapEditor.vue';
 import {
     Select,
     SelectContent,
@@ -12,6 +12,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { ArrowLeft, Camera, Save } from '@lucide/vue';
 
 interface EventCategory {
     id: number;
@@ -51,16 +52,34 @@ const form = useForm({
     image: null as File | null,
 });
 
+const gambarPreview = ref<string | null>(
+    props.event?.image ? `/storage/${props.event.image}` : null,
+);
+
+const onGambarChange = (e: Event) => {
+    const file = (e.target as HTMLInputElement).files?.[0] ?? null;
+    form.image = file;
+    if (file) {
+        gambarPreview.value = URL.createObjectURL(file);
+    }
+};
+
 const submitForm = () => {
     if (isEdit.value) {
         const url = `/admin/agenda/${props.event!.id}`;
         if (form.image instanceof File) {
-            form.transform((data) => ({ ...data, _method: 'put' })).post(url);
+            form.transform((data) => ({ ...data, _method: 'put' })).post(url, {
+                onSuccess: () => router.visit('/admin/agenda'),
+            });
         } else {
-            form.put(url);
+            form.put(url, {
+                onSuccess: () => router.visit('/admin/agenda'),
+            });
         }
     } else {
-        form.post('/admin/agenda');
+        form.post('/admin/agenda', {
+            onSuccess: () => router.visit('/admin/agenda'),
+        });
     }
 };
 </script>
@@ -68,109 +87,186 @@ const submitForm = () => {
 <template>
     <Head :title="isEdit ? 'Edit Agenda' : 'Tambah Agenda'" />
 
-    <div class="space-y-6">
-        <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-            {{ isEdit ? 'Edit Agenda' : 'Tambah Agenda' }}
-        </h1>
+    <div class="relative">
+        <!-- Hero banner -->
+        <div class="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-50 to-white px-6 py-8 shadow-sm ring-1 ring-zinc-100 dark:from-zinc-900 dark:to-zinc-950 dark:ring-zinc-800 sm:px-10 sm:py-10">
+            <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-rose-100/40 blur-3xl dark:bg-rose-900/10" aria-hidden="true" />
+            <div class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-amber-100/30 blur-3xl dark:bg-amber-900/10" aria-hidden="true" />
 
-        <Card>
-            <CardHeader>
-                <CardTitle>{{ isEdit ? 'Form Edit Agenda' : 'Form Tambah Agenda' }}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form @submit.prevent="submitForm" class="space-y-6 max-w-2xl">
-                    <div class="grid gap-1.5">
-                        <Label for="judul">Judul</Label>
-                        <Input id="judul" v-model="form.judul" required />
-                        <p v-if="form.errors.judul" class="text-sm text-red-500">{{ form.errors.judul }}</p>
-                    </div>
+            <div class="relative flex items-center gap-4">
+                <Button variant="ghost" size="icon" as="a" href="/admin/agenda" class="rounded-full">
+                    <ArrowLeft class="h-5 w-5" />
+                </Button>
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">
+                        {{ isEdit ? 'Edit Agenda' : 'Tambah Agenda' }}
+                    </h1>
+                    <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                        {{ isEdit ? 'Perbarui agenda dan kegiatan desa' : 'Buat agenda baru untuk desa' }}
+                    </p>
+                </div>
+            </div>
+        </div>
 
-                    <div class="grid gap-1.5">
-                        <Label for="event_category_id">Kategori</Label>
-                        <Select v-model="form.event_category_id">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Pilih kategori" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem
-                                    v-for="cat in categories"
-                                    :key="cat.id"
-                                    :value="cat.id.toString()"
-                                >
-                                    {{ cat.nama }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <p v-if="form.errors.event_category_id" class="text-sm text-red-500">{{ form.errors.event_category_id }}</p>
-                    </div>
-
-                    <div class="grid gap-1.5">
-                        <Label for="deskripsi">Deskripsi</Label>
-                        <textarea
-                            id="deskripsi"
-                            v-model="form.deskripsi"
-                            rows="4"
-                            class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                            required
-                        ></textarea>
-                        <p v-if="form.errors.deskripsi" class="text-sm text-red-500">{{ form.errors.deskripsi }}</p>
-                    </div>
-
-                    <div class="grid gap-1.5">
-                        <Label for="lokasi">Lokasi</Label>
-                        <Input id="lokasi" v-model="form.lokasi" />
-                        <p v-if="form.errors.lokasi" class="text-sm text-red-500">{{ form.errors.lokasi }}</p>
-                    </div>
-
-                    <div class="grid grid-cols-2 gap-4">
+        <form @submit.prevent="submitForm">
+            <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
+                <!-- Main -->
+                <div class="space-y-6 lg:col-span-2">
+                    <!-- Judul -->
+                    <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
                         <div class="grid gap-1.5">
-                            <Label for="tanggal_mulai">Tanggal Mulai</Label>
-                            <Input id="tanggal_mulai" v-model="form.tanggal_mulai" type="datetime-local" required />
-                            <p v-if="form.errors.tanggal_mulai" class="text-sm text-red-500">{{ form.errors.tanggal_mulai }}</p>
-                        </div>
-                        <div class="grid gap-1.5">
-                            <Label for="tanggal_selesai">Tanggal Selesai</Label>
-                            <Input id="tanggal_selesai" v-model="form.tanggal_selesai" type="datetime-local" />
-                            <p v-if="form.errors.tanggal_selesai" class="text-sm text-red-500">{{ form.errors.tanggal_selesai }}</p>
+                            <Label for="judul" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Judul Agenda</Label>
+                            <Input
+                                id="judul"
+                                v-model="form.judul"
+                                required
+                                placeholder="Masukkan judul agenda..."
+                                class="rounded-xl border-zinc-200 text-base focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                            />
+                            <p v-if="form.errors.judul" class="text-sm text-red-500">{{ form.errors.judul }}</p>
                         </div>
                     </div>
 
-                    <div class="grid gap-1.5">
-                        <Label for="status">Status</Label>
-                        <Select v-model="form.status">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Pilih status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="upcoming">Akan Datang</SelectItem>
-                                <SelectItem value="ongoing">Berlangsung</SelectItem>
-                                <SelectItem value="done">Selesai</SelectItem>
-                            </SelectContent>
-                        </Select>
-                        <p v-if="form.errors.status" class="text-sm text-red-500">{{ form.errors.status }}</p>
+                    <!-- Deskripsi -->
+                    <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+                        <div class="grid gap-1.5">
+                            <Label for="deskripsi" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Deskripsi</Label>
+                            <TiptapEditor
+                                id="deskripsi"
+                                v-model="form.deskripsi"
+                                placeholder="Tulis deskripsi agenda..."
+                                :min-height="'250px'"
+                            />
+                            <p v-if="form.errors.deskripsi" class="text-sm text-red-500">{{ form.errors.deskripsi }}</p>
+                        </div>
                     </div>
 
-                    <div class="grid gap-1.5">
-                        <Label for="image">Gambar</Label>
-                        <Input
-                            id="image"
-                            type="file"
-                            accept="image/*"
-                            @input="(e: Event) => (form.image = (e.target as HTMLInputElement).files?.[0] ?? null)"
-                        />
-                        <p v-if="form.errors.image" class="text-sm text-red-500">{{ form.errors.image }}</p>
+                    <!-- Waktu -->
+                    <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+                        <h3 class="mb-4 text-sm font-semibold text-zinc-800 dark:text-zinc-200">Waktu</h3>
+                        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                            <div class="grid gap-1.5">
+                                <Label for="tanggal_mulai" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Tanggal Mulai</Label>
+                                <Input
+                                    id="tanggal_mulai"
+                                    v-model="form.tanggal_mulai"
+                                    type="datetime-local"
+                                    required
+                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                />
+                                <p v-if="form.errors.tanggal_mulai" class="text-sm text-red-500">{{ form.errors.tanggal_mulai }}</p>
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="tanggal_selesai" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Tanggal Selesai</Label>
+                                <Input
+                                    id="tanggal_selesai"
+                                    v-model="form.tanggal_selesai"
+                                    type="datetime-local"
+                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                />
+                                <p v-if="form.errors.tanggal_selesai" class="text-sm text-red-500">{{ form.errors.tanggal_selesai }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Kategori & Status -->
+                    <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+                        <h3 class="mb-4 text-sm font-semibold text-zinc-800 dark:text-zinc-200">Pengaturan</h3>
+                        <div class="space-y-5">
+                            <div class="grid gap-1.5">
+                                <Label for="event_category_id" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Kategori</Label>
+                                <Select v-model="form.event_category_id">
+                                    <SelectTrigger class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700">
+                                        <SelectValue placeholder="Pilih kategori" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="">Tidak ada</SelectItem>
+                                        <SelectItem v-for="cat in categories" :key="cat.id" :value="cat.id.toString()">
+                                            {{ cat.nama }}
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p v-if="form.errors.event_category_id" class="text-sm text-red-500">{{ form.errors.event_category_id }}</p>
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="status" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Status</Label>
+                                <Select v-model="form.status">
+                                    <SelectTrigger class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700">
+                                        <SelectValue placeholder="Pilih status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="upcoming">Akan Datang</SelectItem>
+                                        <SelectItem value="ongoing">Berlangsung</SelectItem>
+                                        <SelectItem value="done">Selesai</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <p v-if="form.errors.status" class="text-sm text-red-500">{{ form.errors.status }}</p>
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="lokasi" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Lokasi</Label>
+                                <Input
+                                    id="lokasi"
+                                    v-model="form.lokasi"
+                                    placeholder="Masukkan lokasi..."
+                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                />
+                                <p v-if="form.errors.lokasi" class="text-sm text-red-500">{{ form.errors.lokasi }}</p>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="flex items-center gap-4 pt-4">
-                        <Button type="submit" :disabled="form.processing">
+                    <!-- Gambar -->
+                    <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+                        <h3 class="mb-4 text-sm font-semibold text-zinc-800 dark:text-zinc-200">Gambar</h3>
+                        <div class="grid gap-4">
+                            <div class="flex items-center justify-center overflow-hidden rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800">
+                                <img
+                                    v-if="gambarPreview"
+                                    :src="gambarPreview"
+                                    alt="Preview"
+                                    class="w-full object-cover"
+                                    style="max-height: 180px;"
+                                />
+                                <div v-else class="flex h-36 w-full items-center justify-center text-zinc-300 dark:text-zinc-600">
+                                    <Camera class="h-10 w-10" />
+                                </div>
+                            </div>
+                            <div class="grid gap-1.5">
+                                <Label for="image" class="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-700 shadow-xs transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700">
+                                    <Camera class="h-4 w-4" />
+                                    Pilih Gambar
+                                </Label>
+                                <Input
+                                    id="image"
+                                    type="file"
+                                    accept="image/*"
+                                    class="hidden"
+                                    @input="onGambarChange"
+                                />
+                                <p v-if="form.errors.image" class="text-sm text-red-500">{{ form.errors.image }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="flex flex-col gap-3">
+                        <Button
+                            type="submit"
+                            :disabled="form.processing"
+                            class="w-full gap-2 rounded-full bg-rose-500 text-white shadow-sm hover:bg-rose-600"
+                        >
+                            <Save class="h-4 w-4" />
                             {{ isEdit ? 'Simpan Perubahan' : 'Tambah Agenda' }}
                         </Button>
-                        <Button type="button" variant="outline" @click="router.visit('/admin/agenda')">
+                        <Button type="button" variant="outline" class="w-full rounded-full" @click="router.visit('/admin/agenda')">
                             Batal
                         </Button>
                     </div>
-                </form>
-            </CardContent>
-        </Card>
+                </div>
+            </div>
+        </form>
     </div>
 </template>
