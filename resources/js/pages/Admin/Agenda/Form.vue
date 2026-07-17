@@ -1,6 +1,6 @@
  <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,6 +12,9 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
+import { id } from 'date-fns/locale/id';
 import { ArrowLeft, Camera, Save } from '@lucide/vue';
 
 interface EventCategory {
@@ -56,6 +59,18 @@ const gambarPreview = ref<string | null>(
     props.event?.image ? `/storage/${props.event.image}` : null,
 );
 
+const toDate = (str: string): Date | null => (str ? new Date(str.replace(' ', 'T')) : null);
+const toStr = (d: Date): string => {
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+};
+
+const dateMulai = ref<Date | null>(toDate(form.tanggal_mulai));
+const dateSelesai = ref<Date | null>(toDate(form.tanggal_selesai));
+
+watch(dateMulai, (v) => { form.tanggal_mulai = v ? toStr(v) : ''; });
+watch(dateSelesai, (v) => { form.tanggal_selesai = v ? toStr(v) : ''; });
+
 const onGambarChange = (e: Event) => {
     const file = (e.target as HTMLInputElement).files?.[0] ?? null;
     form.image = file;
@@ -65,6 +80,11 @@ const onGambarChange = (e: Event) => {
 };
 
 const submitForm = () => {
+    // Convert "_" back to empty string for nullable category
+    if (form.event_category_id === '_') {
+        form.event_category_id = '';
+    }
+
     if (isEdit.value) {
         const url = `/admin/agenda/${props.event!.id}`;
         if (form.image instanceof File) {
@@ -147,22 +167,30 @@ const submitForm = () => {
                         <div class="grid grid-cols-1 gap-5 sm:grid-cols-2">
                             <div class="grid gap-1.5">
                                 <Label for="tanggal_mulai" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Tanggal Mulai</Label>
-                                <Input
-                                    id="tanggal_mulai"
-                                    v-model="form.tanggal_mulai"
-                                    type="datetime-local"
+                                <VueDatePicker
+                                    v-model="dateMulai"
+                                    :locale="id"
+                                    :time-config="{ enableTimePicker: true, is24: true }"
+                                    auto-apply
+                                    cancel-text="Batal"
+                                    select-text="Pilih"
+                                    placeholder="Pilih tanggal & waktu mulai"
                                     required
-                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                    class="dp-wrap"
                                 />
                                 <p v-if="form.errors.tanggal_mulai" class="text-sm text-red-500">{{ form.errors.tanggal_mulai }}</p>
                             </div>
                             <div class="grid gap-1.5">
                                 <Label for="tanggal_selesai" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Tanggal Selesai</Label>
-                                <Input
-                                    id="tanggal_selesai"
-                                    v-model="form.tanggal_selesai"
-                                    type="datetime-local"
-                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                <VueDatePicker
+                                    v-model="dateSelesai"
+                                    :locale="id"
+                                    :time-config="{ enableTimePicker: true, is24: true }"
+                                    auto-apply
+                                    cancel-text="Batal"
+                                    select-text="Pilih"
+                                    placeholder="Pilih tanggal & waktu selesai"
+                                    class="dp-wrap"
                                 />
                                 <p v-if="form.errors.tanggal_selesai" class="text-sm text-red-500">{{ form.errors.tanggal_selesai }}</p>
                             </div>
@@ -183,7 +211,7 @@ const submitForm = () => {
                                         <SelectValue placeholder="Pilih kategori" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Tidak ada</SelectItem>
+                                        <SelectItem value="_">Tidak ada</SelectItem>
                                         <SelectItem v-for="cat in categories" :key="cat.id" :value="cat.id.toString()">
                                             {{ cat.nama }}
                                         </SelectItem>
@@ -270,3 +298,108 @@ const submitForm = () => {
         </form>
     </div>
 </template>
+
+<style scoped>
+.dp-wrap :deep(.dp__input) {
+    display: flex;
+    height: 2.5rem;
+    width: 100%;
+    border-radius: 0.75rem;
+    border: 1px solid #e4e4e7;
+    background: #fff;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    transition: border-color, box-shadow 0.15s ease;
+}
+.dp-wrap :deep(.dp__input)::placeholder {
+    color: #a1a1aa;
+}
+.dp-wrap :deep(.dp__input:focus),
+.dp-wrap :deep(.dp__input_focus) {
+    border-color: #f43f5e;
+    box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.2);
+    outline: none;
+}
+:is(.dark) .dp-wrap :deep(.dp__input) {
+    border-color: #3f3f46;
+    background: #18181b;
+    color: #d4d4d8;
+}
+:is(.dark) .dp-wrap :deep(.dp__input)::placeholder {
+    color: #71717a;
+}
+:is(.dark) .dp-wrap :deep(.dp__input:focus),
+:is(.dark) .dp-wrap :deep(.dp__input_focus) {
+    border-color: #fb7185;
+    box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.3);
+}
+.dp-wrap :deep(.dp__menu) {
+    border-radius: 0.75rem;
+    border: 1px solid #e4e4e7;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+:is(.dark) .dp-wrap :deep(.dp__menu) {
+    border-color: #3f3f46;
+}
+.dp-wrap :deep(.dp__arrow_top) {
+    border-color: #e4e4e7;
+}
+:is(.dark) .dp-wrap :deep(.dp__arrow_top) {
+    border-color: #3f3f46;
+}
+.dp-wrap :deep(.dp__cell_inner) {
+    border-radius: 0.5rem;
+}
+.dp-wrap :deep(.dp__active_date),
+.dp-wrap :deep(.dp__range_start),
+.dp-wrap :deep(.dp__range_end) {
+    background: #f43f5e;
+    color: #fff;
+}
+.dp-wrap :deep(.dp__today) {
+    border-color: #fda4af;
+}
+.dp-wrap :deep(.dp__button),
+.dp-wrap :deep(.dp__action_select) {
+    color: #f43f5e;
+}
+.dp-wrap :deep(.dp__action_select) {
+    background: #f43f5e;
+    color: #fff;
+}
+.dp-wrap :deep(.dp__action_select:hover) {
+    background: #e11d48;
+}
+.dp-wrap :deep(.dp__action_cancel) {
+    color: #52525b;
+}
+:is(.dark) .dp-wrap :deep(.dp__action_cancel) {
+    color: #a1a1aa;
+}
+.dp-wrap :deep(.dp__action_cancel:hover) {
+    background: #f4f4f5;
+}
+:is(.dark) .dp-wrap :deep(.dp__action_cancel:hover) {
+    background: #27272a;
+}
+.dp-wrap :deep(.dp__action_button) {
+    border-radius: 9999px;
+    padding: 0.25rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+.dp-wrap :deep(.dp__time_input) {
+    border-radius: 0.5rem;
+    border-color: #e4e4e7;
+}
+:is(.dark) .dp-wrap :deep(.dp__time_input) {
+    border-color: #3f3f46;
+}
+.dp-wrap :deep(.dp__inc_dec_button) {
+    color: #71717a;
+}
+.dp-wrap :deep(.dp__inc_dec_button:hover) {
+    color: #f43f5e;
+}
+</style>
