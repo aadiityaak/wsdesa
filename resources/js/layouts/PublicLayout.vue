@@ -70,53 +70,70 @@ function toggleAppearance() {
             </div>
         </header>
 
-        <!-- Mobile Navigation -->
-        <div v-show="isMobileMenuOpen" class="border-b md:hidden dark:border-zinc-800">
-            <nav class="mx-auto max-w-7xl space-y-1 px-4 py-3 sm:px-6">
-                <Link href="/" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Beranda
-                </Link>
-                <Link href="/profil" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Profil
-                </Link>
-                <Link href="/pemerintahan" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Pemerintahan
-                </Link>
-                <Link href="/berita" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Berita
-                </Link>
-                <Link href="/statistik" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Statistik
-                </Link>
-                <Link href="/agenda" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Agenda
-                </Link>
-                <Link href="/layanan-surat" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Layanan
-                </Link>
-                <Link href="/galeri" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Galeri
-                </Link>
-                <Link href="/infografis/penduduk" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Infografis
-                </Link>
-                <Link href="/umkm" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    UMKM
-                </Link>
-                <Link href="/kontak" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
-                    Kontak
-                </Link>
-                <hr class="my-2 border-zinc-200 dark:border-zinc-700" />
-                <button
-                    class="flex w-full items-center justify-center gap-2 px-3 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
-                    :title="appearance === 'dark' ? 'Mode Terang' : 'Mode Gelap'"
-                    @click="toggleAppearance; isMobileMenuOpen = false"
-                >
-                    <Sun v-if="appearance === 'dark'" class="size-5" />
-                    <Moon v-else class="size-5" />
-                </button>
-            </nav>
-        </div>
+        <!-- Offcanvas Overlay -->
+        <div v-if="isMobileMenuOpen" class="fixed inset-0 z-40 bg-black/50 md:hidden" @click="isMobileMenuOpen = false" />
+
+        <!-- Offcanvas Panel -->
+        <aside v-if="isMobileMenuOpen" class="fixed inset-y-0 right-0 z-50 w-72 max-w-[85vw] bg-white shadow-xl md:hidden dark:bg-zinc-900">
+                <div class="flex h-full flex-col">
+                    <!-- Header -->
+                    <div class="flex items-center justify-between border-b px-5 py-4 dark:border-zinc-800">
+                        <span class="text-sm font-semibold text-zinc-900 dark:text-white">Menu</span>
+                        <button class="rounded-md p-1 text-zinc-500 hover:bg-zinc-100 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            <X class="size-5" />
+                        </button>
+                    </div>
+
+                    <!-- Nav links -->
+                    <nav class="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+                        <Link href="/" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Beranda
+                        </Link>
+                        <Link href="/profil" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Profil
+                        </Link>
+                        <Link href="/pemerintahan" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Pemerintahan
+                        </Link>
+                        <Link href="/berita" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Berita
+                        </Link>
+                        <Link href="/statistik" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Statistik
+                        </Link>
+                        <Link href="/agenda" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Agenda
+                        </Link>
+                        <Link href="/layanan-surat" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Layanan
+                        </Link>
+                        <Link href="/galeri" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Galeri
+                        </Link>
+                        <Link href="/infografis/penduduk" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Infografis
+                        </Link>
+                        <Link href="/umkm" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            UMKM
+                        </Link>
+                        <Link href="/kontak" class="flex rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                            Kontak
+                        </Link>
+                    </nav>
+
+                    <!-- Bottom theme toggle -->
+                    <div class="border-t px-3 py-4 dark:border-zinc-800">
+                        <button
+                            class="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                            @click="toggleAppearance; isMobileMenuOpen = false"
+                        >
+                            <Sun v-if="appearance === 'dark'" class="size-5" />
+                            <Moon v-else class="size-5" />
+                            {{ appearance === 'dark' ? 'Mode Terang' : 'Mode Gelap' }}
+                        </button>
+                    </div>
+                </div>
+            </aside>
 
         <!-- Main Content -->
         <main class="flex-1">
