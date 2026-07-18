@@ -1,10 +1,22 @@
-<script setup lang="ts">
+ <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Calendar, ChevronLeft, ChevronRight, ExternalLink, FileText, MapPin, MessageSquare, ScrollText } from '@lucide/vue';
+import {
+    ArrowRight,
+    Calendar,
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    ExternalLink,
+    FileText,
+    ImageIcon,
+    MapPin,
+    MessageSquare,
+    Newspaper,
+    ScrollText,
+} from '@lucide/vue';
 
 interface SliderItem {
     id: number;
@@ -40,7 +52,7 @@ const props = defineProps<{
     upcomingEvents: EventItem[];
 }>();
 
-// Hero slider
+// --- Hero Slider ---
 const currentSlide = ref(0);
 
 function nextSlide() {
@@ -71,32 +83,60 @@ function formatDate(dateStr: string) {
     const d = new Date(dateStr);
     return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 }
+
+const failedImages = ref<Set<string>>(new Set());
+
+function handleImgError(url: string) {
+    failedImages.value = new Set([...failedImages.value, url]);
+}
+
+function showImage(url: string | null): boolean {
+    return !!url && !failedImages.value.has(url);
+}
 </script>
 
 <template>
     <Head title="Beranda" />
 
-    <!-- Hero Slider -->
-    <section v-if="sliders.length > 0" class="relative h-[70vh] min-h-[400px] overflow-hidden">
+    <!-- ==================== Hero Slider ==================== -->
+    <section
+        v-if="sliders.length > 0"
+        role="region"
+        aria-roledescription="carousel"
+        aria-label="Slider Beranda"
+        class="relative min-h-[50vh] overflow-hidden md:min-h-[60vh]"
+    >
         <div
             v-for="(slide, index) in sliders"
             :key="slide.id"
+            role="group"
+            :aria-roledescription="`slide ${index + 1} of ${sliders.length}`"
+            :aria-hidden="index !== currentSlide"
             class="absolute inset-0 transition-opacity duration-700"
             :class="index === currentSlide ? 'opacity-100' : 'opacity-0'"
         >
-            <div v-if="slide.image_url" class="h-full w-full bg-cover bg-center" :style="{ backgroundImage: `url(${slide.image_url})` }" />
-            <div v-else class="h-full w-full bg-gradient-to-br from-emerald-600 to-emerald-900" />
+            <img
+                v-if="showImage(slide.image_url)"
+                :src="slide.image_url"
+                alt=""
+                class="h-full w-full object-cover"
+                @error="handleImgError(slide.image_url!)"
+            />
+            <div v-if="!showImage(slide.image_url)" class="h-full w-full bg-gradient-to-br from-blue-600 to-indigo-900" />
             <div class="absolute inset-0 bg-black/50" />
             <div class="relative flex h-full items-center justify-center">
                 <div class="mx-auto max-w-3xl px-4 text-center sm:px-6">
-                    <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+                    <h1 class="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
                         {{ slide.judul }}
                     </h1>
-                    <p v-if="slide.deskripsi" class="mt-4 text-lg text-white/80 sm:text-xl">
+                    <p v-if="slide.deskripsi" class="mt-4 text-base text-white/80 sm:text-lg">
                         {{ slide.deskripsi }}
                     </p>
                     <div v-if="slide.link" class="mt-8">
-                        <Link :href="slide.link" class="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-50">
+                        <Link
+                            :href="slide.link"
+                            class="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-50"
+                        >
                             Selengkapnya
                             <ExternalLink class="size-4" />
                         </Link>
@@ -105,64 +145,91 @@ function formatDate(dateStr: string) {
             </div>
         </div>
 
-        <!-- Slider controls -->
-        <button v-if="sliders.length > 1" @click="prevSlide" class="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/30">
-            <ChevronLeft class="size-6" />
+        <!-- Controls -->
+        <button
+            v-if="sliders.length > 1"
+            aria-label="Slide sebelumnya"
+            @click="prevSlide"
+            class="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/30 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/50"
+        >
+            <ChevronLeft class="size-5 md:size-6" />
         </button>
-        <button v-if="sliders.length > 1" @click="nextSlide" class="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/20 p-2 text-white backdrop-blur-sm hover:bg-white/30">
-            <ChevronRight class="size-6" />
+        <button
+            v-if="sliders.length > 1"
+            aria-label="Slide berikutnya"
+            @click="nextSlide"
+            class="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/30 p-2 text-white backdrop-blur-sm transition-colors hover:bg-white/50"
+        >
+            <ChevronRight class="size-5 md:size-6" />
         </button>
 
-        <div v-if="sliders.length > 1" class="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
+        <!-- Dots -->
+        <div v-if="sliders.length > 1" class="absolute bottom-5 left-1/2 flex -translate-x-1/2 gap-2">
             <button
                 v-for="(_, index) in sliders"
                 :key="index"
+                :aria-label="`Slide ${index + 1}`"
                 @click="currentSlide = index"
-                class="h-2 w-2 rounded-full transition-all"
-                :class="index === currentSlide ? 'w-6 bg-white' : 'bg-white/50 hover:bg-white/70'"
+                class="h-2 rounded-full transition-all"
+                :class="index === currentSlide ? 'w-6 bg-white' : 'w-2 bg-white/50 hover:bg-white/70'"
             />
         </div>
     </section>
 
-    <!-- Hero fallback if no sliders -->
-    <section v-else class="relative bg-gradient-to-br from-emerald-600 to-emerald-900 py-24">
+    <!-- Hero Fallback (no sliders) -->
+    <section v-else class="relative bg-gradient-to-br from-blue-600 to-indigo-900 py-20 md:py-28">
         <div class="mx-auto max-w-3xl px-4 text-center sm:px-6">
-            <h1 class="text-4xl font-bold tracking-tight text-white sm:text-5xl lg:text-6xl">
+            <h1 class="text-balance text-3xl font-bold tracking-tight text-white sm:text-4xl lg:text-5xl">
                 Selamat Datang di Desa Digital
             </h1>
-            <p class="mt-4 text-lg text-white/80 sm:text-xl">
+            <p class="mt-4 text-base text-white/80 sm:text-lg">
                 Website resmi Pemerintah Desa Digital — Sumber informasi dan layanan masyarakat
             </p>
         </div>
     </section>
 
-    <!-- Quick Services -->
-    <section class="relative -mt-16 z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Link href="/layanan-surat" class="group rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl dark:bg-zinc-800">
-                <div class="flex size-14 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
-                    <FileText class="size-7" />
+    <!-- ==================== Quick Services ==================== -->
+    <section class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <Link
+                href="/layanan-surat"
+                class="group rounded-xl border border-zinc-200/60 bg-white p-6 shadow-sm ring-1 ring-zinc-200/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-700/60 dark:bg-zinc-800 dark:ring-zinc-700/50"
+            >
+                <div class="flex size-12 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+                    <FileText class="size-6" />
                 </div>
                 <h3 class="mt-4 font-semibold text-zinc-900 dark:text-white">Pengajuan Surat</h3>
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Ajukan surat desa secara online</p>
             </Link>
-            <Link href="/pengaduan" class="group rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl dark:bg-zinc-800">
-                <div class="flex size-14 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
-                    <MessageSquare class="size-7" />
+
+            <Link
+                href="/pengaduan"
+                class="group rounded-xl border border-zinc-200/60 bg-white p-6 shadow-sm ring-1 ring-zinc-200/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-700/60 dark:bg-zinc-800 dark:ring-zinc-700/50"
+            >
+                <div class="flex size-12 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400">
+                    <MessageSquare class="size-6" />
                 </div>
                 <h3 class="mt-4 font-semibold text-zinc-900 dark:text-white">Pengaduan</h3>
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Sampaikan aspirasi dan pengaduan</p>
             </Link>
-            <Link href="/pengaduan/cek-status" class="group rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl dark:bg-zinc-800">
-                <div class="flex size-14 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400">
-                    <ScrollText class="size-7" />
+
+            <Link
+                href="/pengaduan/cek-status"
+                class="group rounded-xl border border-zinc-200/60 bg-white p-6 shadow-sm ring-1 ring-zinc-200/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-700/60 dark:bg-zinc-800 dark:ring-zinc-700/50"
+            >
+                <div class="flex size-12 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950 dark:text-amber-400">
+                    <ScrollText class="size-6" />
                 </div>
                 <h3 class="mt-4 font-semibold text-zinc-900 dark:text-white">Cek Status</h3>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Cek status pengajuan & pengaduan</p>
+                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Cek status pengajuan &amp; pengaduan</p>
             </Link>
-            <Link href="/download" class="group rounded-xl bg-white p-6 shadow-lg transition-all hover:shadow-xl dark:bg-zinc-800">
-                <div class="flex size-14 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-400">
-                    <FileText class="size-7" />
+
+            <Link
+                href="/download"
+                class="group rounded-xl border border-zinc-200/60 bg-white p-6 shadow-sm ring-1 ring-zinc-200/50 transition-all duration-200 hover:-translate-y-1 hover:shadow-lg dark:border-zinc-700/60 dark:bg-zinc-800 dark:ring-zinc-700/50"
+            >
+                <div class="flex size-12 items-center justify-center rounded-lg bg-purple-50 text-purple-600 dark:bg-purple-950 dark:text-purple-400">
+                    <Download class="size-6" />
                 </div>
                 <h3 class="mt-4 font-semibold text-zinc-900 dark:text-white">Download</h3>
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Unduh dokumen dan berkas penting</p>
@@ -170,37 +237,66 @@ function formatDate(dateStr: string) {
         </div>
     </section>
 
-    <!-- Latest News -->
-    <section class="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-10">
+    <!-- ==================== Section Divider ==================== -->
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <hr class="border-zinc-200 dark:border-zinc-800" />
+    </div>
+
+    <!-- ==================== Latest News ==================== -->
+    <section class="mx-auto max-w-7xl px-4 py-16 md:py-20 sm:px-6 lg:px-8 scroll-mt-20">
+        <div class="mb-10 flex items-end justify-between">
             <div>
-                <h2 class="text-3xl font-bold text-zinc-900 dark:text-white">Berita Terbaru</h2>
-                <p class="mt-2 text-zinc-500 dark:text-zinc-400">Informasi terkini seputar desa</p>
+                <div class="flex items-center gap-3">
+                    <Newspaper class="size-6 text-emerald-600 dark:text-emerald-400" />
+                    <h2 class="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-white">Berita Terbaru</h2>
+                </div>
+                <p class="mt-1.5 text-zinc-500 dark:text-zinc-400">Informasi terkini seputar desa</p>
             </div>
-            <Link :href="route('berita.index')" class="hidden items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 sm:flex dark:text-emerald-400">
+            <Link
+                    v-if="latestPosts.length > 0"
+                    href="/berita"
+                    class="hidden items-center gap-1 text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700 sm:inline-flex dark:text-emerald-400 dark:hover:text-emerald-300"
+                >
                 Lihat Semua
                 <ArrowRight class="size-4" />
             </Link>
         </div>
 
-        <div v-if="latestPosts.length === 0" class="rounded-lg border border-zinc-200 bg-white p-12 text-center dark:border-zinc-700 dark:bg-zinc-800">
-            <p class="text-zinc-500 dark:text-zinc-400">Belum ada berita.</p>
+        <div
+            v-if="latestPosts.length === 0"
+            class="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-zinc-50 p-12 dark:border-zinc-700 dark:bg-zinc-900"
+        >
+            <div class="text-center">
+                <Newspaper class="mx-auto size-10 text-zinc-300 dark:text-zinc-600" />
+                <p class="mt-3 font-medium text-zinc-500 dark:text-zinc-400">Belum ada berita</p>
+                <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">Berita akan muncul di sini setelah dipublikasikan.</p>
+            </div>
         </div>
 
-        <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            <Card v-for="post in latestPosts" :key="post.id" class="overflow-hidden transition-shadow hover:shadow-lg">
-                <Link :href="route('berita.show', post.slug)">
-                    <div class="aspect-[16/9] bg-zinc-100 dark:bg-zinc-700">
-                        <img v-if="post.gambar" :src="post.gambar" :alt="post.judul" class="h-full w-full object-cover" />
-                        <div v-else class="flex h-full items-center justify-center text-zinc-300 dark:text-zinc-600">
-                            <FileText class="size-10" />
+        <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Card
+                v-for="post in latestPosts"
+                :key="post.id"
+                class="overflow-hidden border-zinc-200/60 transition-all duration-200 hover:shadow-lg dark:border-zinc-700/60"
+            >
+                <Link :href="`/berita/${post.slug}`" class="group block">
+                    <div class="aspect-[16/9] overflow-hidden bg-zinc-100 dark:bg-zinc-700">
+                        <img
+                            v-if="showImage(post.gambar)"
+                            :src="post.gambar"
+                            :alt="post.judul"
+                            class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            @error="handleImgError(post.gambar!)"
+                        />
+                        <div v-if="!showImage(post.gambar)" class="flex h-full items-center justify-center text-zinc-300 dark:text-zinc-600">
+                            <ImageIcon class="size-10" />
                         </div>
                     </div>
                 </Link>
                 <CardContent class="p-4">
                     <Badge v-if="post.category" variant="secondary" class="mb-2">{{ post.category.nama }}</Badge>
-                    <Link :href="route('berita.show', post.slug)">
-                        <h3 class="line-clamp-2 font-semibold text-zinc-900 transition-colors hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400">
+                    <Link :href="`/berita/${post.slug}`">
+                        <h3 class="line-clamp-2 font-semibold text-zinc-900 transition-colors group-hover:text-emerald-600 dark:text-white dark:group-hover:text-emerald-400">
                             {{ post.judul }}
                         </h3>
                     </Link>
@@ -214,41 +310,66 @@ function formatDate(dateStr: string) {
             </Card>
         </div>
 
-        <div class="mt-6 text-center sm:hidden">
-            <Link :href="route('berita.index')" class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+        <!-- Mobile "Lihat Semua" -->
+        <div v-if="latestPosts.length > 0" class="mt-8 text-center sm:hidden">
+            <Link
+                href="/berita"
+                class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+            >
                 Lihat Semua Berita
                 <ArrowRight class="size-4" />
             </Link>
         </div>
     </section>
 
-    <!-- Upcoming Events -->
-    <section class="bg-zinc-50 py-20 dark:bg-zinc-950">
+    <!-- ==================== Upcoming Events ==================== -->
+    <section class="border-t-2 border-emerald-100 bg-zinc-50 py-16 md:py-20 scroll-mt-20 dark:border-emerald-900 dark:bg-zinc-950">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between mb-10">
+            <div class="mb-10 flex items-end justify-between">
                 <div>
-                    <h2 class="text-3xl font-bold text-zinc-900 dark:text-white">Agenda Mendatang</h2>
-                    <p class="mt-2 text-zinc-500 dark:text-zinc-400">Kegiatan dan acara desa</p>
+                    <div class="flex items-center gap-3">
+                        <Calendar class="size-6 text-emerald-600 dark:text-emerald-400" />
+                        <h2 class="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-white">Agenda Mendatang</h2>
+                    </div>
+                    <p class="mt-1.5 text-zinc-500 dark:text-zinc-400">Kegiatan dan acara desa</p>
                 </div>
-                <Link :href="route('agenda.index')" class="hidden items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 sm:flex dark:text-emerald-400">
+                <Link
+                    v-if="upcomingEvents.length > 0"
+                    href="/agenda"
+                    class="hidden items-center gap-1 text-sm font-medium text-emerald-600 transition-colors hover:text-emerald-700 sm:inline-flex dark:text-emerald-400 dark:hover:text-emerald-300"
+                >
                     Lihat Semua
                     <ArrowRight class="size-4" />
                 </Link>
             </div>
 
-            <div v-if="upcomingEvents.length === 0" class="rounded-lg border border-zinc-200 bg-white p-12 text-center dark:border-zinc-700 dark:bg-zinc-800">
-                <Calendar class="mx-auto size-12 text-zinc-300 dark:text-zinc-600" />
-                <p class="mt-3 text-zinc-500 dark:text-zinc-400">Belum ada agenda mendatang.</p>
+            <div
+                v-if="upcomingEvents.length === 0"
+                class="flex min-h-[200px] items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-white p-12 dark:border-zinc-700 dark:bg-zinc-900"
+            >
+                <div class="text-center">
+                    <Calendar class="mx-auto size-10 text-zinc-300 dark:text-zinc-600" />
+                    <p class="mt-3 font-medium text-zinc-500 dark:text-zinc-400">Belum ada agenda mendatang</p>
+                    <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">Agenda akan muncul di sini setelah dijadwalkan.</p>
+                </div>
             </div>
 
-            <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                <Card v-for="event in upcomingEvents" :key="event.id" class="transition-shadow hover:shadow-lg">
+            <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                <Card
+                    v-for="event in upcomingEvents"
+                    :key="event.id"
+                    class="border-zinc-200/60 bg-white transition-all duration-200 hover:shadow-lg dark:border-zinc-700/60 dark:bg-zinc-900"
+                >
                     <CardHeader class="pb-3">
-                        <div class="text-xs font-medium text-emerald-600 dark:text-emerald-400">
+                        <div class="mb-2 inline-flex items-center gap-1.5 rounded-md border-l-2 border-emerald-500 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
+                            <Calendar class="size-3" />
                             {{ formatDate(event.tanggal_mulai) }}
                         </div>
                         <CardTitle class="text-lg">
-                            <Link :href="route('agenda.show', event.id)" class="hover:text-emerald-600 dark:hover:text-emerald-400">
+                            <Link
+                                :href="`/agenda/${event.id}`"
+                                class="text-zinc-900 transition-colors hover:text-emerald-600 dark:text-white dark:hover:text-emerald-400"
+                            >
                                 {{ event.judul }}
                             </Link>
                         </CardTitle>
@@ -265,8 +386,12 @@ function formatDate(dateStr: string) {
                 </Card>
             </div>
 
-            <div class="mt-6 text-center sm:hidden">
-                <Link :href="route('agenda.index')" class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+            <!-- Mobile "Lihat Semua" -->
+            <div v-if="upcomingEvents.length > 0" class="mt-8 text-center sm:hidden">
+                <Link
+                    href="/agenda"
+                    class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
+                >
                     Lihat Semua Agenda
                     <ArrowRight class="size-4" />
                 </Link>
@@ -274,19 +399,27 @@ function formatDate(dateStr: string) {
         </div>
     </section>
 
-    <!-- CTA Section -->
-    <section class="bg-gradient-to-br from-emerald-600 to-emerald-800 py-16">
-        <div class="mx-auto max-w-3xl px-4 text-center sm:px-6">
-            <h2 class="text-3xl font-bold text-white">Butuh Bantuan?</h2>
-            <p class="mt-3 text-lg text-emerald-100">
+    <!-- ==================== CTA Section ==================== -->
+    <section class="relative bg-gradient-to-br from-emerald-700 to-teal-700 py-16 md:py-20">
+        <!-- Subtle pattern overlay -->
+        <div class="pointer-events-none absolute inset-0 opacity-5" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 20px 20px;" />
+        <div class="relative mx-auto max-w-3xl px-4 text-center sm:px-6">
+            <h2 class="text-balance text-2xl font-bold text-white sm:text-3xl">Butuh Bantuan?</h2>
+            <p class="mt-3 text-base text-emerald-100 sm:text-lg">
                 Hubungi kami melalui kontak yang tersedia atau kunjungi kantor desa
             </p>
             <div class="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
-                <Link :href="route('kontak.index')" class="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-50">
+                <Link
+                    href="/kontak"
+                    class="inline-flex items-center gap-2 rounded-lg bg-white px-6 py-3 text-sm font-semibold text-emerald-700 shadow-sm transition-colors hover:bg-emerald-50"
+                >
                     Hubungi Kami
                     <ArrowRight class="size-4" />
                 </Link>
-                <Link href="/profil" class="inline-flex items-center gap-2 rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10">
+                <Link
+                    href="/profil"
+                    class="inline-flex items-center gap-2 rounded-lg border border-white/30 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/10"
+                >
                     Profil Desa
                 </Link>
             </div>

@@ -3,9 +3,15 @@ import { Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import { Toaster } from '@/components/ui/sonner';
 import AppLogo from '@/components/AppLogo.vue';
-import { X, Menu } from '@lucide/vue';
+import { useAppearance } from '@/composables/useAppearance';
+import { X, Menu, Sun, Moon } from '@lucide/vue';
 
 const isMobileMenuOpen = ref(false);
+const { appearance, updateAppearance } = useAppearance();
+
+function toggleAppearance() {
+    updateAppearance(appearance.value === 'dark' ? 'light' : 'dark');
+}
 </script>
 
 <template>
@@ -42,6 +48,16 @@ const isMobileMenuOpen = ref(false);
                         Kontak
                     </Link>
                 </nav>
+
+                <!-- Theme switcher -->
+                <button
+                    class="hidden rounded-full p-2 text-zinc-600 transition-colors hover:bg-zinc-100 md:block dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    :title="appearance === 'dark' ? 'Mode Terang' : 'Mode Gelap'"
+                    @click="toggleAppearance"
+                >
+                    <Sun v-if="appearance === 'dark'" class="size-5" />
+                    <Moon v-else class="size-5" />
+                </button>
 
                 <!-- Mobile menu button -->
                 <button class="rounded-md p-2 text-zinc-700 md:hidden dark:text-zinc-300" @click="isMobileMenuOpen = !isMobileMenuOpen">
@@ -81,6 +97,15 @@ const isMobileMenuOpen = ref(false);
                 <Link href="/kontak" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
                     Kontak
                 </Link>
+                <hr class="my-2 border-zinc-200 dark:border-zinc-700" />
+                <button
+                    class="flex w-full items-center justify-center gap-2 px-3 py-3 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                    :title="appearance === 'dark' ? 'Mode Terang' : 'Mode Gelap'"
+                    @click="toggleAppearance; isMobileMenuOpen = false"
+                >
+                    <Sun v-if="appearance === 'dark'" class="size-5" />
+                    <Moon v-else class="size-5" />
+                </button>
             </nav>
         </div>
 
