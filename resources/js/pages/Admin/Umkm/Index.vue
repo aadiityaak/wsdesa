@@ -1,11 +1,8 @@
-﻿<script setup lang="ts">
-import { Head, useForm } from '@inertiajs/vue3';
+<script setup lang="ts">
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
-import { ref, computed } from 'vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { computed, ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
@@ -14,48 +11,32 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Plus, Pencil, Trash2, Images } from '@lucide/vue';
+import { Plus, Pencil, Trash2, Store, ArrowUp, Phone, MapPin, ImageIcon } from '@lucide/vue';
 
 interface UmkmCategory {
     id: number;
     nama: string;
 }
 
-interface UmkmImage {
-    id: number;
-    umkm_id: number;
-    file: string;
-    caption: string | null;
-}
-
 interface Umkm {
     id: number;
     nama_usaha: string;
-    umkm_category_id: number;
     pemilik: string;
+    umkm_category_id: number;
     alamat: string | null;
     telepon: string | null;
     deskripsi: string | null;
     thumbnail: string | null;
-    latitude: string | null;
-    longitude: string | null;
     category: UmkmCategory | null;
-    images: UmkmImage[];
 }
 
 interface Paginated {
     data: Umkm[];
     current_page: number;
     last_page: number;
+    from: number | null;
+    to: number | null;
     total: number;
-    links: { url: string | null; label: string; active: boolean }[];
 }
 
 const props = defineProps<{
@@ -63,96 +44,41 @@ const props = defineProps<{
     categories: UmkmCategory[];
 }>();
 
-const dialogOpen = ref(false);
 const deleteConfirmId = ref<number | null>(null);
-const editingUmkm = ref<Umkm | null>(null);
-const photoViewOpen = ref(false);
-const photoUmkm = ref<Umkm | null>(null);
-const categoryDialogOpen = ref(false);
-const editingCategory = ref<UmkmCategory | null>(null);
-const categoryDeleteId = ref<number | null>(null);
+const deleteForm = useForm({});
 
-const form = useForm({
-    nama_usaha: '',
-    umkm_category_id: '',
-    pemilik: '',
-    alamat: '',
-    telepon: '',
-    deskripsi: '',
-    thumbnail: null as File | null,
-    latitude: '',
-    longitude: '',
-});
+const currentPage = computed(() => props.umkms.current_page);
+const lastPage = computed(() => props.umkms.last_page);
 
-const categoryForm = useForm({
-    nama: '',
-});
-
-const imageForm = useForm({
-    image: null as File | null,
-});
-
-const dialogTitle = computed(() => (editingUmkm.value ? 'Edit UMKM' : 'Tambah UMKM'));
-const categoryDialogTitle = computed(() => (editingCategory.value ? 'Edit Kategori' : 'Tambah Kategori'));
-
-const openAddDialog = () => {
-    editingUmkm.value = null;
-    form.reset();
-    form.clearErrors();
-    dialogOpen.value = true;
-};
-
-const openEditDialog = (item: Umkm) => {
-    editingUmkm.value = item;
-    form.nama_usaha = item.nama_usaha;
-    form.umkm_category_id = String(item.umkm_category_id);
-    form.pemilik = item.pemilik;
-    form.alamat = item.alamat || '';
-    form.telepon = item.telepon || '';
-    form.deskripsi = item.deskripsi || '';
-    form.thumbnail = null;
-    form.latitude = item.latitude || '';
-    form.longitude = item.longitude || '';
-    form.clearErrors();
-    dialogOpen.value = true;
-};
-
-const submitForm = () => {
-    const data = {
-        nama_usaha: form.nama_usaha,
-        umkm_category_id: form.umkm_category_id,
-        pemilik: form.pemilik,
-        alamat: form.alamat,
-        telepon: form.telepon,
-        deskripsi: form.deskripsi,
-        latitude: form.latitude,
-        longitude: form.longitude,
-    };
-
-    if (editingUmkm.value) {
-        form.transform(() => form.thumbnail ? { ...data, thumbnail: form.thumbnail } : data).put(`/admin/umkm/${editingUmkm.value.id}`, {
-            onSuccess: () => {
-                dialogOpen.value = false;
-                toast.success('UMKM berhasil diperbarui.');
-            },
-        });
+const pageNumbers = computed(() => {
+    const pages: (number | string)[] = [];
+    const current = currentPage.value;
+    const last = lastPage.value;
+    if (last <= 7) {
+        for (let i = 1; i <= last; i++) pages.push(i);
     } else {
-        form.transform(() => form.thumbnail ? { ...data, thumbnail: form.thumbnail } : data).post('/admin/umkm', {
-            onSuccess: () => {
-                dialogOpen.value = false;
-                toast.success('UMKM berhasil ditambahkan.');
-            },
-        });
+        pages.push(1);
+        if (current > 3) pages.push('...');
+        const start = Math.max(2, current - 1);
+        const end = Math.min(last - 1, current + 1);
+        for (let i = start; i <= end; i++) pages.push(i);
+        if (current < last - 2) pages.push('...');
+        pages.push(last);
     }
+    return pages;
+});
+
+const goToPage = (page: number) => {
+    router.get('/admin/umkm', { page }, { preserveState: true });
 };
 
-const confirmDelete = (item: Umkm) => {
-    deleteConfirmId.value = item.id;
+const confirmDelete = (id: number) => {
+    deleteConfirmId.value = id;
 };
 
 const executeDelete = () => {
     if (deleteConfirmId.value) {
-        form.delete(`/admin/umkm/${deleteConfirmId.value}`, {
+        deleteForm.delete(`/admin/umkm/${deleteConfirmId.value}`, {
             onSuccess: () => {
                 deleteConfirmId.value = null;
                 toast.success('UMKM berhasil dihapus.');
@@ -161,374 +87,160 @@ const executeDelete = () => {
     }
 };
 
-const openPhotos = (item: Umkm) => {
-    photoUmkm.value = item;
-    imageForm.reset();
-    imageForm.clearErrors();
-    photoViewOpen.value = true;
-};
+const stats = computed(() => ({
+    total: props.umkms.total,
+}));
 
-const uploadImage = () => {
-    if (!photoUmkm.value || !imageForm.image) return;
-    imageForm.transform((data) => ({ image: data.image })).post(`/admin/umkm/${photoUmkm.value.id}/foto`, {
-        onSuccess: () => {
-            imageForm.reset();
-            toast.success('Foto berhasil diupload.');
-        },
-    });
-};
-
-const deleteImage = (image: UmkmImage) => {
-    form.delete(`/admin/umkm/${image.umkm_id}/foto/${image.id}`, {
-        onSuccess: () => {
-            toast.success('Foto berhasil dihapus.');
-        },
-    });
-};
-
-const onFileChange = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    if (input.files?.[0]) {
-        form.thumbnail = input.files[0];
-    }
-};
-
-const onImageChange = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    if (input.files?.[0]) {
-        imageForm.image = input.files[0];
-    }
-};
-
-// Category CRUD
-const openAddCategory = () => {
-    editingCategory.value = null;
-    categoryForm.reset();
-    categoryForm.clearErrors();
-    categoryDialogOpen.value = true;
-};
-
-const openEditCategory = (cat: UmkmCategory) => {
-    editingCategory.value = cat;
-    categoryForm.nama = cat.nama;
-    categoryForm.clearErrors();
-    categoryDialogOpen.value = true;
-};
-
-const submitCategory = () => {
-    if (editingCategory.value) {
-        categoryForm.put(`/admin/umkm/kategori/${editingCategory.value.id}`, {
-            onSuccess: () => {
-                categoryDialogOpen.value = false;
-                toast.success('Kategori berhasil diperbarui.');
-            },
-        });
-    } else {
-        categoryForm.post('/admin/umkm/kategori', {
-            onSuccess: () => {
-                categoryDialogOpen.value = false;
-                toast.success('Kategori berhasil ditambahkan.');
-            },
-        });
-    }
-};
-
-const confirmDeleteCategory = (cat: UmkmCategory) => {
-    categoryDeleteId.value = cat.id;
-};
-
-const executeDeleteCategory = () => {
-    if (categoryDeleteId.value) {
-        categoryForm.delete(`/admin/umkm/kategori/${categoryDeleteId.value}`, {
-            onSuccess: () => {
-                categoryDeleteId.value = null;
-                toast.success('Kategori berhasil dihapus.');
-            },
-        });
-    }
-};
+const showScrollTop = ref(false);
+const onScroll = () => { showScrollTop.value = window.scrollY > 400; };
+const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', onScroll, { passive: true });
+}
 </script>
 
 <template>
     <Head title="UMKM" />
 
-    <div class="space-y-6">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">UMKM</h1>
-            <Button @click="openAddDialog">
-                <Plus class="size-4" />
+    <div class="relative">
+        <!-- Scroll to top -->
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="translate-y-2 opacity-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-to-class="translate-y-2 opacity-0"
+        >
+            <button
+                v-if="showScrollTop"
+                type="button"
+                class="fixed bottom-8 right-8 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition hover:scale-105 hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                @click="scrollToTop"
+            >
+                <ArrowUp class="h-5 w-5" />
+            </button>
+        </Transition>
+
+        <!-- Hero banner -->
+        <div class="relative mb-10 overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-50 to-white px-6 py-10 shadow-sm ring-1 ring-zinc-100 dark:from-zinc-900 dark:to-zinc-950 dark:ring-zinc-800 sm:px-10 sm:py-12">
+            <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-rose-100/40 blur-3xl dark:bg-rose-900/10" aria-hidden="true" />
+            <div class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-amber-100/30 blur-3xl dark:bg-amber-900/10" aria-hidden="true" />
+
+            <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                            <Store class="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">UMKM</h1>
+                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Kelola data usaha mikro kecil menengah</p>
+                        </div>
+                    </div>
+                </div>
+                <Button as="a" href="/admin/umkm/tambah" class="gap-2 rounded-full bg-rose-500 text-white shadow-sm hover:bg-rose-600">
+                    <Plus class="h-4 w-4" />
+                    Tambah UMKM
+                </Button>
+            </div>
+
+            <!-- Stats -->
+            <div class="relative mt-6">
+                <div class="inline-flex items-center gap-2 rounded-xl border border-zinc-100 bg-white/60 px-5 py-3 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+                    <Store class="h-5 w-5 text-zinc-400" />
+                    <span class="text-2xl font-bold text-zinc-900 dark:text-white">{{ stats.total }}</span>
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">UMKM</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div v-if="umkms.data.length === 0" class="rounded-2xl border border-zinc-100 bg-white px-6 py-16 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <Store class="mx-auto h-12 w-12 text-zinc-300 dark:text-zinc-600" />
+            <p class="mt-4 text-base font-medium text-zinc-600 dark:text-zinc-400">Belum ada UMKM</p>
+            <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">Tambahkan data UMKM desa.</p>
+            <Button as="a" href="/admin/umkm/tambah" class="mt-4 gap-2 rounded-full bg-rose-500 text-white hover:bg-rose-600">
+                <Plus class="h-4 w-4" />
                 Tambah UMKM
             </Button>
         </div>
 
-        <!-- Category Management -->
-        <Card>
-            <CardHeader class="flex flex-row items-center justify-between pb-3">
-                <CardTitle class="text-base">Kategori UMKM</CardTitle>
-                <Button size="sm" variant="outline" @click="openAddCategory">
-                    <Plus class="size-3" />
-                    Tambah Kategori
-                </Button>
-            </CardHeader>
-            <CardContent class="p-0">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
-                                <th class="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
-                                <th class="px-4 py-2 text-left font-medium text-zinc-600 dark:text-zinc-400">Nama</th>
-                                <th class="px-4 py-2 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="(cat, index) in categories"
-                                :key="cat.id"
-                                class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-                            >
-                                <td class="px-4 py-2 text-zinc-500">{{ index + 1 }}</td>
-                                <td class="px-4 py-2 font-medium">{{ cat.nama }}</td>
-                                <td class="px-4 py-2 text-right">
-                                    <Button variant="ghost" size="icon-sm" @click="openEditCategory(cat)">
-                                        <Pencil class="size-3" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon-sm" @click="confirmDeleteCategory(cat)">
-                                        <Trash2 class="size-3 text-red-500" />
-                                    </Button>
-                                </td>
-                            </tr>
-                            <tr v-if="categories.length === 0">
-                                <td colspan="3" class="px-4 py-4 text-center text-zinc-500">Belum ada kategori.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </CardContent>
-        </Card>
-
-        <!-- UMKM Table -->
-        <Card>
-            <CardHeader class="pb-3">
-                <CardTitle>Daftar UMKM</CardTitle>
-            </CardHeader>
-            <CardContent class="p-0">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Nama Usaha</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Kategori</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Pemilik</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Kontak</th>
-                                <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="(item, index) in umkms.data"
-                                :key="item.id"
-                                class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-                            >
-                                <td class="px-4 py-3 text-zinc-500">{{ (umkms.current_page - 1) * umkms.data.length + index + 1 }}</td>
-                                <td class="px-4 py-3 font-medium">{{ item.nama_usaha }}</td>
-                                <td class="px-4 py-3 text-zinc-500">{{ item.category?.nama || '-' }}</td>
-                                <td class="px-4 py-3">{{ item.pemilik }}</td>
-                                <td class="px-4 py-3 text-zinc-500">{{ item.telepon || item.alamat || '-' }}</td>
-                                <td class="px-4 py-3 text-right">
-                                    <div class="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon-sm" @click="openPhotos(item)">
-                                            <Images class="size-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon-sm" @click="openEditDialog(item)">
-                                            <Pencil class="size-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon-sm" @click="confirmDelete(item)">
-                                            <Trash2 class="size-4 text-red-500" />
-                                        </Button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr v-if="umkms.data.length === 0">
-                                <td colspan="6" class="px-4 py-12 text-center text-zinc-500">
-                                    Belum ada UMKM.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div v-if="umkms.last_page > 1" class="flex items-center justify-between border-t px-4 py-3">
-                    <span class="text-sm text-zinc-500">
-                        Halaman {{ umkms.current_page }} dari {{ umkms.last_page }}
-                    </span>
-                    <div class="flex gap-1">
-                        <a
-                            v-for="link in umkms.links"
-                            :key="link.label"
-                            :href="link.url || '#'"
-                            class="rounded-md px-3 py-1 text-sm transition-colors"
-                            :class="link.active
-                                ? 'bg-primary text-primary-foreground'
-                                : !link.url
-                                    ? 'text-zinc-300 pointer-events-none'
-                                    : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'"
-                            v-html="link.label"
+        <!-- Card Grid -->
+        <div v-else class="space-y-6">
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div
+                    v-for="item in umkms.data"
+                    :key="item.id"
+                    class="group rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 sm:p-5"
+                >
+                    <!-- Thumbnail -->
+                    <div class="mb-4 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
+                        <img
+                            v-if="item.thumbnail"
+                            :src="`/storage/${item.thumbnail}`"
+                            :alt="item.nama_usaha"
+                            class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-105"
                         />
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-
-        <!-- Add/Edit UMKM Dialog -->
-        <Dialog v-model:open="dialogOpen">
-            <DialogContent class="sm:max-w-lg">
-                <DialogHeader>
-                    <DialogTitle>{{ dialogTitle }}</DialogTitle>
-                    <DialogDescription>
-                        {{ editingUmkm ? 'Perbarui informasi UMKM.' : 'Tambahkan UMKM baru.' }}
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form @submit.prevent="submitForm" class="space-y-4">
-                    <div class="grid gap-1.5">
-                        <Label for="nama_usaha">Nama Usaha</Label>
-                        <Input id="nama_usaha" v-model="form.nama_usaha" required />
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="umkm_category_id">Kategori</Label>
-                        <Select v-model="form.umkm_category_id">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Pilih kategori" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
-                                    {{ cat.nama }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="pemilik">Pemilik</Label>
-                        <Input id="pemilik" v-model="form.pemilik" required />
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-1.5">
-                            <Label for="alamat">Alamat</Label>
-                            <Input id="alamat" v-model="form.alamat" />
-                        </div>
-                        <div class="grid gap-1.5">
-                            <Label for="telepon">Telepon</Label>
-                            <Input id="telepon" v-model="form.telepon" />
-                        </div>
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="deskripsi">Deskripsi</Label>
-                        <textarea
-                            id="deskripsi"
-                            v-model="form.deskripsi"
-                            rows="3"
-                            class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        ></textarea>
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="thumbnail">Thumbnail</Label>
-                        <Input id="thumbnail" type="file" accept="image/*" @change="onFileChange" />
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-1.5">
-                            <Label for="latitude">Latitude</Label>
-                            <Input id="latitude" v-model="form.latitude" placeholder="cth: -6.1754" />
-                        </div>
-                        <div class="grid gap-1.5">
-                            <Label for="longitude">Longitude</Label>
-                            <Input id="longitude" v-model="form.longitude" placeholder="cth: 106.8272" />
+                        <div v-else class="flex aspect-[4/3] w-full items-center justify-center text-zinc-300 dark:text-zinc-600">
+                            <ImageIcon class="h-12 w-12" />
                         </div>
                     </div>
 
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="dialogOpen = false">Batal</Button>
-                        <Button type="submit" :disabled="form.processing">
-                            {{ editingUmkm ? 'Simpan' : 'Tambah' }}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+                    <div class="min-w-0">
+                        <h3 class="font-semibold text-zinc-900 dark:text-white truncate">{{ item.nama_usaha }}</h3>
+                        <p class="text-sm text-zinc-500">{{ item.pemilik }}</p>
+                        <p class="mt-0.5 text-xs text-zinc-400">{{ item.category?.nama || '-' }}</p>
 
-        <!-- Photo Management Dialog -->
-        <Dialog v-model:open="photoViewOpen">
-            <DialogContent class="sm:max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle v-if="photoUmkm">Kelola Foto - {{ photoUmkm.nama_usaha }}</DialogTitle>
-                    <DialogDescription>Upload dan kelola foto UMKM.</DialogDescription>
-                </DialogHeader>
-
-                <div class="space-y-4">
-                    <form @submit.prevent="uploadImage" class="flex items-end gap-3">
-                        <div class="grid flex-1 gap-1.5">
-                            <Label for="umkmImage">Upload Foto</Label>
-                            <Input id="umkmImage" type="file" accept="image/*" @change="onImageChange" />
+                        <div class="mt-2 space-y-1 text-xs text-zinc-400 dark:text-zinc-500">
+                            <p v-if="item.alamat" class="inline-flex items-center gap-1 truncate">
+                                <MapPin class="h-3 w-3 shrink-0" /> {{ item.alamat }}
+                            </p>
+                            <p v-if="item.telepon" class="inline-flex items-center gap-1 truncate">
+                                <Phone class="h-3 w-3 shrink-0" /> {{ item.telepon }}
+                            </p>
                         </div>
-                        <Button type="submit" :disabled="imageForm.processing || !imageForm.image">
-                            Upload
-                        </Button>
-                    </form>
 
-                    <div v-if="photoUmkm?.images?.length" class="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                        <div
-                            v-for="image in photoUmkm.images"
-                            :key="image.id"
-                            class="group relative aspect-square overflow-hidden rounded-lg border"
-                        >
-                            <img
-                                :src="`/storage/${image.file}`"
-                                :alt="image.file || ''"
-                                class="h-full w-full object-cover"
-                            />
-                            <Button
-                                variant="destructive"
-                                size="sm"
-                                class="absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100"
-                                @click="deleteImage(image)"
-                            >
-                                <Trash2 class="size-3" />
+                        <div class="mt-3 flex items-center gap-1">
+                            <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/umkm/${item.id}/edit`" class="rounded-lg">
+                                <Pencil class="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
+                                <Trash2 class="h-4 w-4 text-red-500" />
                             </Button>
                         </div>
                     </div>
-                    <p v-else class="py-8 text-center text-sm text-zinc-400">Belum ada foto.</p>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </div>
 
-        <!-- Category Dialog -->
-        <Dialog v-model:open="categoryDialogOpen">
-            <DialogContent class="sm:max-w-sm">
-                <DialogHeader>
-                    <DialogTitle>{{ categoryDialogTitle }}</DialogTitle>
-                    <DialogDescription>
-                        {{ editingCategory ? 'Perbarui nama kategori.' : 'Tambahkan kategori UMKM baru.' }}
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form @submit.prevent="submitCategory" class="space-y-4">
-                    <div class="grid gap-1.5">
-                        <Label for="categoryNama">Nama Kategori</Label>
-                        <Input id="categoryNama" v-model="categoryForm.nama" required />
-                    </div>
-
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="categoryDialogOpen = false">Batal</Button>
-                        <Button type="submit" :disabled="categoryForm.processing">
-                            {{ editingCategory ? 'Simpan' : 'Tambah' }}
+            <!-- Pagination -->
+            <div v-if="lastPage > 1 && umkms.data.length > 0" class="flex flex-col items-center justify-between gap-3 rounded-2xl border border-zinc-100 bg-white px-5 py-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row">
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                    Menampilkan {{ umkms.from }}–{{ umkms.to }} dari {{ umkms.total }}
+                </p>
+                <div class="flex items-center gap-1">
+                    <Button variant="outline" size="sm" class="rounded-lg" :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
+                        Sebelumnya
+                    </Button>
+                    <template v-for="page in pageNumbers" :key="page">
+                        <span v-if="page === '...'" class="px-2 text-zinc-400">...</span>
+                        <Button
+                            v-else
+                            size="sm"
+                            class="rounded-lg"
+                            :variant="currentPage === page ? 'default' : 'outline'"
+                            @click="goToPage(page as number)"
+                        >
+                            {{ page }}
                         </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+                    </template>
+                    <Button variant="outline" size="sm" class="rounded-lg" :disabled="currentPage === lastPage" @click="goToPage(currentPage + 1)">
+                        Selanjutnya
+                    </Button>
+                </div>
+            </div>
+        </div>
 
         <!-- Delete Confirm -->
-        <Dialog :open="deleteConfirmId !== null" @update:open="deleteConfirmId = null">
+        <Dialog :open="deleteConfirmId !== null" @update:open="() => (deleteConfirmId = null)">
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Konfirmasi Hapus</DialogTitle>
@@ -537,26 +249,10 @@ const executeDeleteCategory = () => {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="deleteConfirmId = null">Batal</Button>
-                    <Button variant="destructive" :disabled="form.processing" @click="executeDelete">
+                    <Button variant="outline" class="rounded-full" @click="deleteConfirmId = null">Batal</Button>
+                    <Button variant="destructive" class="rounded-full" :disabled="deleteForm.processing" @click="executeDelete">
                         Hapus
                     </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
-
-        <!-- Category Delete Confirm -->
-        <Dialog :open="categoryDeleteId !== null" @update:open="categoryDeleteId = null">
-            <DialogContent class="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>Konfirmasi Hapus</DialogTitle>
-                    <DialogDescription>
-                        Apakah Anda yakin ingin menghapus kategori ini?
-                    </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                    <Button variant="outline" @click="categoryDeleteId = null">Batal</Button>
-                    <Button variant="destructive" @click="executeDeleteCategory">Hapus</Button>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

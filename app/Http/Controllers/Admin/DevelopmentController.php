@@ -23,6 +23,13 @@ class DevelopmentController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Pembangunan/Form', [
+            'categories' => DevelopmentCategory::orderBy('nama')->get(),
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -42,6 +49,14 @@ class DevelopmentController extends Controller
         Development::create($validated);
 
         return back()->with('success', 'Pembangunan berhasil ditambahkan.');
+    }
+
+    public function edit(Development $development): Response
+    {
+        return Inertia::render('Admin/Pembangunan/Form', [
+            'development' => $development->load('category'),
+            'categories' => DevelopmentCategory::orderBy('nama')->get(),
+        ]);
     }
 
     public function update(Request $request, Development $development): RedirectResponse

@@ -20,6 +20,11 @@ class InstitutionController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Pemerintahan/LembagaForm');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -37,6 +42,13 @@ class InstitutionController extends Controller
         Institution::create($validated);
 
         return back()->with('success', 'Lembaga berhasil ditambahkan.');
+    }
+
+    public function edit(Institution $institution): Response
+    {
+        return Inertia::render('Admin/Pemerintahan/LembagaForm', [
+            'institution' => $institution->load('members'),
+        ]);
     }
 
     public function update(Request $request, Institution $institution): RedirectResponse

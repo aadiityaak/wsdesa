@@ -18,6 +18,11 @@ class AnnouncementController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Pengumuman/Form');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -32,6 +37,13 @@ class AnnouncementController extends Controller
         Announcement::create($validated);
 
         return back()->with('success', 'Pengumuman berhasil ditambahkan.');
+    }
+
+    public function edit(Announcement $announcement): Response
+    {
+        return Inertia::render('Admin/Pengumuman/Form', [
+            'announcement' => $announcement,
+        ]);
     }
 
     public function update(Request $request, Announcement $announcement): RedirectResponse

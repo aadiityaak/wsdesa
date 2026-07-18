@@ -19,6 +19,11 @@ class GovernmentStaffController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Pemerintahan/Form');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -41,6 +46,13 @@ class GovernmentStaffController extends Controller
         GovernmentStaff::create($validated);
 
         return back()->with('success', 'Perangkat desa berhasil ditambahkan.');
+    }
+
+    public function edit(GovernmentStaff $staff): Response
+    {
+        return Inertia::render('Admin/Pemerintahan/Form', [
+            'staff' => $staff,
+        ]);
     }
 
     public function update(Request $request, GovernmentStaff $staff): RedirectResponse

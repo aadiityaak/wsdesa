@@ -2,7 +2,6 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 import { ref, computed } from 'vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, ChevronLeft } from '@lucide/vue';
+import { Plus, Pencil, Trash2, ChevronLeft, BookOpen } from '@lucide/vue';
 
 interface Resident {
     id: number;
@@ -143,100 +142,111 @@ const formatDate = (date: string | null) => {
     <Head title="Detail KK" />
 
     <div class="space-y-6">
-        <div class="flex items-center justify-between">
-            <div>
-                <Button variant="outline" size="sm" as="a" href="/admin/kependudukan/kk" class="mb-3">
-                    <ChevronLeft class="size-4" />
+        <!-- Hero banner with back button -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-50 to-white px-6 py-8 shadow-sm ring-1 ring-zinc-100 dark:from-zinc-900 dark:to-zinc-950 dark:ring-zinc-800 sm:px-10">
+            <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-rose-100/40 blur-3xl dark:bg-rose-900/10" aria-hidden="true" />
+            <div class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-amber-100/30 blur-3xl dark:bg-amber-900/10" aria-hidden="true" />
+
+            <div class="relative">
+                <Button variant="outline" size="sm" as="a" href="/admin/kependudukan/kk" class="mb-4 rounded-full">
+                    <ChevronLeft class="h-4 w-4" />
                     Kembali ke Daftar KK
                 </Button>
-                <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">
-                    Detail Kartu Keluarga
-                </h1>
+
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                            <BookOpen class="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Detail Kartu Keluarga</h1>
+                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">{{ family.no_kk }}</p>
+                        </div>
+                    </div>
+                    <Button class="gap-2 rounded-full bg-rose-500 text-white shadow-sm hover:bg-rose-600" @click="openAddDialog">
+                        <Plus class="h-4 w-4" />
+                        Tambah Anggota
+                    </Button>
+                </div>
             </div>
-            <Button @click="openAddDialog">
-                <Plus class="size-4" />
-                Tambah Anggota
-            </Button>
         </div>
 
         <!-- KK Header Info -->
-        <Card>
-            <CardContent class="py-4">
+        <div class="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="px-5 py-4">
                 <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
                     <div>
-                        <p class="text-sm text-zinc-500">Nomor KK</p>
-                        <p class="font-medium">{{ family.no_kk }}</p>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Nomor KK</p>
+                        <p class="font-medium text-zinc-900 dark:text-white">{{ family.no_kk }}</p>
                     </div>
                     <div>
-                        <p class="text-sm text-zinc-500">Alamat</p>
-                        <p class="font-medium">{{ family.alamat }}</p>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Alamat</p>
+                        <p class="font-medium text-zinc-900 dark:text-white">{{ family.alamat }}</p>
                     </div>
                     <div>
-                        <p class="text-sm text-zinc-500">RT / RW</p>
-                        <p class="font-medium">{{ family.rt }} / {{ family.rw }}</p>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">RT / RW</p>
+                        <p class="font-medium text-zinc-900 dark:text-white">{{ family.rt }} / {{ family.rw }}</p>
                     </div>
                     <div>
-                        <p class="text-sm text-zinc-500">Dusun</p>
-                        <p class="font-medium">{{ family.dusun || '-' }}</p>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Dusun</p>
+                        <p class="font-medium text-zinc-900 dark:text-white">{{ family.dusun || '-' }}</p>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
 
         <!-- Members Table -->
-        <Card>
-            <CardHeader class="pb-3">
-                <CardTitle>Anggota Keluarga ({{ family.residents.length }})</CardTitle>
-            </CardHeader>
-            <CardContent class="p-0">
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400 w-12">#</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">NIK</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Nama</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">JK</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Hubungan</th>
-                                <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Tempat/Tgl Lahir</th>
-                                <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="(resident, index) in family.residents"
-                                :key="resident.id"
-                                class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
-                            >
-                                <td class="px-4 py-3 text-zinc-500">{{ index + 1 }}</td>
-                                <td class="px-4 py-3 font-medium">{{ resident.nik }}</td>
-                                <td class="px-4 py-3">{{ resident.nama }}</td>
-                                <td class="px-4 py-3 text-zinc-500">{{ resident.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                                <td class="px-4 py-3 text-zinc-500">{{ resident.hubungan_keluarga }}</td>
-                                <td class="px-4 py-3 text-zinc-500">
-                                    {{ resident.tempat_lahir }}, {{ formatDate(resident.tanggal_lahir) }}
-                                </td>
-                                <td class="px-4 py-3 text-right">
-                                    <div class="flex items-center justify-end gap-1">
-                                        <Button variant="ghost" size="icon-sm" @click="openEditDialog(resident)">
-                                            <Pencil class="size-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon-sm" @click="confirmDelete(resident)">
-                                            <Trash2 class="size-4 text-red-500" />
-                                        </Button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr v-if="family.residents.length === 0">
-                                <td colspan="7" class="px-4 py-12 text-center text-zinc-500">
-                                    Belum ada anggota keluarga.
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </CardContent>
-        </Card>
+        <div class="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="border-b border-zinc-100 px-5 py-3 dark:border-zinc-800">
+                <h2 class="font-semibold text-zinc-900 dark:text-white">Anggota Keluarga ({{ family.residents.length }})</h2>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-zinc-100 bg-zinc-50/50 dark:border-zinc-800 dark:bg-zinc-800/50">
+                            <th class="w-12 px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">NIK</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Nama</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">JK</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Hubungan</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Tempat/Tgl Lahir</th>
+                            <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="(resident, index) in family.residents"
+                            :key="resident.id"
+                            class="border-b border-zinc-50 transition-colors hover:bg-zinc-50/50 dark:border-zinc-800 dark:hover:bg-zinc-800/50"
+                        >
+                            <td class="px-4 py-3 text-zinc-400 dark:text-zinc-500">{{ index + 1 }}</td>
+                            <td class="px-4 py-3 font-medium text-zinc-900 dark:text-white">{{ resident.nik }}</td>
+                            <td class="px-4 py-3 text-zinc-700 dark:text-zinc-300">{{ resident.nama }}</td>
+                            <td class="px-4 py-3 text-zinc-500 dark:text-zinc-400">{{ resident.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                            <td class="px-4 py-3 text-zinc-500 dark:text-zinc-400">{{ resident.hubungan_keluarga }}</td>
+                            <td class="px-4 py-3 text-zinc-500 dark:text-zinc-400">
+                                {{ resident.tempat_lahir }}, {{ formatDate(resident.tanggal_lahir) }}
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="openEditDialog(resident)">
+                                        <Pencil class="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(resident)">
+                                        <Trash2 class="h-4 w-4 text-red-500" />
+                                    </Button>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr v-if="family.residents.length === 0">
+                            <td colspan="7" class="px-4 py-12 text-center text-zinc-500 dark:text-zinc-400">
+                                Belum ada anggota keluarga.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
 
         <!-- Dialog Tambah/Edit Anggota -->
         <Dialog v-model:open="dialogOpen">
@@ -252,22 +262,22 @@ const formatDate = (date: string | null) => {
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-1.5">
                             <Label for="nik">NIK</Label>
-                            <Input id="nik" v-model="form.nik" required />
+                            <Input id="nik" v-model="form.nik" required class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                         <div class="grid gap-1.5">
                             <Label for="nama">Nama</Label>
-                            <Input id="nama" v-model="form.nama" required />
+                            <Input id="nama" v-model="form.nama" required class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-1.5">
                             <Label for="tempat_lahir">Tempat Lahir</Label>
-                            <Input id="tempat_lahir" v-model="form.tempat_lahir" />
+                            <Input id="tempat_lahir" v-model="form.tempat_lahir" class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                         <div class="grid gap-1.5">
                             <Label for="tanggal_lahir">Tanggal Lahir</Label>
-                            <Input id="tanggal_lahir" v-model="form.tanggal_lahir" type="date" />
+                            <Input id="tanggal_lahir" v-model="form.tanggal_lahir" type="date" class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                     </div>
 
@@ -287,35 +297,35 @@ const formatDate = (date: string | null) => {
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-1.5">
                             <Label for="agama">Agama</Label>
-                            <Input id="agama" v-model="form.agama" />
+                            <Input id="agama" v-model="form.agama" class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                         <div class="grid gap-1.5">
                             <Label for="status_perkawinan">Status Perkawinan</Label>
-                            <Input id="status_perkawinan" v-model="form.status_perkawinan" />
+                            <Input id="status_perkawinan" v-model="form.status_perkawinan" class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
                         <div class="grid gap-1.5">
                             <Label for="pekerjaan">Pekerjaan</Label>
-                            <Input id="pekerjaan" v-model="form.pekerjaan" />
+                            <Input id="pekerjaan" v-model="form.pekerjaan" class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                         <div class="grid gap-1.5">
                             <Label for="pendidikan">Pendidikan</Label>
-                            <Input id="pendidikan" v-model="form.pendidikan" />
+                            <Input id="pendidikan" v-model="form.pendidikan" class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                         </div>
                     </div>
 
                     <div class="grid gap-1.5">
                         <Label for="hubungan_keluarga">Hubungan Keluarga</Label>
-                        <Input id="hubungan_keluarga" v-model="form.hubungan_keluarga" required />
+                        <Input id="hubungan_keluarga" v-model="form.hubungan_keluarga" required class="rounded-xl border-zinc-200 focus:border-rose-300 dark:border-zinc-700" />
                     </div>
 
                     <DialogFooter class="mt-6">
-                        <Button type="button" variant="outline" @click="dialogOpen = false">
+                        <Button type="button" variant="outline" class="rounded-full" @click="dialogOpen = false">
                             Batal
                         </Button>
-                        <Button type="submit" :disabled="form.processing">
+                        <Button type="submit" class="rounded-full bg-rose-500 text-white hover:bg-rose-600" :disabled="form.processing">
                             {{ editingResident ? 'Simpan' : 'Tambah' }}
                         </Button>
                     </DialogFooter>
@@ -333,8 +343,8 @@ const formatDate = (date: string | null) => {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="deleteConfirmId = null">Batal</Button>
-                    <Button variant="destructive" :disabled="deleteForm.processing" @click="executeDelete">
+                    <Button variant="outline" class="rounded-full" @click="deleteConfirmId = null">Batal</Button>
+                    <Button variant="destructive" class="rounded-full" :disabled="deleteForm.processing" @click="executeDelete">
                         Hapus
                     </Button>
                 </DialogFooter>

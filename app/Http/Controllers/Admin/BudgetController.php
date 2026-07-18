@@ -25,6 +25,13 @@ class BudgetController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Apbdes/Form', [
+            'categories' => BudgetCategory::orderBy('nama')->get(),
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -39,6 +46,14 @@ class BudgetController extends Controller
         Budget::create($validated);
 
         return back()->with('success', 'APBDes berhasil ditambahkan.');
+    }
+
+    public function edit(Budget $budget): Response
+    {
+        return Inertia::render('Admin/Apbdes/Form', [
+            'budget' => $budget->load('category'),
+            'categories' => BudgetCategory::orderBy('nama')->get(),
+        ]);
     }
 
     public function update(Request $request, Budget $budget): RedirectResponse

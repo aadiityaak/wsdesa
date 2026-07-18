@@ -2,11 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 import { ref, computed } from 'vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
     Dialog,
     DialogContent,
@@ -15,25 +11,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Plus, Pencil, Trash2, Images } from '@lucide/vue';
+import { Plus, Pencil, Trash2, Construction, ArrowUp } from '@lucide/vue';
 
 interface DevCategory {
     id: number;
     nama: string;
-}
-
-interface DevImage {
-    id: number;
-    pembangunan_id: number;
-    image: string;
-    caption: string | null;
 }
 
 interface Development {
@@ -49,133 +31,28 @@ interface Development {
     latitude: string | null;
     longitude: string | null;
     category: DevCategory | null;
-    images: DevImage[];
-}
-
-interface Paginated {
-    data: Development[];
-    current_page: number;
-    last_page: number;
-    total: number;
-    links: { url: string | null; label: string; active: boolean }[];
 }
 
 const props = defineProps<{
-    developments: Paginated;
+    developments: Development[];
+    categories: DevCategory[];
 }>();
 
-const dialogOpen = ref(false);
 const deleteConfirmId = ref<number | null>(null);
-const editingDevelopment = ref<Development | null>(null);
-const photoViewOpen = ref(false);
-const photoDev = ref<Development | null>(null);
+const deleteForm = useForm({});
 
-const form = useForm({
-    nama: '',
-    development_category_id: '',
-    lokasi: '',
-    deskripsi: '',
-    anggaran: '',
-    sumber_dana: '',
-    tahun: '',
-    status: 'rencana',
-    latitude: '',
-    longitude: '',
-});
-
-const imageForm = useForm({
-    image: null as File | null,
-});
-
-const dialogTitle = computed(() => (editingDevelopment.value ? 'Edit Pembangunan' : 'Tambah Pembangunan'));
-
-const openAddDialog = () => {
-    editingDevelopment.value = null;
-    form.reset();
-    form.tahun = new Date().getFullYear().toString();
-    form.status = 'rencana';
-    form.clearErrors();
-    dialogOpen.value = true;
-};
-
-const openEditDialog = (item: Development) => {
-    editingDevelopment.value = item;
-    form.nama = item.nama;
-    form.development_category_id = String(item.development_category_id);
-    form.lokasi = item.lokasi;
-    form.deskripsi = item.deskripsi || '';
-    form.anggaran = String(item.anggaran);
-    form.sumber_dana = item.sumber_dana;
-    form.tahun = item.tahun;
-    form.status = item.status;
-    form.latitude = item.latitude || '';
-    form.longitude = item.longitude || '';
-    form.clearErrors();
-    dialogOpen.value = true;
-};
-
-const submitForm = () => {
-    if (editingDevelopment.value) {
-        form.put(`/admin/pembangunan/${editingDevelopment.value.id}`, {
-            onSuccess: () => {
-                dialogOpen.value = false;
-                toast.success('Pembangunan berhasil diperbarui.');
-            },
-        });
-    } else {
-        form.post('/admin/pembangunan', {
-            onSuccess: () => {
-                dialogOpen.value = false;
-                toast.success('Pembangunan berhasil ditambahkan.');
-            },
-        });
-    }
-};
-
-const confirmDelete = (item: Development) => {
-    deleteConfirmId.value = item.id;
+const confirmDelete = (id: number) => {
+    deleteConfirmId.value = id;
 };
 
 const executeDelete = () => {
     if (deleteConfirmId.value) {
-        form.delete(`/admin/pembangunan/${deleteConfirmId.value}`, {
+        deleteForm.delete(`/admin/pembangunan/${deleteConfirmId.value}`, {
             onSuccess: () => {
                 deleteConfirmId.value = null;
                 toast.success('Pembangunan berhasil dihapus.');
             },
         });
-    }
-};
-
-const openPhotos = (item: Development) => {
-    photoDev.value = item;
-    imageForm.reset();
-    imageForm.clearErrors();
-    photoViewOpen.value = true;
-};
-
-const uploadImage = () => {
-    if (!photoDev.value || !imageForm.image) return;
-    imageForm.transform((data) => ({ image: data.image })).post(`/admin/pembangunan/${photoDev.value.id}/foto`, {
-        onSuccess: () => {
-            imageForm.reset();
-            toast.success('Foto berhasil diupload.');
-        },
-    });
-};
-
-const deleteImage = (image: DevImage) => {
-    form.delete(`/admin/pembangunan/${image.pembangunan_id}/foto/${image.id}`, {
-        onSuccess: () => {
-            toast.success('Foto berhasil dihapus.');
-        },
-    });
-};
-
-const onImageChange = (e: Event) => {
-    const input = e.target as HTMLInputElement;
-    if (input.files?.[0]) {
-        imageForm.image = input.files[0];
     }
 };
 
@@ -188,251 +65,158 @@ const formatRupiah = (amount: number) => {
     }).format(amount);
 };
 
-const statusClass = (status: string) => {
+const statusVariant = (status: string) => {
     switch (status) {
-        case 'rencana':
-            return 'border-transparent bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300';
-        case 'berjalan':
-            return 'border-transparent bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
-        case 'selesai':
-            return 'border-transparent bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
-        case 'tertunda':
-            return 'border-transparent bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400';
-        default:
-            return 'border-transparent bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300';
+        case 'rencana': return 'secondary' as const;
+        case 'berjalan': return 'default' as const;
+        case 'selesai': return 'default' as const;
+        default: return 'secondary' as const;
     }
 };
 
 const statusLabel = (status: string) => {
     switch (status) {
-        case 'rencana':
-            return 'Rencana';
-        case 'berjalan':
-            return 'Berjalan';
-        case 'selesai':
-            return 'Selesai';
-        case 'tertunda':
-            return 'Tertunda';
-        default:
-            return status;
+        case 'rencana': return 'Rencana';
+        case 'berjalan': return 'Berjalan';
+        case 'selesai': return 'Selesai';
+        default: return status;
     }
 };
+
+const stats = computed(() => ({
+    total: props.developments.length,
+}));
+
+const showScrollTop = ref(false);
+const onScroll = () => { showScrollTop.value = window.scrollY > 400; };
+const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', onScroll, { passive: true });
+}
 </script>
 
 <template>
     <Head title="Pembangunan" />
 
-    <div class="space-y-6">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">Pembangunan</h1>
-            <Button @click="openAddDialog">
-                <Plus class="size-4" />
+    <div class="relative">
+        <!-- Scroll to top -->
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="translate-y-2 opacity-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-to-class="translate-y-2 opacity-0"
+        >
+            <button
+                v-if="showScrollTop"
+                type="button"
+                class="fixed bottom-8 right-8 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition hover:scale-105 hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                @click="scrollToTop"
+            >
+                <ArrowUp class="h-5 w-5" />
+            </button>
+        </Transition>
+
+        <!-- Hero banner -->
+        <div class="relative mb-10 overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-50 to-white px-6 py-10 shadow-sm ring-1 ring-zinc-100 dark:from-zinc-900 dark:to-zinc-950 dark:ring-zinc-800 sm:px-10 sm:py-12">
+            <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-rose-100/40 blur-3xl dark:bg-rose-900/10" aria-hidden="true" />
+            <div class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-amber-100/30 blur-3xl dark:bg-amber-900/10" aria-hidden="true" />
+
+            <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                            <Construction class="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">Pembangunan</h1>
+                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Kelola data pembangunan desa</p>
+                        </div>
+                    </div>
+                </div>
+                <Button as="a" href="/admin/pembangunan/tambah" class="gap-2 rounded-full bg-rose-500 text-white shadow-sm hover:bg-rose-600">
+                    <Plus class="h-4 w-4" />
+                    Tambah Pembangunan
+                </Button>
+            </div>
+
+            <!-- Stats -->
+            <div class="relative mt-6">
+                <div class="inline-flex items-center gap-2 rounded-xl border border-zinc-100 bg-white/60 px-5 py-3 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+                    <Construction class="h-5 w-5 text-zinc-400" />
+                    <span class="text-2xl font-bold text-zinc-900 dark:text-white">{{ stats.total }}</span>
+                    <span class="text-sm text-zinc-500 dark:text-zinc-400">Proyek</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div v-if="developments.length === 0" class="rounded-2xl border border-zinc-100 bg-white px-6 py-16 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <Construction class="mx-auto h-12 w-12 text-zinc-300 dark:text-zinc-600" />
+            <p class="mt-4 text-base font-medium text-zinc-600 dark:text-zinc-400">Belum ada data pembangunan</p>
+            <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">Tambahkan data pembangunan desa.</p>
+            <Button as="a" href="/admin/pembangunan/tambah" class="mt-4 gap-2 rounded-full bg-rose-500 text-white hover:bg-rose-600">
+                <Plus class="h-4 w-4" />
                 Tambah Pembangunan
             </Button>
         </div>
 
-        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            <Card v-for="(item, index) in developments.data" :key="item.id" class="overflow-hidden">
-                <div class="aspect-video bg-zinc-100 dark:bg-zinc-800">
-                    <img
-                        v-if="item.images?.length"
-                        :src="`/storage/${item.images[0].image}`"
-                        :alt="item.nama"
-                        class="h-full w-full object-cover"
-                    />
-                    <div v-else class="flex h-full items-center justify-center text-zinc-400">
-                        <Images class="size-10" />
-                    </div>
-                </div>
-                <CardContent class="pt-4">
-                    <div class="mb-2 flex items-center justify-between">
-                        <Badge :class="statusClass(item.status)">{{ statusLabel(item.status) }}</Badge>
-                        <span class="text-xs text-zinc-400">{{ item.tahun }}</span>
-                    </div>
-                    <h3 class="mb-1 font-semibold">{{ item.nama }}</h3>
-                    <p class="mb-1 text-sm text-zinc-500">{{ item.category?.nama || '-' }} &middot; {{ item.lokasi }}</p>
-                    <p class="mb-3 text-sm font-semibold text-zinc-700 dark:text-zinc-300">{{ formatRupiah(item.anggaran) }}</p>
-                    <div class="flex flex-wrap gap-1">
-                        <Button variant="outline" size="sm" @click="openPhotos(item)">
-                            <Images class="size-3" />
-                            Foto
-                        </Button>
-                        <Button variant="ghost" size="sm" @click="openEditDialog(item)">
-                            <Pencil class="size-3" />
-                        </Button>
-                        <Button variant="ghost" size="sm" @click="confirmDelete(item)">
-                            <Trash2 class="size-3 text-red-500" />
-                        </Button>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
-
-        <div v-if="developments.data.length === 0" class="py-12 text-center text-zinc-500">
-            Belum ada data pembangunan.
-        </div>
-
-        <div v-if="developments.last_page > 1" class="flex items-center justify-between">
-            <span class="text-sm text-zinc-500">
-                Halaman {{ developments.current_page }} dari {{ developments.last_page }}
-            </span>
-            <div class="flex gap-1">
-                <a
-                    v-for="link in developments.links"
-                    :key="link.label"
-                    :href="link.url || '#'"
-                    class="rounded-md px-3 py-1 text-sm transition-colors"
-                    :class="link.active
-                        ? 'bg-primary text-primary-foreground'
-                        : !link.url
-                            ? 'text-zinc-300 pointer-events-none'
-                            : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'"
-                    v-html="link.label"
-                />
+        <!-- Data table -->
+        <div v-else class="rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Nama</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Kategori</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Status</th>
+                            <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Anggaran</th>
+                            <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="(item, index) in developments"
+                            :key="item.id"
+                            class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                        >
+                            <td class="px-4 py-3 text-zinc-500">{{ index + 1 }}</td>
+                            <td class="px-4 py-3 font-medium text-zinc-900 dark:text-white">
+                                <div>{{ item.nama }}</div>
+                                <div class="text-xs text-zinc-400">{{ item.lokasi }}</div>
+                            </td>
+                            <td class="px-4 py-3 text-zinc-500">{{ item.category?.nama || '-' }}</td>
+                            <td class="px-4 py-3">
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                    :class="{
+                                        'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300': item.status === 'rencana',
+                                        'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400': item.status === 'berjalan',
+                                        'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400': item.status === 'selesai',
+                                    }"
+                                >
+                                    {{ statusLabel(item.status) }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right font-mono text-sm text-zinc-700 dark:text-zinc-300">{{ formatRupiah(item.anggaran) }}</td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/pembangunan/${item.id}/edit`" class="rounded-lg">
+                                        <Pencil class="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
+                                        <Trash2 class="h-4 w-4 text-red-500" />
+                                    </Button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Add/Edit Dialog -->
-        <Dialog v-model:open="dialogOpen">
-            <DialogContent class="sm:max-w-lg">
-                <DialogHeader>
-                    <DialogTitle>{{ dialogTitle }}</DialogTitle>
-                    <DialogDescription>
-                        {{ editingDevelopment ? 'Perbarui data pembangunan.' : 'Tambahkan data pembangunan baru.' }}
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form @submit.prevent="submitForm" class="space-y-4">
-                    <div class="grid gap-1.5">
-                        <Label for="nama">Nama</Label>
-                        <Input id="nama" v-model="form.nama" required />
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="development_category_id">Kategori</Label>
-                        <Select v-model="form.development_category_id">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Pilih kategori" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="1">Infrastruktur</SelectItem>
-                                <SelectItem value="2">Pendidikan</SelectItem>
-                                <SelectItem value="3">Kesehatan</SelectItem>
-                                <SelectItem value="4">Ekonomi</SelectItem>
-                                <SelectItem value="5">Sosial</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="lokasi">Lokasi</Label>
-                        <Input id="lokasi" v-model="form.lokasi" required />
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="deskripsi">Deskripsi</Label>
-                        <textarea
-                            id="deskripsi"
-                            v-model="form.deskripsi"
-                            rows="3"
-                            class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        ></textarea>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-1.5">
-                            <Label for="anggaran">Anggaran (Rp)</Label>
-                            <Input id="anggaran" v-model="form.anggaran" required type="number" />
-                        </div>
-                        <div class="grid gap-1.5">
-                            <Label for="sumber_dana">Sumber Dana</Label>
-                            <Input id="sumber_dana" v-model="form.sumber_dana" required />
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-1.5">
-                            <Label for="tahun">Tahun</Label>
-                            <Input id="tahun" v-model="form.tahun" required type="number" />
-                        </div>
-                        <div class="grid gap-1.5">
-                            <Label for="status">Status</Label>
-                            <Select v-model="form.status">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih status" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="rencana">Rencana</SelectItem>
-                                    <SelectItem value="berjalan">Berjalan</SelectItem>
-                                    <SelectItem value="selesai">Selesai</SelectItem>
-                                    <SelectItem value="tertunda">Tertunda</SelectItem>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="grid gap-1.5">
-                            <Label for="latitude">Latitude</Label>
-                            <Input id="latitude" v-model="form.latitude" />
-                        </div>
-                        <div class="grid gap-1.5">
-                            <Label for="longitude">Longitude</Label>
-                            <Input id="longitude" v-model="form.longitude" />
-                        </div>
-                    </div>
-
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="dialogOpen = false">Batal</Button>
-                        <Button type="submit" :disabled="form.processing">
-                            {{ editingDevelopment ? 'Simpan' : 'Tambah' }}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
-
-        <!-- Photo Management Dialog -->
-        <Dialog v-model:open="photoViewOpen">
-            <DialogContent class="sm:max-w-2xl">
-                <DialogHeader>
-                    <DialogTitle v-if="photoDev">Kelola Foto - {{ photoDev.nama }}</DialogTitle>
-                    <DialogDescription>Upload dan kelola foto pembangunan.</DialogDescription>
-                </DialogHeader>
-
-                <div class="space-y-4">
-                    <form @submit.prevent="uploadImage" class="flex items-end gap-3">
-                        <div class="grid flex-1 gap-1.5">
-                            <Label for="devImage">Upload Foto</Label>
-                            <Input id="devImage" type="file" accept="image/*" @change="onImageChange" />
-                        </div>
-                        <Button type="submit" :disabled="imageForm.processing || !imageForm.image">
-                            Upload
-                        </Button>
-                    </form>
-
-                    <div v-if="photoDev?.images?.length" class="grid grid-cols-3 gap-3 sm:grid-cols-4">
-                        <div
-                            v-for="image in photoDev.images"
-                            :key="image.id"
-                            class="group relative aspect-square overflow-hidden rounded-lg border"
-                        >
-                            <img
-                                :src="`/storage/${image.image}`"
-                                :alt="image.caption || ''"
-                                class="h-full w-full object-cover"
-                            />
-                            <Button
-                                variant="destructive"
-                                size="sm"
-                                class="absolute right-1 top-1 opacity-0 transition-opacity group-hover:opacity-100"
-                                @click="deleteImage(image)"
-                            >
-                                <Trash2 class="size-3" />
-                            </Button>
-                        </div>
-                    </div>
-                    <p v-else class="py-8 text-center text-sm text-zinc-400">Belum ada foto.</p>
-                </div>
-            </DialogContent>
-        </Dialog>
-
         <!-- Delete Confirm -->
-        <Dialog :open="deleteConfirmId !== null" @update:open="deleteConfirmId = null">
+        <Dialog :open="deleteConfirmId !== null" @update:open="() => (deleteConfirmId = null)">
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Konfirmasi Hapus</DialogTitle>
@@ -441,8 +225,8 @@ const statusLabel = (status: string) => {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="deleteConfirmId = null">Batal</Button>
-                    <Button variant="destructive" :disabled="form.processing" @click="executeDelete">
+                    <Button variant="outline" class="rounded-full" @click="deleteConfirmId = null">Batal</Button>
+                    <Button variant="destructive" class="rounded-full" :disabled="deleteForm.processing" @click="executeDelete">
                         Hapus
                     </Button>
                 </DialogFooter>

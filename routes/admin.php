@@ -34,13 +34,17 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Pemerintahan - Perangkat Desa
     Route::get('/pemerintahan', [GovernmentStaffController::class, 'index'])->name('pemerintahan.index');
+    Route::get('/pemerintahan/tambah', [GovernmentStaffController::class, 'create'])->name('pemerintahan.create');
     Route::post('/pemerintahan', [GovernmentStaffController::class, 'store'])->name('pemerintahan.store');
+    Route::get('/pemerintahan/{staff}/edit', [GovernmentStaffController::class, 'edit'])->name('pemerintahan.edit');
     Route::put('/pemerintahan/{staff}', [GovernmentStaffController::class, 'update'])->name('pemerintahan.update');
     Route::delete('/pemerintahan/{staff}', [GovernmentStaffController::class, 'destroy'])->name('pemerintahan.destroy');
 
     // Pemerintahan - Lembaga
     Route::get('/lembaga', [InstitutionController::class, 'index'])->name('lembaga.index');
+    Route::get('/lembaga/tambah', [InstitutionController::class, 'create'])->name('lembaga.create');
     Route::post('/lembaga', [InstitutionController::class, 'store'])->name('lembaga.store');
+    Route::get('/lembaga/{institution}/edit', [InstitutionController::class, 'edit'])->name('lembaga.edit');
     Route::put('/lembaga/{institution}', [InstitutionController::class, 'update'])->name('lembaga.update');
     Route::delete('/lembaga/{institution}', [InstitutionController::class, 'destroy'])->name('lembaga.destroy');
     Route::post('/lembaga/{institution}/anggota', [InstitutionController::class, 'storeMember'])->name('lembaga.member.store');
@@ -56,7 +60,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Kategori Berita
     Route::get('/kategori-berita', [PostCategoryController::class, 'index'])->name('kategori-berita.index');
+    Route::get('/kategori-berita/tambah', [PostCategoryController::class, 'create'])->name('kategori-berita.create');
     Route::post('/kategori-berita', [PostCategoryController::class, 'store'])->name('kategori-berita.store');
+    Route::get('/kategori-berita/{postCategory}/edit', [PostCategoryController::class, 'edit'])->name('kategori-berita.edit');
     Route::put('/kategori-berita/{postCategory}', [PostCategoryController::class, 'update'])->name('kategori-berita.update');
     Route::delete('/kategori-berita/{postCategory}', [PostCategoryController::class, 'destroy'])->name('kategori-berita.destroy');
 
@@ -130,7 +136,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // UMKM
     Route::get('/umkm', [UmkmController::class, 'index'])->name('umkm.index');
+    Route::get('/umkm/tambah', [UmkmController::class, 'create'])->name('umkm.create');
     Route::post('/umkm', [UmkmController::class, 'store'])->name('umkm.store');
+    Route::get('/umkm/{umkm}/edit', [UmkmController::class, 'edit'])->name('umkm.edit');
     Route::put('/umkm/{umkm}', [UmkmController::class, 'update'])->name('umkm.update');
     Route::delete('/umkm/{umkm}', [UmkmController::class, 'destroy'])->name('umkm.destroy');
     Route::post('/umkm/{umkm}/foto', [UmkmController::class, 'storeImage'])->name('umkm.image.store');
@@ -142,19 +150,25 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Potensi
     Route::get('/potensi', [PotentialController::class, 'index'])->name('potensi.index');
+    Route::get('/potensi/tambah', [PotentialController::class, 'create'])->name('potensi.create');
     Route::post('/potensi', [PotentialController::class, 'store'])->name('potensi.store');
+    Route::get('/potensi/{potential}/edit', [PotentialController::class, 'edit'])->name('potensi.edit');
     Route::put('/potensi/{potential}', [PotentialController::class, 'update'])->name('potensi.update');
     Route::delete('/potensi/{potential}', [PotentialController::class, 'destroy'])->name('potensi.destroy');
 
     // APBDes
     Route::get('/apbdes', [BudgetController::class, 'index'])->name('apbdes.index');
+    Route::get('/apbdes/tambah', [BudgetController::class, 'create'])->name('apbdes.create');
     Route::post('/apbdes', [BudgetController::class, 'store'])->name('apbdes.store');
+    Route::get('/apbdes/{budget}/edit', [BudgetController::class, 'edit'])->name('apbdes.edit');
     Route::put('/apbdes/{budget}', [BudgetController::class, 'update'])->name('apbdes.update');
     Route::delete('/apbdes/{budget}', [BudgetController::class, 'destroy'])->name('apbdes.destroy');
 
     // Pembangunan
     Route::get('/pembangunan', [DevelopmentController::class, 'index'])->name('pembangunan.index');
+    Route::get('/pembangunan/tambah', [DevelopmentController::class, 'create'])->name('pembangunan.create');
     Route::post('/pembangunan', [DevelopmentController::class, 'store'])->name('pembangunan.store');
+    Route::get('/pembangunan/{development}/edit', [DevelopmentController::class, 'edit'])->name('pembangunan.edit');
     Route::put('/pembangunan/{development}', [DevelopmentController::class, 'update'])->name('pembangunan.update');
     Route::delete('/pembangunan/{development}', [DevelopmentController::class, 'destroy'])->name('pembangunan.destroy');
     Route::post('/pembangunan/{development}/foto', [DevelopmentController::class, 'storeImage'])->name('pembangunan.image.store');
@@ -162,26 +176,35 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Halaman
     Route::get('/halaman', [PageController::class, 'index'])->name('halaman.index');
+    Route::get('/halaman/tambah', [PageController::class, 'create'])->name('halaman.create');
     Route::post('/halaman', [PageController::class, 'store'])->name('halaman.store');
+    Route::get('/halaman/{page}/edit', [PageController::class, 'edit'])->name('halaman.edit');
     Route::put('/halaman/{page}', [PageController::class, 'update'])->name('halaman.update');
     Route::delete('/halaman/{page}', [PageController::class, 'destroy'])->name('halaman.destroy');
 
     // Slider
     Route::get('/slider', [SliderController::class, 'index'])->name('slider.index');
+    Route::get('/slider/tambah', [SliderController::class, 'create'])->name('slider.create');
     Route::post('/slider', [SliderController::class, 'store'])->name('slider.store');
+    Route::get('/slider/{slider}/edit', [SliderController::class, 'edit'])->name('slider.edit');
     Route::put('/slider/{slider}', [SliderController::class, 'update'])->name('slider.update');
     Route::delete('/slider/{slider}', [SliderController::class, 'destroy'])->name('slider.destroy');
     Route::put('/slider/sort', [SliderController::class, 'sort'])->name('slider.sort');
 
     // Pengumuman
     Route::get('/pengumuman', [AnnouncementController::class, 'index'])->name('pengumuman.index');
+    Route::get('/pengumuman/tambah', [AnnouncementController::class, 'create'])->name('pengumuman.create');
     Route::post('/pengumuman', [AnnouncementController::class, 'store'])->name('pengumuman.store');
+    Route::get('/pengumuman/{announcement}/edit', [AnnouncementController::class, 'edit'])->name('pengumuman.edit');
     Route::put('/pengumuman/{announcement}', [AnnouncementController::class, 'update'])->name('pengumuman.update');
     Route::delete('/pengumuman/{announcement}', [AnnouncementController::class, 'destroy'])->name('pengumuman.destroy');
 
     // Download
     Route::get('/download', [DownloadController::class, 'index'])->name('download.index');
+    Route::get('/download/tambah', [DownloadController::class, 'create'])->name('download.create');
     Route::post('/download', [DownloadController::class, 'store'])->name('download.store');
+    Route::get('/download/{download}/edit', [DownloadController::class, 'edit'])->name('download.edit');
+    Route::put('/download/{download}', [DownloadController::class, 'update'])->name('download.update');
     Route::delete('/download/{download}', [DownloadController::class, 'destroy'])->name('download.destroy');
 
     // Pengguna

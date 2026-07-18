@@ -19,6 +19,11 @@ class PostCategoryController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Kategori/Form');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -31,6 +36,13 @@ class PostCategoryController extends Controller
         PostCategory::create($validated);
 
         return back()->with('success', 'Kategori berhasil ditambahkan.');
+    }
+
+    public function edit(PostCategory $postCategory): Response
+    {
+        return Inertia::render('Admin/Kategori/Form', [
+            'category' => $postCategory,
+        ]);
     }
 
     public function update(Request $request, PostCategory $postCategory): RedirectResponse

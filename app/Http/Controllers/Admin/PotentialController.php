@@ -22,6 +22,13 @@ class PotentialController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Potensi/Form', [
+            'categories' => PotentialCategory::orderBy('nama')->get(),
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -41,6 +48,14 @@ class PotentialController extends Controller
         Potential::create($validated);
 
         return back()->with('success', 'Potensi berhasil ditambahkan.');
+    }
+
+    public function edit(Potential $potential): Response
+    {
+        return Inertia::render('Admin/Potensi/Form', [
+            'potential' => $potential->load('category'),
+            'categories' => PotentialCategory::orderBy('nama')->get(),
+        ]);
     }
 
     public function update(Request $request, Potential $potential): RedirectResponse

@@ -2,10 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 import { ref, computed } from 'vue';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Dialog,
     DialogContent,
@@ -14,14 +11,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
-import { Plus, Pencil, Trash2 } from '@lucide/vue';
+import { Plus, Pencil, Trash2, Wallet, ArrowUp } from '@lucide/vue';
 
 interface BudgetCategory {
     id: number;
@@ -40,68 +30,20 @@ interface Budget {
 }
 
 const props = defineProps<{
-    budgets: Budget[];
+    budgets: Record<string, Budget[]>;
     categories: BudgetCategory[];
 }>();
 
-const dialogOpen = ref(false);
 const deleteConfirmId = ref<number | null>(null);
-const editingBudget = ref<Budget | null>(null);
+const deleteForm = useForm({});
 
-const form = useForm({
-    budget_category_id: '',
-    tahun: '',
-    anggaran: '',
-    realisasi: '',
-    keterangan: '',
-});
-
-const dialogTitle = computed(() => (editingBudget.value ? 'Edit APBDes' : 'Tambah APBDes'));
-
-const openAddDialog = (year?: string) => {
-    editingBudget.value = null;
-    form.reset();
-    form.tahun = year || new Date().getFullYear().toString();
-    form.clearErrors();
-    dialogOpen.value = true;
-};
-
-const openEditDialog = (item: Budget) => {
-    editingBudget.value = item;
-    form.budget_category_id = String(item.budget_category_id);
-    form.tahun = item.tahun;
-    form.anggaran = String(item.anggaran);
-    form.realisasi = String(item.realisasi);
-    form.keterangan = item.keterangan || '';
-    form.clearErrors();
-    dialogOpen.value = true;
-};
-
-const submitForm = () => {
-    if (editingBudget.value) {
-        form.put(`/admin/apbdes/${editingBudget.value.id}`, {
-            onSuccess: () => {
-                dialogOpen.value = false;
-                toast.success('APBDes berhasil diperbarui.');
-            },
-        });
-    } else {
-        form.post('/admin/apbdes', {
-            onSuccess: () => {
-                dialogOpen.value = false;
-                toast.success('APBDes berhasil ditambahkan.');
-            },
-        });
-    }
-};
-
-const confirmDelete = (item: Budget) => {
-    deleteConfirmId.value = item.id;
+const confirmDelete = (id: number) => {
+    deleteConfirmId.value = id;
 };
 
 const executeDelete = () => {
     if (deleteConfirmId.value) {
-        form.delete(`/admin/apbdes/${deleteConfirmId.value}`, {
+        deleteForm.delete(`/admin/apbdes/${deleteConfirmId.value}`, {
             onSuccess: () => {
                 deleteConfirmId.value = null;
                 toast.success('APBDes berhasil dihapus.');
@@ -124,43 +66,110 @@ const persenRealisasi = (anggaran: number, realisasi: number) => {
     return ((realisasi / anggaran) * 100).toFixed(1) + '%';
 };
 
-// Group budgets by year
 const groupedByYear = computed(() => {
-    const groups: Record<string, Budget[]> = {};
-    for (const b of props.budgets) {
-        if (!groups[b.tahun]) {
-            groups[b.tahun] = [];
-        }
-        groups[b.tahun].push(b);
-    }
-    // Sort years descending
-    return Object.entries(groups).sort(([a], [b]) => b.localeCompare(a));
+    const entry = props.budgets;
+    const entries = Object.entries(entry);
+    return entries.sort(([a], [b]) => b.localeCompare(a));
 });
+
+const totalItems = computed(() => {
+    let count = 0;
+    for (const items of Object.values(props.budgets)) {
+        count += items.length;
+    }
+    return count;
+});
+
+const totalYears = computed(() => Object.keys(props.budgets).length);
+
+const showScrollTop = ref(false);
+const onScroll = () => { showScrollTop.value = window.scrollY > 400; };
+const scrollToTop = () => { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+if (typeof window !== 'undefined') {
+    window.addEventListener('scroll', onScroll, { passive: true });
+}
 </script>
 
 <template>
     <Head title="APBDes" />
 
-    <div class="space-y-6">
-        <div class="flex items-center justify-between">
-            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white">APBDes</h1>
-            <Button @click="openAddDialog()">
-                <Plus class="size-4" />
+    <div class="relative">
+        <!-- Scroll to top -->
+        <Transition
+            enter-active-class="transition duration-200 ease-out"
+            enter-from-class="translate-y-2 opacity-0"
+            leave-active-class="transition duration-150 ease-in"
+            leave-to-class="translate-y-2 opacity-0"
+        >
+            <button
+                v-if="showScrollTop"
+                type="button"
+                class="fixed bottom-8 right-8 z-50 flex h-11 w-11 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg transition hover:scale-105 hover:bg-zinc-700 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-200"
+                @click="scrollToTop"
+            >
+                <ArrowUp class="h-5 w-5" />
+            </button>
+        </Transition>
+
+        <!-- Hero banner -->
+        <div class="relative mb-10 overflow-hidden rounded-2xl bg-gradient-to-br from-zinc-50 to-white px-6 py-10 shadow-sm ring-1 ring-zinc-100 dark:from-zinc-900 dark:to-zinc-950 dark:ring-zinc-800 sm:px-10 sm:py-12">
+            <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-rose-100/40 blur-3xl dark:bg-rose-900/10" aria-hidden="true" />
+            <div class="pointer-events-none absolute -bottom-20 -left-20 h-72 w-72 rounded-full bg-amber-100/30 blur-3xl dark:bg-amber-900/10" aria-hidden="true" />
+
+            <div class="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                    <div class="flex items-center gap-3">
+                        <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                            <Wallet class="h-6 w-6" />
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold tracking-tight text-zinc-900 dark:text-white sm:text-3xl">APBDes</h1>
+                            <p class="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">Kelola anggaran pendapatan dan belanja desa</p>
+                        </div>
+                    </div>
+                </div>
+                <Button as="a" href="/admin/apbdes/tambah" class="gap-2 rounded-full bg-rose-500 text-white shadow-sm hover:bg-rose-600">
+                    <Plus class="h-4 w-4" />
+                    Tambah APBDes
+                </Button>
+            </div>
+
+            <!-- Stats -->
+            <div class="relative mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+                <div class="rounded-xl border border-zinc-100 bg-white/60 px-4 py-3 text-center backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+                    <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ totalItems }}</p>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Total Item</p>
+                </div>
+                <div class="rounded-xl border border-zinc-100 bg-white/60 px-4 py-3 text-center backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-900/60">
+                    <p class="text-2xl font-bold text-rose-600 dark:text-rose-400">{{ totalYears }}</p>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Tahun Anggaran</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty state -->
+        <div v-if="totalItems === 0" class="rounded-2xl border border-zinc-100 bg-white px-6 py-16 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <Wallet class="mx-auto h-12 w-12 text-zinc-300 dark:text-zinc-600" />
+            <p class="mt-4 text-base font-medium text-zinc-600 dark:text-zinc-400">Belum ada data APBDes</p>
+            <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">Tambahkan data anggaran pendapatan dan belanja desa.</p>
+            <Button as="a" href="/admin/apbdes/tambah" class="mt-4 gap-2 rounded-full bg-rose-500 text-white hover:bg-rose-600">
+                <Plus class="h-4 w-4" />
                 Tambah APBDes
             </Button>
         </div>
 
-        <div v-for="[tahun, items] in groupedByYear" :key="tahun" class="space-y-4">
-            <div class="flex items-center justify-between">
-                <h2 class="text-lg font-semibold">Tahun {{ tahun }}</h2>
-                <Button size="sm" variant="outline" @click="openAddDialog(tahun)">
-                    <Plus class="size-3" />
-                    Tambah
-                </Button>
-            </div>
+        <!-- Year Groups -->
+        <div v-else class="space-y-8">
+            <div v-for="[tahun, items] in groupedByYear" :key="tahun" class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">Tahun {{ tahun }}</h2>
+                    <Button as="a" :href="`/admin/apbdes/tambah?tahun=${tahun}`" size="sm" variant="outline" class="rounded-full">
+                        <Plus class="h-3 w-3" />
+                        Tambah
+                    </Button>
+                </div>
 
-            <Card>
-                <CardContent class="p-0">
+                <div class="rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
                     <div class="overflow-x-auto">
                         <table class="w-full text-sm">
                             <thead>
@@ -182,18 +191,18 @@ const groupedByYear = computed(() => {
                                     <td class="px-4 py-3 text-zinc-500">{{ index + 1 }}</td>
                                     <td class="px-4 py-3">
                                         <span class="text-xs text-zinc-400 uppercase">{{ item.category?.tipe || '-' }}</span>
-                                        <span class="ml-1.5 font-medium">{{ item.category?.nama || '-' }}</span>
+                                        <span class="ml-1.5 font-medium text-zinc-900 dark:text-white">{{ item.category?.nama || '-' }}</span>
                                     </td>
-                                    <td class="px-4 py-3 text-right font-mono">{{ formatRupiah(item.anggaran) }}</td>
-                                    <td class="px-4 py-3 text-right font-mono">{{ formatRupiah(item.realisasi) }}</td>
-                                    <td class="px-4 py-3 text-right">{{ persenRealisasi(item.anggaran, item.realisasi) }}</td>
+                                    <td class="px-4 py-3 text-right font-mono text-zinc-700 dark:text-zinc-300">{{ formatRupiah(item.anggaran) }}</td>
+                                    <td class="px-4 py-3 text-right font-mono text-zinc-700 dark:text-zinc-300">{{ formatRupiah(item.realisasi) }}</td>
+                                    <td class="px-4 py-3 text-right text-zinc-500">{{ persenRealisasi(item.anggaran, item.realisasi) }}</td>
                                     <td class="px-4 py-3 text-right">
                                         <div class="flex items-center justify-end gap-1">
-                                            <Button variant="ghost" size="icon-sm" @click="openEditDialog(item)">
-                                                <Pencil class="size-4" />
+                                            <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/apbdes/${item.id}/edit`" class="rounded-lg">
+                                                <Pencil class="h-4 w-4" />
                                             </Button>
-                                            <Button variant="ghost" size="icon-sm" @click="confirmDelete(item)">
-                                                <Trash2 class="size-4 text-red-500" />
+                                            <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
+                                                <Trash2 class="h-4 w-4 text-red-500" />
                                             </Button>
                                         </div>
                                     </td>
@@ -201,72 +210,12 @@ const groupedByYear = computed(() => {
                             </tbody>
                         </table>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
-
-        <div v-if="budgets.length === 0" class="py-12 text-center text-zinc-500">
-            Belum ada data APBDes.
-        </div>
-
-        <!-- Add/Edit Dialog -->
-        <Dialog v-model:open="dialogOpen">
-            <DialogContent class="sm:max-w-md">
-                <DialogHeader>
-                    <DialogTitle>{{ dialogTitle }}</DialogTitle>
-                    <DialogDescription>
-                        {{ editingBudget ? 'Perbarui data APBDes.' : 'Tambahkan data APBDes baru.' }}
-                    </DialogDescription>
-                </DialogHeader>
-
-                <form @submit.prevent="submitForm" class="space-y-4">
-                    <div class="grid gap-1.5">
-                        <Label for="budget_category_id">Kategori</Label>
-                        <Select v-model="form.budget_category_id">
-                            <SelectTrigger>
-                                <SelectValue placeholder="Pilih kategori" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem v-for="cat in categories" :key="cat.id" :value="String(cat.id)">
-                                    {{ cat.tipe.toUpperCase() }} - {{ cat.nama }}
-                                </SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="tahun">Tahun</Label>
-                        <Input id="tahun" v-model="form.tahun" required type="number" min="2000" max="2100" />
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="anggaran">Anggaran (Rp)</Label>
-                        <Input id="anggaran" v-model="form.anggaran" required type="number" />
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="realisasi">Realisasi (Rp)</Label>
-                        <Input id="realisasi" v-model="form.realisasi" required type="number" />
-                    </div>
-                    <div class="grid gap-1.5">
-                        <Label for="keterangan">Keterangan</Label>
-                        <textarea
-                            id="keterangan"
-                            v-model="form.keterangan"
-                            rows="2"
-                            class="flex w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-                        ></textarea>
-                    </div>
-
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="dialogOpen = false">Batal</Button>
-                        <Button type="submit" :disabled="form.processing">
-                            {{ editingBudget ? 'Simpan' : 'Tambah' }}
-                        </Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
 
         <!-- Delete Confirm -->
-        <Dialog :open="deleteConfirmId !== null" @update:open="deleteConfirmId = null">
+        <Dialog :open="deleteConfirmId !== null" @update:open="() => (deleteConfirmId = null)">
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Konfirmasi Hapus</DialogTitle>
@@ -275,8 +224,8 @@ const groupedByYear = computed(() => {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" @click="deleteConfirmId = null">Batal</Button>
-                    <Button variant="destructive" :disabled="form.processing" @click="executeDelete">
+                    <Button variant="outline" class="rounded-full" @click="deleteConfirmId = null">Batal</Button>
+                    <Button variant="destructive" class="rounded-full" :disabled="deleteForm.processing" @click="executeDelete">
                         Hapus
                     </Button>
                 </DialogFooter>

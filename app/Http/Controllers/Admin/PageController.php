@@ -19,6 +19,11 @@ class PageController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Halaman/Form');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -31,6 +36,13 @@ class PageController extends Controller
         Page::create($validated);
 
         return back()->with('success', 'Halaman berhasil ditambahkan.');
+    }
+
+    public function edit(Page $page): Response
+    {
+        return Inertia::render('Admin/Halaman/Form', [
+            'page' => $page,
+        ]);
     }
 
     public function update(Request $request, Page $page): RedirectResponse

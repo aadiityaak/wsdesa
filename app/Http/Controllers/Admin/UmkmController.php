@@ -23,6 +23,13 @@ class UmkmController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Umkm/Form', [
+            'categories' => UmkmCategory::orderBy('nama')->get(),
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -46,6 +53,14 @@ class UmkmController extends Controller
         Umkm::create($validated);
 
         return back()->with('success', 'UMKM berhasil ditambahkan.');
+    }
+
+    public function edit(Umkm $umkm): Response
+    {
+        return Inertia::render('Admin/Umkm/Form', [
+            'umkm' => $umkm->load('category'),
+            'categories' => UmkmCategory::orderBy('nama')->get(),
+        ]);
     }
 
     public function update(Request $request, Umkm $umkm): RedirectResponse

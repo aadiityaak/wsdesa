@@ -19,6 +19,11 @@ class SliderController extends Controller
         ]);
     }
 
+    public function create(): Response
+    {
+        return Inertia::render('Admin/Slider/Form');
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
@@ -35,6 +40,13 @@ class SliderController extends Controller
         Slider::create($validated);
 
         return back()->with('success', 'Slider berhasil ditambahkan.');
+    }
+
+    public function edit(Slider $slider): Response
+    {
+        return Inertia::render('Admin/Slider/Form', [
+            'slider' => $slider,
+        ]);
     }
 
     public function update(Request $request, Slider $slider): RedirectResponse
