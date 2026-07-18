@@ -1,8 +1,10 @@
  <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Doughnut, Bar } from 'vue-chartjs';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import {
     ArrowRight,
     Calendar,
@@ -16,7 +18,11 @@ import {
     MessageSquare,
     Newspaper,
     ScrollText,
+    Users,
+    Landmark,
 } from '@lucide/vue';
+
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
 interface SliderItem {
     id: number;
@@ -46,10 +52,30 @@ interface EventItem {
     tanggal_selesai: string;
 }
 
+interface StatsData {
+    totalResidents: number;
+    byGender: Record<string, number>;
+    byAgeGroup: Record<string, number>;
+}
+
+interface BudgetCategorySummary {
+    anggaran: number;
+    realisasi: number;
+}
+
+interface BudgetSummary {
+    tahun: number;
+    pendapatan: BudgetCategorySummary;
+    belanja: BudgetCategorySummary;
+    pembiayaan: BudgetCategorySummary;
+}
+
 const props = defineProps<{
     sliders: SliderItem[];
     latestPosts: PostItem[];
     upcomingEvents: EventItem[];
+    stats: StatsData;
+    budgetSummary: BudgetSummary;
 }>();
 
 // --- Hero Slider ---
@@ -93,6 +119,85 @@ function handleImgError(url: string) {
 function showImage(url: string | null): boolean {
     return !!url && !failedImages.value.has(url);
 }
+
+function formatCurrency(value: number): string {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(value);
+}
+
+// --- Gender chart ---
+const genderChartData = computed(() => ({
+    labels: ['Laki-laki', 'Perempuan'],
+    datasets: [{
+        data: [props.stats.byGender?.L ?? 0, props.stats.byGender?.P ?? 0],
+        backgroundColor: ['#10b981', '#f472b6'],
+        borderWidth: 0,
+    }],
+}));
+
+const genderChartOptions = {
+    cutout: '65%',
+    plugins: { legend: { display: true, position: 'bottom' as const, labels: { padding: 16, usePointStyle: true } } },
+    maintainAspectRatio: true,
+};
+
+// --- Age chart ---
+const ageLabels = ['0-5', '6-12', '13-17', '18-25', '26-40', '41-60', '60+'];
+const ageColors = ['#a7f3d0', '#6ee7b7', '#34d399', '#10b981', '#059669', '#047857', '#065f46'];
+
+const ageChartData = computed(() => ({
+    labels: ageLabels,
+    datasets: [{
+        label: 'Jumlah',
+        data: ageLabels.map(l => props.stats.byAgeGroup?.[l] ?? 0),
+        backgroundColor: ageColors,
+        borderRadius: 4,
+    }],
+}));
+
+const ageChartOptions = {
+    plugins: { legend: { display: false } },
+    scales: {
+        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { stepSize: 1, font: { size: 11 } } },
+    },
+    maintainAspectRatio: true,
+};
+
+// --- APBDes chart ---
+const budgetChartData = computed(() => ({
+    labels: ['Pendapatan', 'Belanja', 'Pembiayaan'],
+    datasets: [
+        {
+            label: 'Anggaran',
+            data: [
+                props.budgetSummary?.pendapatan?.anggaran ?? 0,
+                props.budgetSummary?.belanja?.anggaran ?? 0,
+                props.budgetSummary?.pembiayaan?.anggaran ?? 0,
+            ],
+            backgroundColor: '#10b981',
+            borderRadius: 4,
+        },
+        {
+            label: 'Realisasi',
+            data: [
+                props.budgetSummary?.pendapatan?.realisasi ?? 0,
+                props.budgetSummary?.belanja?.realisasi ?? 0,
+                props.budgetSummary?.pembiayaan?.realisasi ?? 0,
+            ],
+            backgroundColor: '#6ee7b7',
+            borderRadius: 4,
+        },
+    ],
+}));
+
+const budgetChartOptions = {
+    plugins: { legend: { display: true, position: 'bottom' as const, labels: { padding: 16, usePointStyle: true } } },
+    scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.06)' }, ticks: { callback: (v: number) => 'Rp' + (v / 1e6).toFixed(0) + 'jt', font: { size: 11 } } },
+    },
+    maintainAspectRatio: true,
+};
 </script>
 
 <template>
@@ -277,7 +382,7 @@ function showImage(url: string | null): boolean {
             <Card
                 v-for="post in latestPosts"
                 :key="post.id"
-                class="overflow-hidden border-zinc-200/60 transition-all duration-200 hover:shadow-lg dark:border-zinc-700/60"
+                class="overflow-hidden border-zinc-200/60 py-0 transition-all duration-200 hover:shadow-lg dark:border-zinc-700/60"
             >
                 <Link :href="`/berita/${post.slug}`" class="group block">
                     <div class="aspect-[16/9] overflow-hidden bg-zinc-100 dark:bg-zinc-700">
@@ -393,6 +498,159 @@ function showImage(url: string | null): boolean {
                     class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400"
                 >
                     Lihat Semua Agenda
+                    <ArrowRight class="size-4" />
+                </Link>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== Population Statistics ==================== -->
+    <section class="mx-auto max-w-7xl px-4 py-16 md:py-20 sm:px-6 lg:px-8 scroll-mt-20">
+        <div class="mb-10 flex items-center gap-3">
+            <Users class="size-6 text-emerald-600 dark:text-emerald-400" />
+            <div>
+                <h2 class="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-white">Statistik Penduduk</h2>
+                <p class="mt-1 text-zinc-500 dark:text-zinc-400">Data kependudukan Desa Digital</p>
+            </div>
+        </div>
+
+        <!-- Summary cards -->
+        <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="p-4 text-center">
+                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.totalResidents ?? 0 }}</p>
+                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Total Jiwa</p>
+                </CardContent>
+            </Card>
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="p-4 text-center">
+                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.byGender?.L ?? 0 }}</p>
+                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Laki-laki</p>
+                </CardContent>
+            </Card>
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="p-4 text-center">
+                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ stats.byGender?.P ?? 0 }}</p>
+                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Perempuan</p>
+                </CardContent>
+            </Card>
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="p-4 text-center">
+                    <p class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ Math.round((stats.totalResidents ?? 0) / 3.5) }}</p>
+                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Kepala Keluarga</p>
+                </CardContent>
+            </Card>
+        </div>
+
+        <!-- Charts grid -->
+        <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardHeader>
+                    <CardTitle class="text-base">Komposisi Gender</CardTitle>
+                </CardHeader>
+                <CardContent v-if="(stats.byGender?.L ?? 0) + (stats.byGender?.P ?? 0) > 0" class="flex justify-center">
+                    <div class="w-full max-w-[240px]">
+                        <Doughnut :data="genderChartData" :options="genderChartOptions" />
+                    </div>
+                </CardContent>
+                <CardContent v-else class="py-8 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                    Belum ada data penduduk.
+                </CardContent>
+            </Card>
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardHeader>
+                    <CardTitle class="text-base">Kelompok Usia</CardTitle>
+                </CardHeader>
+                <CardContent v-if="ageLabels.some(l => (props.stats.byAgeGroup?.[l] ?? 0) > 0)">
+                    <Bar :data="ageChartData" :options="ageChartOptions" />
+                </CardContent>
+                <CardContent v-else class="py-8 text-center text-sm text-zinc-400 dark:text-zinc-500">
+                    Belum ada data penduduk.
+                </CardContent>
+            </Card>
+        </div>
+
+        <div class="mt-6 text-center">
+            <Link href="/statistik" class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+                Lihat Statistik Lengkap
+                <ArrowRight class="size-4" />
+            </Link>
+        </div>
+    </section>
+
+    <!-- ==================== APBDes ==================== -->
+    <section class="border-t-2 border-emerald-100 bg-zinc-50 py-16 md:py-20 scroll-mt-20 dark:border-emerald-900 dark:bg-zinc-950">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div class="mb-10 flex items-center gap-3">
+                <Landmark class="size-6 text-emerald-600 dark:text-emerald-400" />
+                <div>
+                    <h2 class="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-white">APBDes {{ budgetSummary?.tahun ?? '' }}</h2>
+                    <p class="mt-1 text-zinc-500 dark:text-zinc-400">Anggaran Pendapatan dan Belanja Desa</p>
+                </div>
+            </div>
+
+            <div v-if="budgetSummary?.tahun" class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                <!-- Summary cards -->
+                <div class="space-y-4">
+                    <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                        <CardContent class="flex items-center justify-between p-5">
+                            <div>
+                                <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Pendapatan</p>
+                                <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ formatCurrency(budgetSummary.pendapatan.anggaran) }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-zinc-400 dark:text-zinc-500">Realisasi</p>
+                                <p class="text-lg font-semibold text-zinc-900 dark:text-white">{{ formatCurrency(budgetSummary.pendapatan.realisasi) }}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                        <CardContent class="flex items-center justify-between p-5">
+                            <div>
+                                <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Belanja</p>
+                                <p class="text-xl font-bold text-rose-600 dark:text-rose-400">{{ formatCurrency(budgetSummary.belanja.anggaran) }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-zinc-400 dark:text-zinc-500">Realisasi</p>
+                                <p class="text-lg font-semibold text-zinc-900 dark:text-white">{{ formatCurrency(budgetSummary.belanja.realisasi) }}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                    <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                        <CardContent class="flex items-center justify-between p-5">
+                            <div>
+                                <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400">Pembiayaan</p>
+                                <p class="text-xl font-bold text-blue-600 dark:text-blue-400">{{ formatCurrency(budgetSummary.pembiayaan.anggaran) }}</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-xs text-zinc-400 dark:text-zinc-500">Realisasi</p>
+                                <p class="text-lg font-semibold text-zinc-900 dark:text-white">{{ formatCurrency(budgetSummary.pembiayaan.realisasi) }}</p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+                <!-- Chart -->
+                <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                    <CardHeader>
+                        <CardTitle class="text-base">Anggaran vs Realisasi</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <Bar :data="budgetChartData" :options="budgetChartOptions" />
+                    </CardContent>
+                </Card>
+            </div>
+
+            <div v-else class="flex min-h-[160px] items-center justify-center rounded-xl border border-dashed border-zinc-300 bg-white p-12 dark:border-zinc-700 dark:bg-zinc-900">
+                <div class="text-center">
+                    <Landmark class="mx-auto size-10 text-zinc-300 dark:text-zinc-600" />
+                    <p class="mt-3 font-medium text-zinc-500 dark:text-zinc-400">Belum ada data APBDes</p>
+                    <p class="mt-1 text-sm text-zinc-400 dark:text-zinc-500">Data akan muncul setelah diinput oleh admin.</p>
+                </div>
+            </div>
+
+            <div v-if="budgetSummary?.tahun" class="mt-6 text-center">
+                <Link href="/apbdes" class="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700 dark:text-emerald-400">
+                    Lihat Detail APBDes
                     <ArrowRight class="size-4" />
                 </Link>
             </div>

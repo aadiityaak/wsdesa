@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Helpers\PlaceholderImage;
 use App\Models\Development;
 use App\Models\DevelopmentImage;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -14,7 +15,7 @@ class DevelopmentImageFactory extends Factory
     {
         return [
             'development_id' => Development::factory(),
-            'file' => fake()->word().'.jpg',
+            'file' => PlaceholderImage::generate(fake()->word()),
             'keterangan' => fake()->sentence(),
         ];
     }

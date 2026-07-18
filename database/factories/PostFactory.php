@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Helpers\PlaceholderImage;
 use App\Models\Post;
 use App\Models\PostCategory;
 use App\Models\User;
@@ -23,7 +24,7 @@ class PostFactory extends Factory
             'post_category_id' => PostCategory::factory(),
             'judul' => $judul,
             'slug' => Str::slug($judul).'-'.fake()->unique()->randomNumber(5),
-            'thumbnail' => null,
+            'thumbnail' => PlaceholderImage::generate($judul),
             'ringkasan' => fake('id_ID')->paragraph(2),
             'konten' => collect(fake('id_ID')->paragraphs(4))
                 ->map(fn ($p) => "<p>{$p}</p>")

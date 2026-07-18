@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Helpers\PlaceholderImage;
 use App\Models\Download;
 use App\Models\DownloadCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -15,7 +16,7 @@ class DownloadFactory extends Factory
         return [
             'download_category_id' => DownloadCategory::factory(),
             'nama' => fake()->sentence(3),
-            'file' => fake()->word().'.pdf',
+            'file' => PlaceholderImage::generatePdf(fake()->sentence(2)),
             'counter' => fake()->numberBetween(0, 500),
         ];
     }
