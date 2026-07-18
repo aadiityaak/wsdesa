@@ -22,7 +22,6 @@ use App\Models\GovernmentStaff;
 use App\Models\Institution;
 use App\Models\InstitutionMember;
 use App\Models\LetterCategory;
-use App\Models\LetterRequirement;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\PostCategory;
@@ -120,23 +119,137 @@ class DatabaseSeeder extends Seeder
         Comment::factory(40)->create();
 
         // === LAYANAN SURAT ===
-        $letterNames = [
-            'Surat Keterangan Domisili',
-            'Surat Keterangan Usaha',
-            'Surat Keterangan Tidak Mampu',
-            'Surat Keterangan Kelahiran',
-            'Surat Keterangan Kematian',
-            'Surat Pengantar KTP',
-            'Surat Keterangan Nikah',
+        $letterData = [
+            [
+                'nama' => 'Surat Keterangan Domisili',
+                'requirements' => [
+                    'Fotokopi KTP',
+                    'Fotokopi Kartu Keluarga',
+                    'Surat Pengantar RT/RW',
+                    'Mengisi formulir permohonan',
+                ],
+            ],
+            [
+                'nama' => 'Surat Keterangan Usaha',
+                'requirements' => [
+                    'Fotokopi KTP',
+                    'Fotokopi Kartu Keluarga',
+                    'Surat Pengantar RT/RW',
+                    'Keterangan jenis usaha yang dijalankan',
+                ],
+            ],
+            [
+                'nama' => 'Surat Keterangan Tidak Mampu',
+                'requirements' => [
+                    'Fotokopi KTP',
+                    'Fotokopi Kartu Keluarga',
+                    'Surat Pengantar RT/RW',
+                    'Surat pernyataan tidak mampu (bermaterai Rp10.000)',
+                ],
+            ],
+            [
+                'nama' => 'Surat Keterangan Kelahiran',
+                'requirements' => [
+                    'Surat keterangan lahir dari bidan/dokter/rumah sakit',
+                    'Fotokopi KTP kedua orang tua',
+                    'Fotokopi Kartu Keluarga orang tua',
+                    'Fotokopi buku nikah orang tua',
+                    'Fotokopi KTP 2 orang saksi',
+                    'Mengisi formulir permohonan',
+                ],
+            ],
+            [
+                'nama' => 'Surat Keterangan Kematian',
+                'requirements' => [
+                    'Surat keterangan kematian dari dokter/rumah sakit/keluarga',
+                    'Fotokopi KTP yang meninggal',
+                    'Fotokopi Kartu Keluarga yang meninggal',
+                    'Fotokopi KTP pelapor',
+                    'Mengisi formulir permohonan',
+                ],
+            ],
+            [
+                'nama' => 'Surat Pengantar KTP',
+                'requirements' => [
+                    'Fotokopi Kartu Keluarga',
+                    'Surat Pengantar RT/RW',
+                    'Mengisi formulir permohonan',
+                ],
+            ],
+            [
+                'nama' => 'Surat Pengantar Nikah',
+                'requirements' => [
+                    'Fotokopi KTP kedua calon mempelai',
+                    'Fotokopi Kartu Keluarga kedua calon mempelai',
+                    'Surat Pengantar RT/RW',
+                    'Pas foto 4×6 sebanyak 2 lembar',
+                    'Fotokopi akta kelahiran',
+                    'Fotokopi ijazah terakhir',
+                    'Surat izin orang tua (jika calon mempelai belum berusia 21 tahun)',
+                ],
+            ],
+            [
+                'nama' => 'Surat Keterangan Pindah',
+                'requirements' => [
+                    'Fotokopi KTP',
+                    'Fotokopi Kartu Keluarga',
+                    'Surat Pengantar RT/RW',
+                    'Menyebutkan alamat tujuan pindah',
+                    'Menyebutkan alasan pindah',
+                ],
+            ],
+            [
+                'nama' => 'Surat Keterangan Ahli Waris',
+                'requirements' => [
+                    'Fotokopi KTP seluruh ahli waris',
+                    'Fotokopi Kartu Keluarga ahli waris',
+                    'Akta kematian pewaris',
+                    'Fotokopi KTP dan KK pewaris',
+                    'Surat pernyataan ahli waris (bermaterai Rp10.000)',
+                ],
+            ],
+            [
+                'nama' => 'Surat Keterangan Catatan Kepolisian (SKCK)',
+                'requirements' => [
+                    'Fotokopi KTP',
+                    'Fotokopi Kartu Keluarga',
+                    'Pas foto 4×6 latar merah sebanyak 6 lembar',
+                    'Surat Pengantar RT/RW',
+                    'Mengisi formulir permohonan',
+                ],
+            ],
+            [
+                'nama' => 'Surat Izin Keramaian',
+                'requirements' => [
+                    'Fotokopi KTP',
+                    'Fotokopi Kartu Keluarga',
+                    'Surat Pengantar RT/RW',
+                    'Proposal kegiatan',
+                    'Denah lokasi kegiatan',
+                ],
+            ],
+            [
+                'nama' => 'Surat Kuasa',
+                'requirements' => [
+                    'Fotokopi KTP pemberi kuasa',
+                    'Fotokopi KTP penerima kuasa',
+                    'Surat pernyataan kuasa (bermaterai Rp10.000)',
+                    'Menyebutkan keperluan surat kuasa',
+                ],
+            ],
         ];
-        foreach ($letterNames as $i => $nama) {
-            LetterCategory::factory()->create([
-                'nama' => $nama,
-                'slug' => Str::slug($nama),
+        foreach ($letterData as $i => $data) {
+            $category = LetterCategory::factory()->create([
+                'nama' => $data['nama'],
+                'slug' => Str::slug($data['nama']),
                 'urutan' => $i,
-            ])->requirements()->createMany(
-                LetterRequirement::factory()->count(3)->make()->toArray()
-            );
+            ]);
+            foreach ($data['requirements'] as $req) {
+                $category->requirements()->create([
+                    'nama' => $req,
+                    'wajib' => true,
+                ]);
+            }
         }
 
         // === PENGADUAN ===

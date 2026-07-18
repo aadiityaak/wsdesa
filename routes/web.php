@@ -42,8 +42,7 @@ Route::prefix('agenda')->group(function () {
 Route::prefix('layanan-surat')->group(function () {
     Route::get('/', [LayananSuratController::class, 'index'])->name('layanan-surat.index');
     Route::post('/ajukan', [LayananSuratController::class, 'store'])->name('layanan-surat.store');
-    Route::get('/cek-status', [LayananSuratController::class, 'cekStatus'])->name('layanan-surat.cek-status');
-    Route::post('/cek-status', [LayananSuratController::class, 'showStatus'])->name('layanan-surat.status');
+    Route::post('/cek-status', [LayananSuratController::class, 'cekStatus'])->name('layanan-surat.cek-status');
 });
 
 Route::prefix('pengaduan')->group(function () {

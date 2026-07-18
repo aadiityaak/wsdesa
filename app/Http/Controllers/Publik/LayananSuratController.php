@@ -45,15 +45,10 @@ class LayananSuratController extends Controller
 
         $letterRequest = LetterRequest::create($validated);
 
-        return back()->with('success', 'Permohonan surat berhasil diajukan. Kode tracking Anda: '.$letterRequest->kode_tracking);
+        return back()->with('tracking_code', $letterRequest->kode_tracking);
     }
 
-    public function cekStatus()
-    {
-        return Inertia::render('Publik/LayananSurat/Status');
-    }
-
-    public function showStatus(Request $httpRequest)
+    public function cekStatus(Request $httpRequest)
     {
         $httpRequest->validate([
             'kode_tracking' => 'required|string|max:20',
@@ -64,11 +59,9 @@ class LayananSuratController extends Controller
             ->first();
 
         if (! $letterRequest) {
-            return back()->with('error', 'Data tidak ditemukan. Periksa kembali kode tracking Anda.');
+            return response()->json(['error' => 'Data tidak ditemukan. Periksa kembali kode tracking Anda.'], 404);
         }
 
-        return Inertia::render('Publik/LayananSurat/Status', [
-            'letterRequest' => $letterRequest,
-        ]);
+        return response()->json(['letterRequest' => $letterRequest->load('category')]);
     }
 }
