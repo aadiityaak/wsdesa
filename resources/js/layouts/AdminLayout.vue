@@ -18,6 +18,7 @@ import {
     SidebarTrigger,
 } from '@/components/ui/sidebar';
 import NavUser from '@/components/NavUser.vue';
+import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import {
     LayoutDashboard,
     Building2,
@@ -147,6 +148,7 @@ const page = usePage();
             <header class="sticky top-0 z-10 flex h-14 shrink-0 items-center gap-2 border-b bg-white px-4 dark:bg-zinc-950">
                 <SidebarTrigger class="-ml-1" />
                 <div class="flex-1" />
+                <AppearanceTabs />
             </header>
 
             <main class="flex-1">

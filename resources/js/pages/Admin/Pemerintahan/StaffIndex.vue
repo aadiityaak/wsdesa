@@ -12,7 +12,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, ArrowUp, Users, GraduationCap } from '@lucide/vue';
+import { Plus, Pencil, Trash2, ArrowUp, Users, GraduationCap, Phone } from '@lucide/vue';
 
 interface StaffItem {
     id: number;
@@ -133,7 +133,7 @@ if (typeof window !== 'undefined') {
             </div>
         </div>
 
-        <!-- Staff grid -->
+        <!-- Staff table -->
         <div v-if="staff.length === 0" class="rounded-2xl border border-zinc-100 bg-white px-6 py-16 text-center shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <Users class="mx-auto h-12 w-12 text-zinc-300 dark:text-zinc-600" />
             <p class="mt-4 text-base font-medium text-zinc-600 dark:text-zinc-400">Belum ada perangkat desa</p>
@@ -144,48 +144,73 @@ if (typeof window !== 'undefined') {
             </Button>
         </div>
 
-        <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            <div
-                v-for="item in staff"
-                :key="item.id"
-                class="group rounded-2xl border border-zinc-100 bg-white p-5 shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
-            >
-                <div class="flex items-start gap-4">
-                    <!-- Foto -->
-                    <div class="shrink-0 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                        <img
-                            v-if="item.foto"
-                            :src="`/storage/${item.foto}`"
-                            :alt="item.nama"
-                            class="h-16 w-16 object-cover transition duration-300 group-hover:scale-105 sm:h-20 sm:w-20"
-                        />
-                        <div v-else class="flex h-16 w-16 items-center justify-center text-zinc-300 dark:text-zinc-600 sm:h-20 sm:w-20">
-                            <Users class="h-8 w-8" />
-                        </div>
-                    </div>
-
-                    <div class="min-w-0 flex-1">
-                        <h3 class="font-semibold text-zinc-900 dark:text-white">{{ item.nama }}</h3>
-                        <p class="text-sm text-rose-500">{{ item.jabatan }}</p>
-
-                        <div class="mt-2 space-y-1 text-xs text-zinc-400 dark:text-zinc-500">
-                            <p v-if="item.nip" class="truncate">NIP: {{ item.nip }}</p>
-                            <p v-if="item.pendidikan_terakhir" class="inline-flex items-center gap-1">
-                                <GraduationCap class="h-3 w-3" /> {{ item.pendidikan_terakhir }}
-                            </p>
-                        </div>
-
-                        <div class="mt-3 flex gap-1">
-                            <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/pemerintahan/${item.id}/edit`" class="rounded-lg">
-                                <Pencil class="h-3.5 w-3.5" />
-                            </Button>
-                            <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
-                                <Trash2 class="h-3.5 w-3.5 text-red-500" />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div v-else class="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <table class="w-full text-sm">
+                <thead>
+                    <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
+                        <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
+                        <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Nama</th>
+                        <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">NIP</th>
+                        <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Jabatan</th>
+                        <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Pendidikan</th>
+                        <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Telepon</th>
+                        <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr
+                        v-for="(item, index) in staff"
+                        :key="item.id"
+                        class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                    >
+                        <td class="px-4 py-3 text-zinc-500">{{ index + 1 }}</td>
+                        <td class="px-4 py-3">
+                            <div class="flex items-center gap-3">
+                                <div class="shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                                    <img
+                                        v-if="item.foto"
+                                        :src="`/storage/${item.foto}`"
+                                        :alt="item.nama"
+                                        class="h-8 w-8 object-cover"
+                                    />
+                                    <div v-else class="flex h-8 w-8 items-center justify-center text-zinc-300 dark:text-zinc-600">
+                                        <Users class="h-4 w-4" />
+                                    </div>
+                                </div>
+                                <span class="font-medium text-zinc-900 dark:text-white">{{ item.nama }}</span>
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-zinc-500">{{ item.nip || '-' }}</td>
+                        <td class="px-4 py-3">
+                            <span class="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
+                                {{ item.jabatan }}
+                            </span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span v-if="item.pendidikan_terakhir" class="inline-flex items-center gap-1 text-zinc-500">
+                                <GraduationCap class="h-3.5 w-3.5" /> {{ item.pendidikan_terakhir }}
+                            </span>
+                            <span v-else class="text-zinc-400">-</span>
+                        </td>
+                        <td class="px-4 py-3">
+                            <span v-if="item.telepon" class="inline-flex items-center gap-1 text-zinc-500">
+                                <Phone class="h-3.5 w-3.5" /> {{ item.telepon }}
+                            </span>
+                            <span v-else class="text-zinc-400">-</span>
+                        </td>
+                        <td class="px-4 py-3 text-right">
+                            <div class="flex items-center justify-end gap-1">
+                                <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/pemerintahan/${item.id}/edit`" class="rounded-lg">
+                                    <Pencil class="h-4 w-4" />
+                                </Button>
+                                <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
+                                    <Trash2 class="h-4 w-4 text-red-500" />
+                                </Button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
         <!-- Delete Confirmation -->

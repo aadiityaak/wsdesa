@@ -18,7 +18,7 @@ class GalleryController extends Controller
     public function index(): Response
     {
         return Inertia::render('Admin/Galeri/Index', [
-            'galleries' => Gallery::with(['user', 'images'])->latest()->get(),
+            'galleries' => Gallery::with(['user', 'images'])->latest()->paginate(12)->withQueryString(),
         ]);
     }
 

@@ -14,10 +14,14 @@ use Inertia\Response;
 
 class PotentialController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
         return Inertia::render('Admin/Potensi/Index', [
-            'potentials' => Potential::with('category')->latest()->get(),
+            'potentials' => Potential::with('category')
+                ->when($request->search, fn ($q, $search) => $q->where('nama', 'like', "%{$search}%"))
+                ->latest()
+                ->paginate(10)
+                ->withQueryString(),
             'categories' => PotentialCategory::orderBy('nama')->get(),
         ]);
     }
