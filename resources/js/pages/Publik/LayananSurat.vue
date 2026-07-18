@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { Head, useForm, usePage } from '@inertiajs/vue3';
+import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import { VueDatePicker } from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -10,7 +12,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectItemText, SelectT
 import { Badge } from '@/components/ui/badge';
 import {
     FileText, ClipboardList, Send, Search, CheckCircle2, Clock, ArrowRight,
-    CheckSquare,
+    CheckSquare, User, MapPin, Calendar, Heart, X,
 } from '@lucide/vue';
 
 interface Requirement {
@@ -71,7 +73,7 @@ const form = useForm({
     nama_pemohon: '',
     nik: '',
     tempat_lahir: '',
-    tanggal_lahir: '',
+    tanggal_lahir: null as string | null,
     jenis_kelamin: '',
     agama: '',
     pekerjaan: '',
@@ -114,11 +116,22 @@ const categoryIcons: Record<string, any> = {
     'surat keterangan': FileText,
     'surat izin': ClipboardList,
     'surat pengantar': Send,
+    'surat kuasa': FileText,
+    'surat keterangan catatan kepolisian': FileText,
+    'surat keterangan pindah': MapPin,
+    'surat keterangan ahli waris': Heart,
+    'surat izin keramaian': Calendar,
 };
 
 const getCatIcon = (nama: string) => {
     const key = Object.keys(categoryIcons).find(k => nama.toLowerCase().includes(k));
     return key ? categoryIcons[key] : FileText;
+};
+
+const formatDate = (date: Date | string | null): string | null => {
+    if (!date) return null;
+    const d = typeof date === 'string' ? new Date(date) : date;
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 };
 </script>
 
@@ -254,105 +267,188 @@ const getCatIcon = (nama: string) => {
 
         <!-- Dialog -->
         <Dialog :open="dialogOpen" @update:open="dialogOpen = $event">
-            <DialogContent class="max-h-[90vh] max-w-lg overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>Ajukan {{ selectedCategory?.nama }}</DialogTitle>
-                    <DialogDescription>Isi formulir dengan data yang valid.</DialogDescription>
-                </DialogHeader>
+            <DialogContent class="max-h-[90vh] max-w-lg overflow-y-auto p-0">
 
-                <div v-if="successTrackingCode" class="space-y-4 text-center">
-                    <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
-                        <CheckCircle2 class="size-8 text-green-600 dark:text-green-400" />
-                    </div>
-                    <h3 class="text-lg font-bold text-zinc-900 dark:text-white">Pengajuan Berhasil!</h3>
-                    <div class="rounded-lg bg-green-50 p-4 dark:bg-green-950">
-                        <p class="text-xs text-green-600 dark:text-green-400">Kode Tracking Anda</p>
-                        <p class="mt-1 text-xl font-bold tracking-wider text-green-700 dark:text-green-300">{{ successTrackingCode }}</p>
-                    </div>
-                    <p class="text-sm text-zinc-500">Simpan kode ini untuk memantau status pengajuan.</p>
-                    <div class="flex gap-3">
-                        <Button variant="outline" class="flex-1" @click="dialogOpen = false">Tutup</Button>
-                        <Button class="flex-1" @click="trackingCode = successTrackingCode!; dialogOpen = false">Cek Status</Button>
-                    </div>
-                </div>
+                <!-- Success State -->
+                <template v-if="successTrackingCode">
+                    <div class="flex flex-col items-center px-8 py-12 text-center">
+                        <div class="mx-auto flex size-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                            <CheckCircle2 class="size-8 text-green-600 dark:text-green-400" />
+                        </div>
+                        <h3 class="mt-5 text-lg font-bold text-zinc-900 dark:text-white">Pengajuan Berhasil!</h3>
+                        <p class="mt-1 text-sm text-zinc-500">Surat {{ selectedCategory?.nama }} berhasil diajukan.</p>
 
-                <form v-else @submit.prevent="submitForm" class="space-y-4">
-                    <div class="space-y-2">
-                        <Label for="nama_pemohon">Nama Lengkap <span class="text-red-500">*</span></Label>
-                        <Input id="nama_pemohon" v-model="form.nama_pemohon" placeholder="Sesuai KTP" required />
-                    </div>
-                    <div class="space-y-2">
-                        <Label for="nik">NIK <span class="text-red-500">*</span></Label>
-                        <Input id="nik" v-model="form.nik" placeholder="16 digit NIK" maxlength="16" required />
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <Label for="tempat_lahir">Tempat Lahir <span class="text-red-500">*</span></Label>
-                            <Input id="tempat_lahir" v-model="form.tempat_lahir" placeholder="Tempat lahir" required />
+                        <div class="mt-6 w-full rounded-xl border bg-green-50 p-5 dark:border-green-800 dark:bg-green-950">
+                            <p class="text-xs text-green-600 dark:text-green-400">Kode Tracking</p>
+                            <p class="mt-1 text-2xl font-bold tracking-widest text-green-700 dark:text-green-300">{{ successTrackingCode }}</p>
                         </div>
-                        <div class="space-y-2">
-                            <Label for="tanggal_lahir">Tgl. Lahir <span class="text-red-500">*</span></Label>
-                            <Input id="tanggal_lahir" v-model="form.tanggal_lahir" type="date" required />
+
+                        <p class="mt-4 text-xs text-zinc-400">Simpan kode ini untuk memantau status pengajuan melalui form Cek Status di halaman ini.</p>
+
+                        <div class="mt-6 flex w-full gap-3">
+                            <Button variant="outline" class="flex-1" @click="dialogOpen = false">
+                                <X class="mr-1 size-4" /> Tutup
+                            </Button>
+                            <Button class="flex-1" @click="trackingCode = successTrackingCode!; dialogOpen = false">
+                                <Search class="mr-1 size-4" /> Cek Status
+                            </Button>
                         </div>
                     </div>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div class="space-y-2">
-                            <Label for="jenis_kelamin">Jenis Kelamin <span class="text-red-500">*</span></Label>
-                            <Select v-model="form.jenis_kelamin">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem v-for="g in genderOpts" :key="g.value" :value="g.value">
-                                            <SelectItemText>{{ g.label }}</SelectItemText>
-                                        </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
-                        </div>
-                        <div class="space-y-2">
-                            <Label for="agama">Agama <span class="text-red-500">*</span></Label>
-                            <Select v-model="form.agama">
-                                <SelectTrigger>
-                                    <SelectValue placeholder="Pilih..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectGroup>
-                                        <SelectItem v-for="a in agamaOpts" :key="a" :value="a">
-                                            <SelectItemText>{{ a }}</SelectItemText>
-                                        </SelectItem>
-                                    </SelectGroup>
-                                </SelectContent>
-                            </Select>
+                </template>
+
+                <!-- Form State -->
+                <template v-else>
+                    <!-- Header dengan kategori -->
+                    <div class="sticky top-0 z-10 border-b bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-900">
+                        <div class="flex items-center gap-3">
+                            <div class="flex size-9 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-950">
+                                <component :is="selectedCategory ? getCatIcon(selectedCategory.nama) : FileText" class="size-4.5 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <div>
+                                <DialogTitle class="text-sm font-semibold">{{ selectedCategory?.nama }}</DialogTitle>
+                                <DialogDescription class="text-xs">Lengkapi data diri Anda di bawah ini.</DialogDescription>
+                            </div>
                         </div>
                     </div>
-                    <div class="space-y-2">
-                        <Label for="pekerjaan">Pekerjaan <span class="text-red-500">*</span></Label>
-                        <Input id="pekerjaan" v-model="form.pekerjaan" placeholder="Pekerjaan saat ini" required />
-                    </div>
-                    <div class="space-y-2">
-                        <Label for="alamat">Alamat <span class="text-red-500">*</span></Label>
-                        <textarea id="alamat" v-model="form.alamat" rows="3" placeholder="Alamat lengkap sesuai KTP"
-                            class="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
-                            required></textarea>
-                    </div>
-                    <div class="space-y-2">
-                        <Label for="keperluan">Keperluan <span class="text-red-500">*</span></Label>
-                        <textarea id="keperluan" v-model="form.keperluan" rows="3" placeholder="Jelaskan keperluan pengajuan"
-                            class="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
-                            required></textarea>
-                    </div>
-                    <div class="space-y-2">
-                        <Label for="no_hp">No. HP <span class="text-red-500">*</span></Label>
-                        <Input id="no_hp" v-model="form.no_hp" placeholder="Nomor handphone aktif" required />
-                    </div>
-                    <DialogFooter>
-                        <Button type="button" variant="outline" @click="dialogOpen = false">Batal</Button>
-                        <Button type="submit" :disabled="form.processing">{{ form.processing ? 'Mengirim...' : 'Kirim Pengajuan' }}</Button>
-                    </DialogFooter>
-                </form>
+
+                    <form @submit.prevent="submitForm" class="space-y-6 px-6 py-5">
+                        <!-- Data Diri -->
+                        <div>
+                            <h4 class="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                                <User class="size-3.5" /> Data Diri
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="space-y-1.5">
+                                    <Label for="nama_pemohon" class="text-sm">Nama Lengkap <span class="text-red-500">*</span></Label>
+                                    <Input id="nama_pemohon" v-model="form.nama_pemohon" placeholder="Sesuai KTP" required />
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="nik" class="text-sm">NIK <span class="text-red-500">*</span></Label>
+                                    <Input id="nik" v-model="form.nik" placeholder="16 digit NIK" maxlength="16" required />
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <Label for="tempat_lahir" class="text-sm">Tempat Lahir <span class="text-red-500">*</span></Label>
+                                        <Input id="tempat_lahir" v-model="form.tempat_lahir" placeholder="Tempat lahir" required />
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="tanggal_lahir" class="text-sm">Tanggal Lahir <span class="text-red-500">*</span></Label>
+                                        <VueDatePicker
+                                            v-model="form.tanggal_lahir"
+                                            :enable-time-picker="false"
+                                            format="dd/MM/yyyy"
+                                            placeholder="Pilih tanggal"
+                                            text-input
+                                            auto-apply
+                                            :max-date="new Date()"
+                                            class="datepicker-custom"
+                                        />
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <Label for="jenis_kelamin" class="text-sm">Jenis Kelamin <span class="text-red-500">*</span></Label>
+                                        <Select v-model="form.jenis_kelamin">
+                                            <SelectTrigger class="w-full">
+                                                <SelectValue placeholder="Pilih..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem v-for="g in genderOpts" :key="g.value" :value="g.value">
+                                                        <SelectItemText>{{ g.label }}</SelectItemText>
+                                                    </SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <Label for="agama" class="text-sm">Agama <span class="text-red-500">*</span></Label>
+                                        <Select v-model="form.agama">
+                                            <SelectTrigger class="w-full">
+                                                <SelectValue placeholder="Pilih..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem v-for="a in agamaOpts" :key="a" :value="a">
+                                                        <SelectItemText>{{ a }}</SelectItemText>
+                                                    </SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="pekerjaan" class="text-sm">Pekerjaan <span class="text-red-500">*</span></Label>
+                                    <Input id="pekerjaan" v-model="form.pekerjaan" placeholder="Pekerjaan saat ini" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="border-zinc-200 dark:border-zinc-700" />
+
+                        <!-- Detail Tambahan -->
+                        <div>
+                            <h4 class="mb-3 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+                                <MapPin class="size-3.5" /> Detail Tambahan
+                            </h4>
+                            <div class="space-y-4">
+                                <div class="space-y-1.5">
+                                    <Label for="alamat" class="text-sm">Alamat <span class="text-red-500">*</span></Label>
+                                    <textarea id="alamat" v-model="form.alamat" rows="3" placeholder="Alamat lengkap sesuai KTP"
+                                        class="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                                        required></textarea>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="keperluan" class="text-sm">Keperluan <span class="text-red-500">*</span></Label>
+                                    <textarea id="keperluan" v-model="form.keperluan" rows="3" placeholder="Jelaskan keperluan pengajuan surat ini"
+                                        class="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px]"
+                                        required></textarea>
+                                </div>
+                                <div class="space-y-1.5">
+                                    <Label for="no_hp" class="text-sm">No. HP <span class="text-red-500">*</span></Label>
+                                    <Input id="no_hp" v-model="form.no_hp" placeholder="Nomor handphone aktif" required />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <DialogFooter class="sticky bottom-0 -mx-6 -mb-5 border-t bg-white px-6 py-4 dark:border-zinc-700 dark:bg-zinc-900">
+                            <div class="flex w-full gap-3">
+                                <Button type="button" variant="outline" class="flex-1" @click="dialogOpen = false">Batal</Button>
+                                <Button type="submit" class="flex-1" :disabled="form.processing">
+                                    {{ form.processing ? 'Mengirim...' : 'Kirim Pengajuan' }}
+                                </Button>
+                            </div>
+                        </DialogFooter>
+                    </form>
+                </template>
             </DialogContent>
         </Dialog>
     </div>
 </template>
+
+<style scoped>
+.datepicker-custom :deep(.dp__input) {
+    height: 36px;
+    font-size: 0.875rem;
+    padding: 0 12px;
+    border-radius: calc(var(--radius) * 1px);
+    border-color: oklch(0.87 0 0);
+}
+.dark .datepicker-custom :deep(.dp__input) {
+    background-color: oklch(0.268 0.007 34.298);
+    border-color: oklch(0.371 0 0);
+    color: oklch(0.985 0 0);
+}
+.datepicker-custom :deep(.dp__input::placeholder) {
+    color: oklch(0.556 0 0);
+}
+.dark .datepicker-custom :deep(.dp__input::placeholder) {
+    color: oklch(0.637 0 0);
+}
+.datepicker-custom :deep(.dp__theme_dark) {
+    --dp-background-color: oklch(0.268 0.007 34.298);
+    --dp-text-color: oklch(0.985 0 0);
+    --dp-border-color: oklch(0.371 0 0);
+}
+</style>

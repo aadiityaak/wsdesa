@@ -11,7 +11,7 @@ class PembangunanController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Publik/Pembangunan/Index', [
+        return Inertia::render('Publik/Pembangunan', [
             'developments' => Development::with(['category', 'images'])->latest()->get(),
         ]);
     }

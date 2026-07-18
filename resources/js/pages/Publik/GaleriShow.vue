@@ -4,8 +4,8 @@ import { ArrowLeft, ImageIcon } from '@lucide/vue';
 
 interface GalleryImage {
     id: number;
-    gambar: string;
-    caption?: string;
+    file: string;
+    judul?: string;
 }
 
 interface Gallery {
@@ -49,12 +49,12 @@ const imageUrl = (path: string) => `/storage/${path}`;
                 class="group relative aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
             >
                 <img
-                    :src="imageUrl(image.gambar)"
-                    :alt="image.caption || gallery.nama"
+                    :src="imageUrl(image.file)"
+                    :alt="image.judul || gallery.nama"
                     class="h-full w-full object-cover transition-transform group-hover:scale-105"
                 />
-                <div v-if="image.caption" class="absolute inset-x-0 bottom-0 bg-black/50 p-2 opacity-0 transition-opacity group-hover:opacity-100">
-                    <p class="text-xs text-white">{{ image.caption }}</p>
+                <div v-if="image.judul" class="absolute inset-x-0 bottom-0 bg-black/50 p-2 opacity-0 transition-opacity group-hover:opacity-100">
+                    <p class="text-xs text-white">{{ image.judul }}</p>
                 </div>
             </div>
         </div>

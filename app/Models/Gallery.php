@@ -10,6 +10,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Gallery extends Model
 {
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     /** @use HasFactory<GalleryFactory> */
     use HasFactory;
 

@@ -16,7 +16,7 @@ class ApbdesController extends Controller
             ->get()
             ->groupBy('tahun');
 
-        return Inertia::render('Publik/Apbdes/Index', [
+        return Inertia::render('Publik/Apbdes', [
             'budgets' => $budgets,
         ]);
     }

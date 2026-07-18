@@ -11,7 +11,7 @@ class PotensiController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Publik/Potensi/Index', [
+        return Inertia::render('Publik/Potensi', [
             'potentials' => Potential::with('category')->latest()->get(),
         ]);
     }

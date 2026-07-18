@@ -42,7 +42,7 @@ class PengaduanController extends Controller
 
     public function cekStatus()
     {
-        return Inertia::render('Publik/Pengaduan/Status');
+        return Inertia::render('Publik/PengaduanStatus');
     }
 
     public function showStatus(Request $httpRequest)
@@ -59,7 +59,7 @@ class PengaduanController extends Controller
             return back()->with('error', 'Data tidak ditemukan. Periksa kembali kode tracking Anda.');
         }
 
-        return Inertia::render('Publik/Pengaduan/Status', [
+        return Inertia::render('Publik/PengaduanStatus', [
             'complaint' => $complaint,
         ]);
     }

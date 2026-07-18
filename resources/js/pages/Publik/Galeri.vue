@@ -7,7 +7,7 @@ interface Gallery {
     id: number;
     nama: string;
     slug: string;
-    gambar: string | null;
+    thumbnail: string | null;
     images_count?: number;
 }
 
@@ -45,8 +45,8 @@ const imageUrl = (path: string | null) => (path ? `/storage/${path}` : null);
                 <Card class="overflow-hidden transition-shadow hover:shadow-md">
                     <div class="aspect-video bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                         <img
-                            v-if="gallery.gambar"
-                            :src="imageUrl(gallery.gambar)"
+                            v-if="gallery.thumbnail"
+                            :src="imageUrl(gallery.thumbnail)"
                             :alt="gallery.nama"
                             class="h-full w-full object-cover"
                         />

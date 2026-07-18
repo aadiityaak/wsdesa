@@ -11,14 +11,14 @@ class UmkmController extends Controller
 {
     public function index(): Response
     {
-        return Inertia::render('Publik/Umkm/Index', [
+        return Inertia::render('Publik/Umkm', [
             'umkms' => Umkm::with(['category', 'images'])->latest()->get(),
         ]);
     }
 
     public function show(Umkm $umkm): Response
     {
-        return Inertia::render('Publik/Umkm/Show', [
+        return Inertia::render('Publik/UmkmShow', [
             'umkm' => $umkm->load(['category', 'images']),
         ]);
     }

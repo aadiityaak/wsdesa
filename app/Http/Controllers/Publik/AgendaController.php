@@ -22,7 +22,7 @@ class AgendaController extends Controller
     {
         $event = Event::with('category')->findOrFail($id);
 
-        return Inertia::render('Publik/Agenda/Show', [
+        return Inertia::render('Publik/AgendaShow', [
             'event' => $event,
         ]);
     }
