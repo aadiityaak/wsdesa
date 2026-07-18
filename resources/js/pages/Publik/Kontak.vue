@@ -1,25 +1,26 @@
-<script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
-import { ref } from 'vue';
+ <script setup lang="ts">
+import { Head, useForm } from '@inertiajs/vue3';
+import kontak from '@/routes/kontak';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import InputError from '@/components/InputError.vue';
 import { MapPin, Phone, Mail, Clock } from '@lucide/vue';
 
-const form = ref({
+const form = useForm({
     nama: '',
     email: '',
     pesan: '',
 });
 
-const sent = ref(false);
-
 const submitForm = () => {
-    // Send contact message — for now just show success
-    sent.value = true;
-    form.value = { nama: '', email: '', pesan: '' };
-    setTimeout(() => (sent.value = false), 5000);
+    form.post(kontak.store().url, {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset();
+        },
+    });
 };
 </script>
 
@@ -90,17 +91,19 @@ const submitForm = () => {
                     <CardDescription>Isi formulir di bawah ini untuk mengirim pesan kepada kami.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div v-if="sent" class="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-300">
+                    <div v-if="form.recentlySuccessful" class="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950 dark:text-green-300">
                         Pesan berhasil dikirim! Kami akan menghubungi Anda segera.
                     </div>
                     <form @submit.prevent="submitForm" class="space-y-4">
                         <div class="space-y-2">
                             <Label for="nama">Nama <span class="text-red-500">*</span></Label>
-                            <Input id="nama" v-model="form.nama" placeholder="Nama lengkap" required />
+                            <Input id="nama" v-model="form.nama" type="text" placeholder="Nama lengkap" required />
+                            <InputError :message="form.errors.nama" />
                         </div>
                         <div class="space-y-2">
                             <Label for="email">Email <span class="text-red-500">*</span></Label>
                             <Input id="email" v-model="form.email" type="email" placeholder="email@contoh.com" required />
+                            <InputError :message="form.errors.email" />
                         </div>
                         <div class="space-y-2">
                             <Label for="pesan">Pesan <span class="text-red-500">*</span></Label>
@@ -112,9 +115,10 @@ const submitForm = () => {
                                 placeholder="Tulis pesan Anda..."
                                 class="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 dark:bg-input/30 w-full min-w-0 rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50"
                             ></textarea>
+                            <InputError :message="form.errors.pesan" />
                         </div>
-                        <Button type="submit" class="w-full">
-                            Kirim Pesan
+                        <Button type="submit" class="w-full" :disabled="form.processing">
+                            {{ form.processing ? 'Mengirim...' : 'Kirim Pesan' }}
                         </Button>
                     </form>
                 </CardContent>

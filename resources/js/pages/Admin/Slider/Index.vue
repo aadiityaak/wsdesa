@@ -126,49 +126,65 @@ if (typeof window !== 'undefined') {
             </Button>
         </div>
 
-        <!-- Card Grid -->
-        <div v-else class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            <div
-                v-for="item in sliders"
-                :key="item.id"
-                class="group overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900"
-            >
-                <!-- Image -->
-                <div class="aspect-[16/9] bg-zinc-100 dark:bg-zinc-800">
-                    <img
-                        v-if="item.image"
-                        :src="`/storage/${item.image}`"
-                        :alt="item.judul"
-                        class="h-full w-full object-cover transition duration-300 group-hover:scale-105"
-                    />
-                    <div v-else class="flex h-full items-center justify-center text-zinc-300 dark:text-zinc-600">
-                        <ImageIcon class="h-10 w-10" />
-                    </div>
-                </div>
-
-                <!-- Content -->
-                <div class="p-4">
-                    <div class="mb-2 flex items-center gap-2">
-                        <span class="text-xs text-zinc-400">Urutan {{ item.urutan }}</span>
-                        <span
-                            class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-                            :class="item.is_active !== false ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400' : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'"
+        <!-- Data table -->
+        <div v-else class="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Gambar</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Judul</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Deskripsi</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Urutan</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Status</th>
+                            <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="(item, index) in sliders"
+                            :key="item.id"
+                            class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
                         >
-                            {{ item.is_active !== false ? 'Aktif' : 'Nonaktif' }}
-                        </span>
-                    </div>
-                    <h3 class="font-semibold text-zinc-900 dark:text-white truncate">{{ item.judul }}</h3>
-                    <p class="mt-1 text-xs text-zinc-400 dark:text-zinc-500 line-clamp-2">{{ item.deskripsi || '-' }}</p>
-
-                    <div class="mt-3 flex items-center gap-1">
-                        <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/slider/${item.id}/edit`" class="rounded-lg">
-                            <Pencil class="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
-                            <Trash2 class="h-4 w-4 text-red-500" />
-                        </Button>
-                    </div>
-                </div>
+                            <td class="px-4 py-3 text-zinc-500">{{ index + 1 }}</td>
+                            <td class="px-4 py-3">
+                                <div class="shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                                    <img
+                                        v-if="item.image"
+                                        :src="`/storage/${item.image}`"
+                                        :alt="item.judul"
+                                        class="h-10 w-16 object-cover"
+                                    />
+                                    <div v-else class="flex h-10 w-16 items-center justify-center text-zinc-300 dark:text-zinc-600">
+                                        <ImageIcon class="h-5 w-5" />
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 font-medium text-zinc-900 dark:text-white">{{ item.judul }}</td>
+                            <td class="max-w-[200px] truncate px-4 py-3 text-zinc-500">{{ item.deskripsi || '-' }}</td>
+                            <td class="px-4 py-3 text-zinc-500">{{ item.urutan }}</td>
+                            <td class="px-4 py-3">
+                                <span
+                                    class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
+                                    :class="item.is_active !== false ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'"
+                                >
+                                    {{ item.is_active !== false ? 'Aktif' : 'Nonaktif' }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/slider/${item.id}/edit`" class="rounded-lg">
+                                        <Pencil class="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
+                                        <Trash2 class="h-4 w-4 text-red-500" />
+                                    </Button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 

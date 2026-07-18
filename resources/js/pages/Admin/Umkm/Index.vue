@@ -164,55 +164,74 @@ if (typeof window !== 'undefined') {
             </Button>
         </div>
 
-        <!-- Card Grid -->
-        <div v-else class="space-y-6">
-            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                <div
-                    v-for="item in umkms.data"
-                    :key="item.id"
-                    class="group rounded-2xl border border-zinc-100 bg-white p-4 shadow-sm transition-all duration-200 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 sm:p-5"
-                >
-                    <!-- Thumbnail -->
-                    <div class="mb-4 overflow-hidden rounded-xl bg-zinc-100 dark:bg-zinc-800">
-                        <img
-                            v-if="item.thumbnail"
-                            :src="`/storage/${item.thumbnail}`"
-                            :alt="item.nama_usaha"
-                            class="aspect-[4/3] w-full object-cover transition duration-300 group-hover:scale-105"
-                        />
-                        <div v-else class="flex aspect-[4/3] w-full items-center justify-center text-zinc-300 dark:text-zinc-600">
-                            <ImageIcon class="h-12 w-12" />
-                        </div>
-                    </div>
-
-                    <div class="min-w-0">
-                        <h3 class="font-semibold text-zinc-900 dark:text-white truncate">{{ item.nama_usaha }}</h3>
-                        <p class="text-sm text-zinc-500">{{ item.pemilik }}</p>
-                        <p class="mt-0.5 text-xs text-zinc-400">{{ item.category?.nama || '-' }}</p>
-
-                        <div class="mt-2 space-y-1 text-xs text-zinc-400 dark:text-zinc-500">
-                            <p v-if="item.alamat" class="inline-flex items-center gap-1 truncate">
-                                <MapPin class="h-3 w-3 shrink-0" /> {{ item.alamat }}
-                            </p>
-                            <p v-if="item.telepon" class="inline-flex items-center gap-1 truncate">
-                                <Phone class="h-3 w-3 shrink-0" /> {{ item.telepon }}
-                            </p>
-                        </div>
-
-                        <div class="mt-3 flex items-center gap-1">
-                            <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/umkm/${item.id}/edit`" class="rounded-lg">
-                                <Pencil class="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
-                                <Trash2 class="h-4 w-4 text-red-500" />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
+        <!-- Data table -->
+        <div v-else class="overflow-hidden rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="border-b bg-zinc-50 dark:bg-zinc-800/50">
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">#</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Usaha</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Pemilik</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Kategori</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Alamat</th>
+                            <th class="px-4 py-3 text-left font-medium text-zinc-600 dark:text-zinc-400">Telepon</th>
+                            <th class="px-4 py-3 text-right font-medium text-zinc-600 dark:text-zinc-400">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr
+                            v-for="(item, index) in umkms.data"
+                            :key="item.id"
+                            class="border-b transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-800/50"
+                        >
+                            <td class="px-4 py-3 text-zinc-500">{{ (umkms.from ?? 1) + index }}</td>
+                            <td class="px-4 py-3">
+                                <div class="flex items-center gap-3">
+                                    <div class="shrink-0 overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800">
+                                        <img
+                                            v-if="item.thumbnail"
+                                            :src="`/storage/${item.thumbnail}`"
+                                            :alt="item.nama_usaha"
+                                            class="h-8 w-8 object-cover"
+                                        />
+                                        <div v-else class="flex h-8 w-8 items-center justify-center text-zinc-300 dark:text-zinc-600">
+                                            <Store class="h-4 w-4" />
+                                        </div>
+                                    </div>
+                                    <span class="font-medium text-zinc-900 dark:text-white">{{ item.nama_usaha }}</span>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 text-zinc-500">{{ item.pemilik }}</td>
+                            <td class="px-4 py-3">
+                                <span class="inline-flex items-center rounded-full bg-rose-100 px-2.5 py-0.5 text-xs font-medium text-rose-700 dark:bg-rose-900/30 dark:text-rose-400">
+                                    {{ item.category?.nama || '-' }}
+                                </span>
+                            </td>
+                            <td class="max-w-[200px] truncate px-4 py-3 text-zinc-500">{{ item.alamat || '-' }}</td>
+                            <td class="px-4 py-3">
+                                <span v-if="item.telepon" class="inline-flex items-center gap-1 text-zinc-500">
+                                    <Phone class="h-3.5 w-3.5" /> {{ item.telepon }}
+                                </span>
+                                <span v-else class="text-zinc-400">-</span>
+                            </td>
+                            <td class="px-4 py-3 text-right">
+                                <div class="flex items-center justify-end gap-1">
+                                    <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/umkm/${item.id}/edit`" class="rounded-lg">
+                                        <Pencil class="h-4 w-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
+                                        <Trash2 class="h-4 w-4 text-red-500" />
+                                    </Button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
 
             <!-- Pagination -->
-            <div v-if="lastPage > 1 && umkms.data.length > 0" class="flex flex-col items-center justify-between gap-3 rounded-2xl border border-zinc-100 bg-white px-5 py-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:flex-row">
+            <div v-if="lastPage > 1 && umkms.data.length > 0" class="flex flex-col items-center justify-between gap-3 border-t border-zinc-100 px-5 py-4 dark:border-zinc-800 sm:flex-row">
                 <p class="text-sm text-zinc-500 dark:text-zinc-400">
                     Menampilkan {{ umkms.from }}–{{ umkms.to }} dari {{ umkms.total }}
                 </p>

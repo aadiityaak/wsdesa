@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { Toaster } from '@/components/ui/sonner';
 import AppLogo from '@/components/AppLogo.vue';
+import { X, Menu } from '@lucide/vue';
+
+const isMobileMenuOpen = ref(false);
 </script>
 
 <template>
@@ -41,13 +44,45 @@ import AppLogo from '@/components/AppLogo.vue';
                 </nav>
 
                 <!-- Mobile menu button -->
-                <button class="rounded-md p-2 text-zinc-700 md:hidden dark:text-zinc-300" @click="() => {}">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                    </svg>
+                <button class="rounded-md p-2 text-zinc-700 md:hidden dark:text-zinc-300" @click="isMobileMenuOpen = !isMobileMenuOpen">
+                    <Menu v-if="!isMobileMenuOpen" class="h-6 w-6" />
+                    <X v-else class="h-6 w-6" />
                 </button>
             </div>
         </header>
+
+        <!-- Mobile Navigation -->
+        <div v-show="isMobileMenuOpen" class="border-b md:hidden dark:border-zinc-800">
+            <nav class="mx-auto max-w-7xl space-y-1 px-4 py-3 sm:px-6">
+                <Link href="/" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Beranda
+                </Link>
+                <Link href="/profil" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Profil
+                </Link>
+                <Link href="/pemerintahan" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Pemerintahan
+                </Link>
+                <Link href="/berita" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Berita
+                </Link>
+                <Link href="/agenda" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Agenda
+                </Link>
+                <Link href="/layanan-surat" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Layanan
+                </Link>
+                <Link href="/galeri" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Galeri
+                </Link>
+                <Link href="/umkm" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    UMKM
+                </Link>
+                <Link href="/kontak" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Kontak
+                </Link>
+            </nav>
+        </div>
 
         <!-- Main Content -->
         <main class="flex-1">

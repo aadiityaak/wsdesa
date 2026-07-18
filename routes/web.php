@@ -3,20 +3,29 @@
 use App\Http\Controllers\Publik\AgendaController;
 use App\Http\Controllers\Publik\ApbdesController;
 use App\Http\Controllers\Publik\BeritaController;
+use App\Http\Controllers\Publik\DownloadController;
 use App\Http\Controllers\Publik\GaleriController;
+use App\Http\Controllers\Publik\KontakController;
 use App\Http\Controllers\Publik\LayananSuratController;
+use App\Http\Controllers\Publik\PageController;
 use App\Http\Controllers\Publik\PembangunanController;
+use App\Http\Controllers\Publik\PemerintahanController;
 use App\Http\Controllers\Publik\PengaduanController;
 use App\Http\Controllers\Publik\PotensiController;
+use App\Http\Controllers\Publik\ProfilController;
 use App\Http\Controllers\Publik\StatistikController;
 use App\Http\Controllers\Publik\UmkmController;
+use App\Http\Controllers\Publik\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
-Route::inertia('/', 'Welcome')->name('home');
+Route::get('/', [WelcomeController::class, 'index'])->name('home');
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::inertia('dashboard', 'Dashboard')->name('dashboard');
 });
+
+Route::get('/profil', [ProfilController::class, 'index'])->name('profil.index');
+Route::get('/pemerintahan', [PemerintahanController::class, 'index'])->name('pemerintahan.index');
 
 Route::prefix('berita')->group(function () {
     Route::get('/', [BeritaController::class, 'index'])->name('berita.index');
@@ -52,6 +61,11 @@ Route::get('/umkm/{umkm}', [UmkmController::class, 'show'])->name('umkm.show');
 Route::get('/potensi', [PotensiController::class, 'index'])->name('potensi.index');
 Route::get('/apbdes', [ApbdesController::class, 'index'])->name('apbdes.index');
 Route::get('/pembangunan', [PembangunanController::class, 'index'])->name('pembangunan.index');
-Route::get('/halaman/{slug}', [GaleriController::class, 'page'])->name('halaman.show');
-Route::get('/download', [GaleriController::class, 'downloads'])->name('download.index');
+
+Route::get('/kontak', [KontakController::class, 'index'])->name('kontak.index');
+Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');
+
+Route::get('/halaman/{slug}', [PageController::class, 'show'])->name('halaman.show');
+Route::get('/download', [DownloadController::class, 'index'])->name('download.index');
+
 require __DIR__.'/settings.php';
