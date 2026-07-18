@@ -35,6 +35,9 @@ function toggleAppearance() {
                     <Link href="/berita" class="rounded-md px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white">
                         Berita
                     </Link>
+                    <Link href="/statistik" class="rounded-md px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white">
+                        Statistik
+                    </Link>
                     <Link href="/layanan-surat" class="rounded-md px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-300 dark:hover:bg-zinc-800 dark:hover:text-white">
                         Layanan
                     </Link>
@@ -82,6 +85,9 @@ function toggleAppearance() {
                 <Link href="/berita" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
                     Berita
                 </Link>
+                <Link href="/statistik" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Statistik
+                </Link>
                 <Link href="/agenda" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
                     Agenda
                 </Link>
@@ -90,6 +96,9 @@ function toggleAppearance() {
                 </Link>
                 <Link href="/galeri" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
                     Galeri
+                </Link>
+                <Link href="/infografis/penduduk" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
+                    Infografis
                 </Link>
                 <Link href="/umkm" class="block rounded-md px-3 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800" @click="isMobileMenuOpen = false">
                     UMKM

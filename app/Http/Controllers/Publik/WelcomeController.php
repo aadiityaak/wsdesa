@@ -46,7 +46,7 @@ class WelcomeController extends Controller
                 ];
             });
 
-        $upcomingEvents = Event::where('status', 'publish')
+        $upcomingEvents = Event::where('status', 'upcoming')
             ->where('tanggal_mulai', '>=', now())
             ->orderBy('tanggal_mulai')
             ->take(4)

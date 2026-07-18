@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, UserCheck, UserRound, Home } from '@lucide/vue';
+import { Users, UserCheck, UserRound, Home, Heart, MapPin } from '@lucide/vue';
 
 defineProps<{
     totalResidents: number;
+    totalKK: number;
     byGender: { laki: number; perempuan: number };
     byAgeGroup: { nama: string; total: number }[];
     byAgama: { nama: string; total: number }[];
     byPekerjaan: { nama: string; total: number }[];
     byPendidikan: { nama: string; total: number }[];
+    byPerkawinan: { nama: string; total: number }[];
+    byDusun: { nama: string; total: number }[];
 }>();
 
 const maxValue = (arr: { total: number }[]) => Math.max(...arr.map((i) => i.total), 1);
@@ -62,8 +65,8 @@ const maxValue = (arr: { total: number }[]) => Math.max(...arr.map((i) => i.tota
                         <Home class="size-6 text-amber-600 dark:text-amber-400" />
                     </div>
                     <div>
-                        <p class="text-xs text-zinc-500">KK</p>
-                        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ (byGender.laki + byGender.perempuan > 0 ? Math.round((byGender.laki + byGender.perempuan) / 3.5) : 0).toLocaleString('id-ID') }}</p>
+                        <p class="text-xs text-zinc-500">Kepala Keluarga</p>
+                        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ totalKK.toLocaleString('id-ID') }}</p>
                     </div>
                 </CardContent>
             </Card>
@@ -71,55 +74,46 @@ const maxValue = (arr: { total: number }[]) => Math.max(...arr.map((i) => i.tota
 
         <!-- Charts Grid -->
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
-            <!-- Gender Chart -->
+            <!-- Gender -->
             <Card>
                 <CardHeader>
-                    <CardTitle class="text-lg">Berdasarkan Jenis Kelamin</CardTitle>
+                    <CardTitle class="text-lg">Jenis Kelamin</CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-3">
                     <div>
-                        <div class="flex justify-between text-sm mb-1">
+                        <div class="mb-1 flex justify-between text-sm">
                             <span class="text-zinc-600 dark:text-zinc-400">Laki-laki</span>
                             <span class="font-medium text-zinc-900 dark:text-white">{{ byGender.laki.toLocaleString('id-ID') }}</span>
                         </div>
-                        <div class="h-5 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                            <div
-                                class="h-full rounded-full bg-green-500"
-                                :style="{ width: `${(byGender.laki / Math.max(byGender.laki + byGender.perempuan, 1)) * 100}%` }"
-                            ></div>
+                        <div class="h-5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-green-500" :style="{ width: `${(byGender.laki / Math.max(byGender.laki + byGender.perempuan, 1)) * 100}%` }"></div>
                         </div>
                     </div>
                     <div>
-                        <div class="flex justify-between text-sm mb-1">
+                        <div class="mb-1 flex justify-between text-sm">
                             <span class="text-zinc-600 dark:text-zinc-400">Perempuan</span>
                             <span class="font-medium text-zinc-900 dark:text-white">{{ byGender.perempuan.toLocaleString('id-ID') }}</span>
                         </div>
-                        <div class="h-5 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                            <div
-                                class="h-full rounded-full bg-pink-500"
-                                :style="{ width: `${(byGender.perempuan / Math.max(byGender.laki + byGender.perempuan, 1)) * 100}%` }"
-                            ></div>
+                        <div class="h-5 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-pink-500" :style="{ width: `${(byGender.perempuan / Math.max(byGender.laki + byGender.perempuan, 1)) * 100}%` }"></div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
-            <!-- Age Group -->
+            <!-- Age -->
             <Card>
                 <CardHeader>
-                    <CardTitle class="text-lg">Berdasarkan Kelompok Umur</CardTitle>
+                    <CardTitle class="text-lg">Kelompok Umur</CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-2">
                     <div v-for="item in byAgeGroup" :key="item.nama">
-                        <div class="flex justify-between text-sm mb-1">
+                        <div class="mb-1 flex justify-between text-sm">
                             <span class="text-zinc-600 dark:text-zinc-400">{{ item.nama }}</span>
                             <span class="font-medium text-zinc-900 dark:text-white">{{ item.total.toLocaleString('id-ID') }}</span>
                         </div>
-                        <div class="h-4 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                            <div
-                                class="h-full rounded-full bg-blue-500"
-                                :style="{ width: `${(item.total / maxValue(byAgeGroup)) * 100}%` }"
-                            ></div>
+                        <div class="h-4 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-blue-500" :style="{ width: `${(item.total / maxValue(byAgeGroup)) * 100}%` }"></div>
                         </div>
                     </div>
                 </CardContent>
@@ -128,19 +122,34 @@ const maxValue = (arr: { total: number }[]) => Math.max(...arr.map((i) => i.tota
             <!-- Agama -->
             <Card>
                 <CardHeader>
-                    <CardTitle class="text-lg">Berdasarkan Agama</CardTitle>
+                    <CardTitle class="text-lg">Agama</CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-2">
                     <div v-for="item in byAgama" :key="item.nama">
-                        <div class="flex justify-between text-sm mb-1">
+                        <div class="mb-1 flex justify-between text-sm">
                             <span class="text-zinc-600 dark:text-zinc-400">{{ item.nama }}</span>
                             <span class="font-medium text-zinc-900 dark:text-white">{{ item.total.toLocaleString('id-ID') }}</span>
                         </div>
-                        <div class="h-4 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                            <div
-                                class="h-full rounded-full bg-purple-500"
-                                :style="{ width: `${(item.total / maxValue(byAgama)) * 100}%` }"
-                            ></div>
+                        <div class="h-4 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-purple-500" :style="{ width: `${(item.total / maxValue(byAgama)) * 100}%` }"></div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <!-- Perkawinan -->
+            <Card>
+                <CardHeader>
+                    <CardTitle class="flex items-center gap-2 text-lg"><Heart class="size-4 text-rose-500" /> Status Perkawinan</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                    <div v-for="item in byPerkawinan" :key="item.nama">
+                        <div class="mb-1 flex justify-between text-sm">
+                            <span class="text-zinc-600 dark:text-zinc-400">{{ item.nama }}</span>
+                            <span class="font-medium text-zinc-900 dark:text-white">{{ item.total.toLocaleString('id-ID') }}</span>
+                        </div>
+                        <div class="h-4 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-rose-500" :style="{ width: `${(item.total / maxValue(byPerkawinan)) * 100}%` }"></div>
                         </div>
                     </div>
                 </CardContent>
@@ -149,40 +158,52 @@ const maxValue = (arr: { total: number }[]) => Math.max(...arr.map((i) => i.tota
             <!-- Pekerjaan -->
             <Card>
                 <CardHeader>
-                    <CardTitle class="text-lg">Berdasarkan Pekerjaan</CardTitle>
+                    <CardTitle class="text-lg">Pekerjaan</CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-2">
                     <div v-for="item in byPekerjaan" :key="item.nama">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span class="text-zinc-600 dark:text-zinc-400 truncate">{{ item.nama }}</span>
+                        <div class="mb-1 flex justify-between text-sm">
+                            <span class="truncate text-zinc-600 dark:text-zinc-400">{{ item.nama }}</span>
                             <span class="ml-2 shrink-0 font-medium text-zinc-900 dark:text-white">{{ item.total.toLocaleString('id-ID') }}</span>
                         </div>
-                        <div class="h-4 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                            <div
-                                class="h-full rounded-full bg-amber-500"
-                                :style="{ width: `${(item.total / maxValue(byPekerjaan)) * 100}%` }"
-                            ></div>
+                        <div class="h-4 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-amber-500" :style="{ width: `${(item.total / maxValue(byPekerjaan)) * 100}%` }"></div>
                         </div>
                     </div>
                 </CardContent>
             </Card>
 
             <!-- Pendidikan -->
-            <Card class="lg:col-span-2">
+            <Card>
                 <CardHeader>
-                    <CardTitle class="text-lg">Berdasarkan Pendidikan</CardTitle>
+                    <CardTitle class="text-lg">Pendidikan</CardTitle>
                 </CardHeader>
                 <CardContent class="space-y-2">
                     <div v-for="item in byPendidikan" :key="item.nama">
-                        <div class="flex justify-between text-sm mb-1">
+                        <div class="mb-1 flex justify-between text-sm">
                             <span class="text-zinc-600 dark:text-zinc-400">{{ item.nama }}</span>
                             <span class="font-medium text-zinc-900 dark:text-white">{{ item.total.toLocaleString('id-ID') }}</span>
                         </div>
-                        <div class="h-4 w-full rounded-full bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
-                            <div
-                                class="h-full rounded-full bg-emerald-500"
-                                :style="{ width: `${(item.total / maxValue(byPendidikan)) * 100}%` }"
-                            ></div>
+                        <div class="h-4 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-emerald-500" :style="{ width: `${(item.total / maxValue(byPendidikan)) * 100}%` }"></div>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <!-- Dusun -->
+            <Card>
+                <CardHeader>
+                    <CardTitle class="flex items-center gap-2 text-lg"><MapPin class="size-4 text-sky-500" /> Berdasarkan Dusun</CardTitle>
+                </CardHeader>
+                <CardContent class="space-y-2">
+                    <div v-for="item in byDusun" :key="item.nama">
+                        <div class="mb-1 flex justify-between text-sm">
+                            <span class="text-zinc-600 dark:text-zinc-400">{{ item.nama }}</span>
+                            <span class="font-medium text-zinc-900 dark:text-white">{{ item.total.toLocaleString('id-ID') }}</span>
+                        </div>
+                        <div class="h-4 w-full overflow-hidden rounded-full bg-zinc-100 dark:bg-zinc-800">
+                            <div class="h-full rounded-full bg-sky-500" :style="{ width: `${(item.total / maxValue(byDusun)) * 100}%` }"></div>
                         </div>
                     </div>
                 </CardContent>

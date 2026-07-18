@@ -5,6 +5,7 @@ use App\Http\Controllers\Publik\ApbdesController;
 use App\Http\Controllers\Publik\BeritaController;
 use App\Http\Controllers\Publik\DownloadController;
 use App\Http\Controllers\Publik\GaleriController;
+use App\Http\Controllers\Publik\InfografisController;
 use App\Http\Controllers\Publik\KontakController;
 use App\Http\Controllers\Publik\LayananSuratController;
 use App\Http\Controllers\Publik\PageController;
@@ -61,6 +62,10 @@ Route::get('/umkm/{umkm}', [UmkmController::class, 'show'])->name('umkm.show');
 Route::get('/potensi', [PotensiController::class, 'index'])->name('potensi.index');
 Route::get('/apbdes', [ApbdesController::class, 'index'])->name('apbdes.index');
 Route::get('/pembangunan', [PembangunanController::class, 'index'])->name('pembangunan.index');
+
+Route::prefix('infografis')->group(function () {
+    Route::get('/penduduk', [InfografisController::class, 'penduduk'])->name('infografis.penduduk');
+});
 
 Route::get('/kontak', [KontakController::class, 'index'])->name('kontak.index');
 Route::post('/kontak', [KontakController::class, 'store'])->name('kontak.store');

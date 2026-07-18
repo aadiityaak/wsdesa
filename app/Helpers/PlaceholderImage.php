@@ -41,7 +41,7 @@ class PlaceholderImage
         }
 
         // Real PDF with basic content
-        $content = "PDF Placeholder: ".$text;
+        $content = 'PDF Placeholder: '.$text;
 
         Storage::disk('public')->put($filename, $content);
 
