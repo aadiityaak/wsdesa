@@ -4,8 +4,14 @@ import { ArrowLeft, ImageIcon, MapPin, Phone, Store } from '@lucide/vue';
 
 interface UmkmImage {
     id: number;
-    gambar: string;
-    caption?: string;
+    file: string;
+    judul?: string;
+}
+
+interface UmkmCategory {
+    id: number;
+    nama: string;
+    slug: string;
 }
 
 interface Umkm {
@@ -13,10 +19,11 @@ interface Umkm {
     slug: string;
     nama_usaha: string;
     pemilik: string;
-    kategori: string;
+    category: UmkmCategory | null;
     alamat?: string;
     telepon?: string;
     deskripsi: string;
+    thumbnail: string | null;
     images: UmkmImage[];
 }
 
@@ -39,7 +46,7 @@ const imageUrl = (path: string) => `/storage/${path}`;
         <h1 class="mb-4 text-3xl font-bold text-zinc-900 dark:text-white">{{ umkm.nama_usaha }}</h1>
         <div class="mb-6 flex flex-wrap gap-3">
             <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
-                {{ umkm.kategori }}
+                {{ umkm.category?.nama || 'Umum' }}
             </span>
             <span class="inline-flex items-center gap-1 text-sm text-zinc-500">
                 <Store class="size-4" />
@@ -69,12 +76,12 @@ const imageUrl = (path: string) => `/storage/${path}`;
                     class="group relative aspect-square overflow-hidden rounded-lg bg-zinc-100 dark:bg-zinc-800"
                 >
                     <img
-                        :src="imageUrl(image.gambar)"
-                        :alt="image.caption || umkm.nama_usaha"
+                        :src="imageUrl(image.file)"
+                        :alt="image.judul || umkm.nama_usaha"
                         class="h-full w-full object-cover transition-transform group-hover:scale-105"
                     />
-                    <div v-if="image.caption" class="absolute inset-x-0 bottom-0 bg-black/50 p-2 opacity-0 transition-opacity group-hover:opacity-100">
-                        <p class="text-xs text-white">{{ image.caption }}</p>
+                    <div v-if="image.judul" class="absolute inset-x-0 bottom-0 bg-black/50 p-2 opacity-0 transition-opacity group-hover:opacity-100">
+                        <p class="text-xs text-white">{{ image.judul }}</p>
                     </div>
                 </div>
             </div>

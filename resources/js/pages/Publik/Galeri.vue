@@ -42,7 +42,7 @@ const imageUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 
         <div v-else class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <Link v-for="gallery in galleries.data" :key="gallery.id" :href="`/galeri/${gallery.slug}`">
-                <Card class="overflow-hidden transition-shadow hover:shadow-md">
+                <Card class="overflow-hidden py-0 transition-shadow hover:shadow-md">
                     <div class="aspect-video bg-zinc-100 dark:bg-zinc-800 overflow-hidden">
                         <img
                             v-if="gallery.thumbnail"

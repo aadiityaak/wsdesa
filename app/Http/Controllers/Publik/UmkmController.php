@@ -12,7 +12,7 @@ class UmkmController extends Controller
     public function index(): Response
     {
         return Inertia::render('Publik/Umkm', [
-            'umkms' => Umkm::with(['category', 'images'])->latest()->get(),
+            'umkms' => Umkm::with(['category', 'images'])->latest()->paginate(12),
         ]);
     }
 

@@ -9,6 +9,11 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Umkm extends Model
 {
+    public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     use HasFactory;
 
     protected $fillable = [

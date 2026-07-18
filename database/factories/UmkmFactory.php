@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Umkm;
+use App\Helpers\PlaceholderImage;
 use App\Models\UmkmCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
@@ -26,7 +27,7 @@ class UmkmFactory extends Factory
             'alamat' => $this->faker->address(),
             'telepon' => $this->faker->phoneNumber(),
             'deskripsi' => $this->faker->paragraph(),
-            'thumbnail' => null,
+            'thumbnail' => PlaceholderImage::generate($namaUsaha),
             'latitude' => -6.1 + $this->faker->randomFloat(7, 0, 2),
             'longitude' => 106.7 + $this->faker->randomFloat(7, 0, 2),
         ];
