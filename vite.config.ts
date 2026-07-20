@@ -15,6 +15,27 @@ export default defineConfig({
                 bunny('Instrument Sans', {
                     weights: [400, 500, 600],
                 }),
+                bunny('Source Serif 4', {
+                    weights: [400, 500, 600],
+                }),
+                bunny('JetBrains Mono', {
+                    weights: [400, 500, 600],
+                }),
+                bunny('Nunito', {
+                    weights: [400, 500, 600],
+                }),
+                bunny('Poppins', {
+                    weights: [400, 500, 600, 700],
+                }),
+                bunny('Playfair Display', {
+                    weights: [400, 500, 600, 700],
+                }),
+                bunny('Bricolage Grotesque', {
+                    weights: [400, 500, 600, 700],
+                }),
+                bunny('Plus Jakarta Sans', {
+                    weights: [400, 500, 600, 700],
+                }),
             ],
         }),
         inertia(),

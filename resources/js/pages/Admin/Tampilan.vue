@@ -3,12 +3,13 @@ import { Head, useForm } from '@inertiajs/vue3';
 import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { Palette, Save, Check } from '@lucide/vue';
+import { Palette, Save, Check, Type } from '@lucide/vue';
 
 interface Profile {
     id: number;
     header_style: string;
     footer_style: string;
+    font_style: string;
 }
 
 const props = defineProps<{ profile: Profile }>();
@@ -16,6 +17,7 @@ const props = defineProps<{ profile: Profile }>();
 const form = useForm({
     header_style: props.profile.header_style ?? 'default',
     footer_style: props.profile.footer_style ?? 'default',
+    font_style: props.profile.font_style ?? 'inter',
 });
 
 const headerStyles = [
@@ -69,6 +71,65 @@ const footerStyles = [
         label: 'Minimal',
         description: 'Hanya copyright bar, sangat sederhana',
         preview: 'bg-white dark:bg-zinc-950',
+    },
+];
+
+const fontStyles = [
+    {
+        key: 'inter',
+        label: 'Inter',
+        description: 'Font sans-serif modern, bersih dan mudah dibaca',
+        previewClass: 'font-sans',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
+    },
+    {
+        key: 'serif',
+        label: 'Serif',
+        description: 'Font dengan kait, memberikan kesan klasik dan formal',
+        previewClass: 'font-serif',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
+    },
+    {
+        key: 'mono',
+        label: 'Monospace',
+        description: 'Font dengan lebar karakter seragam, tampilan teknis',
+        previewClass: 'font-mono',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
+    },
+    {
+        key: 'rounded',
+        label: 'Rounded',
+        description: 'Font membulat, ramah dan modern untuk desa digital',
+        previewClass: 'font-rounded',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
+    },
+    {
+        key: 'poppins',
+        label: 'Poppins',
+        description: 'Font geometris modern, bersih dan profesional',
+        previewClass: 'font-poppins',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
+    },
+    {
+        key: 'playfair',
+        label: 'Playfair Display',
+        description: 'Font serif elegan, cocok untuk judul dan berita',
+        previewClass: 'font-playfair',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
+    },
+    {
+        key: 'bricolage',
+        label: 'Bricolage Grotesque',
+        description: 'Font sans-serif unik, berani dan ekspresif',
+        previewClass: 'font-bricolage',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
+    },
+    {
+        key: 'jakarta',
+        label: 'Plus Jakarta Sans',
+        description: 'Font modern dan netral, cocok untuk body teks',
+        previewClass: 'font-jakarta',
+        previewText: 'ABCDEFGHIJKL abcdefghijkl 12345',
     },
 ];
 
@@ -188,6 +249,55 @@ const submit = () => {
                         <div
                             v-if="form.footer_style === style.key"
                             class="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-purple-500 text-white"
+                        >
+                            <Check class="h-3.5 w-3.5" />
+                        </div>
+                        <!-- Label -->
+                        <div class="border-t border-zinc-100 px-3 py-2.5 dark:border-zinc-800">
+                            <div class="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{{ style.label }}</div>
+                            <div class="mt-0.5 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">{{ style.description }}</div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Typography -->
+            <div class="mb-8 rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+                <div class="mb-6 flex items-center gap-3">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                        <Type class="h-5 w-5" />
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-zinc-800 dark:text-zinc-200">Typography</h2>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Pilih font untuk tampilan website desa</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    <button
+                        v-for="style in fontStyles"
+                        :key="style.key"
+                        type="button"
+                        class="relative flex flex-col overflow-hidden rounded-xl border-2 transition-all"
+                        :class="form.font_style === style.key
+                            ? 'border-amber-500 ring-2 ring-amber-200 dark:border-amber-400 dark:ring-amber-800'
+                            : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'"
+                        @click="form.font_style = style.key"
+                    >
+                        <!-- Preview area -->
+                        <div class="flex flex-col gap-1.5 px-4 py-6" :class="style.previewClass">
+                            <div class="text-lg font-bold leading-tight text-zinc-800 dark:text-zinc-200">{{ style.label }}</div>
+                            <div class="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">{{ style.previewText }}</div>
+                            <div class="mt-1 flex gap-1">
+                                <div class="h-2 w-6 rounded-full bg-zinc-300/60 dark:bg-zinc-600/50" />
+                                <div class="h-2 w-10 rounded-full bg-zinc-300/60 dark:bg-zinc-600/50" />
+                                <div class="h-2 w-8 rounded-full bg-zinc-300/60 dark:bg-zinc-600/50" />
+                            </div>
+                        </div>
+                        <!-- Check indicator -->
+                        <div
+                            v-if="form.font_style === style.key"
+                            class="absolute right-2 top-2 flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-white"
                         >
                             <Check class="h-3.5 w-3.5" />
                         </div>

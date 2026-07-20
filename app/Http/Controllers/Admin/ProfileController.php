@@ -169,6 +169,7 @@ class ProfileController extends Controller
         $validated = $request->validate([
             'header_style' => ['required', 'string', 'in:default,modern,classic,minimal'],
             'footer_style' => ['required', 'string', 'in:default,modern,classic,minimal'],
+            'font_style' => ['required', 'string', 'in:inter,serif,mono,rounded,poppins,playfair,bricolage,jakarta'],
         ]);
 
         $profile->fill($validated)->save();

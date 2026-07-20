@@ -151,6 +151,7 @@ const submitForm = () => {
                                         placeholder="Masukkan anggaran..."
                                         class="rounded-xl border-zinc-200 pl-8 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
                                     />
+                                </div>
                                 <p v-if="form.errors.anggaran" class="text-sm text-red-500">{{ form.errors.anggaran }}</p>
                             </div>
                             <div class="grid gap-1.5">
@@ -164,6 +165,7 @@ const submitForm = () => {
                                         placeholder="Masukkan realisasi..."
                                         class="rounded-xl border-zinc-200 pl-8 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
                                     />
+                                </div>
                                 <p v-if="form.errors.realisasi" class="text-sm text-red-500">{{ form.errors.realisasi }}</p>
                             </div>
                         </div>

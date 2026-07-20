@@ -50,6 +50,7 @@ class HandleInertiaRequests extends Middleware
                 'logo' => $profile->logo ? asset('storage/'.$profile->logo) : null,
                 'header_style' => $profile->header_style ?? 'default',
                 'footer_style' => $profile->footer_style ?? 'default',
+                'font_style' => $profile->font_style ?? 'inter',
             ] : null,
         ];
     }

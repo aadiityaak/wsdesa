@@ -7,10 +7,11 @@ import { useAppearance } from '@/composables/useAppearance';
 import { X, Menu, Sun, Moon } from '@lucide/vue';
 
 const page = usePage();
-const sharedProfile = computed<{ nama_desa?: string; header_style?: string; footer_style?: string } | null>(() => page.props.sharedProfile as { nama_desa?: string; header_style?: string; footer_style?: string } | null);
+const sharedProfile = computed<{ nama_desa?: string; header_style?: string; footer_style?: string; font_style?: string } | null>(() => page.props.sharedProfile as { nama_desa?: string; header_style?: string; footer_style?: string; font_style?: string } | null);
 const desaName = computed(() => sharedProfile.value?.nama_desa || 'Desa Digital');
 const headerStyle = computed(() => sharedProfile.value?.header_style || 'default');
 const footerStyle = computed(() => sharedProfile.value?.footer_style || 'default');
+const fontStyle = computed(() => sharedProfile.value?.font_style || 'inter');
 
 const isMobileMenuOpen = ref(false);
 const { appearance, updateAppearance } = useAppearance();
@@ -116,7 +117,7 @@ const footerCopyrightClass = computed(() => {
 </script>
 
 <template>
-    <div class="flex min-h-screen flex-col bg-white dark:bg-zinc-900">
+    <div class="flex min-h-screen flex-col bg-white dark:bg-zinc-900" :class="`font-style-${fontStyle}`">
         <!-- Navbar -->
         <header class="sticky top-0 z-50" :class="headerClass">
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
