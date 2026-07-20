@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,6 +36,17 @@ const props = defineProps<{
 
 const isEdit = computed(() => !!props.budget);
 
+const toRupiah = (val: number | string): string => {
+    const num = parseInt(String(val).replace(/\D/g, ''));
+    if (isNaN(num) || num === 0) return '';
+    return num.toLocaleString('id-ID');
+};
+
+const fromRupiah = (val: string): string => {
+    return String(parseInt(val.replace(/\D/g, '')) || '');
+};
+
+// Form (raw numbers as strings)
 const form = useForm({
     budget_category_id: props.budget?.budget_category_id?.toString() || '',
     tahun: props.budget?.tahun?.toString() || new Date().getFullYear().toString(),
@@ -43,6 +54,13 @@ const form = useForm({
     realisasi: props.budget?.realisasi?.toString() || '',
     keterangan: props.budget?.keterangan || '',
 });
+
+// Display values with thousand separator masking
+const anggaranDisplay = ref(toRupiah(form.anggaran));
+const realisasiDisplay = ref(toRupiah(form.realisasi));
+
+watch(anggaranDisplay, (val) => { form.anggaran = fromRupiah(val); });
+watch(realisasiDisplay, (val) => { form.realisasi = fromRupiah(val); });
 
 const submitForm = () => {
     if (isEdit.value) {
@@ -123,25 +141,29 @@ const submitForm = () => {
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div class="grid gap-1.5">
                                 <Label for="anggaran" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Anggaran</Label>
-                                <Input
-                                    id="anggaran"
-                                    v-model="form.anggaran"
-                                    type="number"
-                                    required
-                                    placeholder="Masukkan anggaran..."
-                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
-                                />
+                                <div class="relative">
+                                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">Rp</span>
+                                    <Input
+                                        id="anggaran"
+                                        v-model="anggaranDisplay"
+                                        type="text"
+                                        required
+                                        placeholder="Masukkan anggaran..."
+                                        class="rounded-xl border-zinc-200 pl-8 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                    />
                                 <p v-if="form.errors.anggaran" class="text-sm text-red-500">{{ form.errors.anggaran }}</p>
                             </div>
                             <div class="grid gap-1.5">
                                 <Label for="realisasi" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Realisasi</Label>
-                                <Input
-                                    id="realisasi"
-                                    v-model="form.realisasi"
-                                    type="number"
-                                    placeholder="Masukkan realisasi..."
-                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
-                                />
+                                <div class="relative">
+                                    <span class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-zinc-400">Rp</span>
+                                    <Input
+                                        id="realisasi"
+                                        v-model="realisasiDisplay"
+                                        type="text"
+                                        placeholder="Masukkan realisasi..."
+                                        class="rounded-xl border-zinc-200 pl-8 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                    />
                                 <p v-if="form.errors.realisasi" class="text-sm text-red-500">{{ form.errors.realisasi }}</p>
                             </div>
                         </div>

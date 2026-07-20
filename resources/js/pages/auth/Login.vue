@@ -14,8 +14,8 @@ import { request } from '@/routes/password';
 
 defineOptions({
     layout: {
-        title: 'Log in ke akun Anda',
-        description: 'Masukkan email dan kata sandi untuk masuk',
+        title: 'Masuk ke akun Anda',
+        description: 'Masukkan email dan kata sandi untuk masuk ke sistem',
     },
 });
 
@@ -26,20 +26,15 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Log in" />
+    <Head title="Masuk" />
 
-    <transition
-        enter-active-class="transition duration-300 ease-out"
-        enter-from-class="opacity-0 -translate-y-1"
-        enter-to-class="opacity-100 translate-y-0"
+    <!-- Status banner -->
+    <div
+        v-if="status"
+        class="mb-6 rounded-2xl border border-[#c7f0da] bg-[#c7f0da]/30 px-4 py-3 text-sm font-medium text-[#103c25]"
     >
-        <div
-            v-if="status"
-            class="mb-5 rounded-lg border border-green-200 bg-green-50 px-3.5 py-2.5 text-sm font-medium text-green-700"
-        >
-            {{ status }}
-        </div>
-    </transition>
+        {{ status }}
+    </div>
 
     <Form
         v-bind="store.form()"
@@ -47,9 +42,10 @@ defineProps<{
         v-slot="{ errors, processing }"
         class="flex flex-col gap-5"
     >
-        <div class="grid gap-5">
-            <div class="grid gap-2">
-                <Label for="email" class="text-[#1a1410]">Email</Label>
+        <div class="grid gap-4">
+            <!-- Email -->
+            <div class="grid gap-1.5">
+                <Label for="email" class="text-sm font-semibold text-[#211922]">Email</Label>
                 <Input
                     id="email"
                     type="email"
@@ -59,21 +55,20 @@ defineProps<{
                     :tabindex="1"
                     autocomplete="email"
                     placeholder="nama@desa.id"
-                    class="border-[#e3ddd2] bg-white py-5.5 text-[15px] shadow-sm transition-all duration-200 placeholder:text-[#a89c8b] focus-visible:border-[#d4a056] focus-visible:ring-[#d4a056]/30"
+                    class="h-11 rounded-2xl border-[#dadad3] bg-white px-4 text-[15px] shadow-none placeholder:text-[#91918c] focus:border-[#000] focus:ring-2 focus:ring-[#435ee5]"
                 />
                 <InputError :message="errors.email" />
             </div>
 
-            <div class="grid gap-2">
+            <!-- Password -->
+            <div class="grid gap-1.5">
                 <div class="flex items-center justify-between">
-                    <Label for="password" class="text-[#1a1410]"
-                        >Kata sandi</Label
-                    >
+                    <Label for="password" class="text-sm font-semibold text-[#211922]">Kata sandi</Label>
                     <TextLink
                         v-if="canResetPassword"
                         :href="request()"
-                        class="text-xs font-medium text-[#8a6d3b] no-underline transition-colors hover:text-[#d4a056]"
                         :tabindex="5"
+                        class="text-xs font-semibold text-[#62625b] no-underline hover:text-[#211922]"
                     >
                         Lupa kata sandi?
                     </TextLink>
@@ -85,50 +80,46 @@ defineProps<{
                     :tabindex="2"
                     autocomplete="current-password"
                     placeholder="••••••••"
-                    class="border-[#e3ddd2] bg-white py-5.5 text-[15px] shadow-sm transition-all duration-200 placeholder:text-[#a89c8b] focus-visible:border-[#d4a056] focus-visible:ring-[#d4a056]/30"
+                    class="h-11 rounded-2xl border-[#dadad3] bg-white px-4 text-[15px] shadow-none placeholder:text-[#91918c] focus:border-[#000] focus:ring-2 focus:ring-[#435ee5]"
                 />
                 <InputError :message="errors.password" />
             </div>
 
-            <div class="flex items-center justify-between">
-                <Label for="remember" class="flex items-center space-x-3">
+            <!-- Remember me -->
+            <div class="flex items-center">
+                <Label for="remember" class="flex cursor-pointer items-center gap-2.5">
                     <Checkbox
                         id="remember"
                         name="remember"
                         :tabindex="3"
-                        class="border-[#d4c9b4] data-[state=checked]:border-[#d4a056] data-[state=checked]:bg-[#d4a056] data-[state=checked]:text-[#1a1410]"
+                        class="h-5 w-5 rounded-md border-[#dadad3] data-[state=checked]:border-[#e60023] data-[state=checked]:bg-[#e60023] data-[state=checked]:text-white"
                     />
-                    <span class="text-sm text-[#5a5142]">Ingat saya</span>
+                    <span class="text-sm text-[#62625b]">Ingat saya</span>
                 </Label>
             </div>
 
+            <!-- Submit -->
             <Button
                 type="submit"
-                class="mt-1.5 h-11 w-full bg-[#1a1410] text-[15px] font-medium tracking-tight text-[#f0e6d8] shadow-sm transition-all duration-200 hover:bg-[#2a211a] focus-visible:ring-[#d4a056]/40"
+                class="mt-1.5 h-11 w-full rounded-2xl bg-[#e60023] text-sm font-bold tracking-tight text-white shadow-none transition-colors duration-150 hover:bg-[#cc001f] focus-visible:ring-2 focus-visible:ring-[#435ee5]"
                 :tabindex="4"
                 :disabled="processing"
-                data-test="login-button"
             >
-                <Spinner v-if="processing" class="text-[#d4a056]" />
+                <Spinner v-if="processing" class="text-white" />
                 Masuk
             </Button>
         </div>
 
-        <div class="mt-1 text-center text-sm text-[#7a7062]">
+        <!-- Register link -->
+        <div class="text-center text-sm text-[#62625b]">
             Belum punya akun?
             <TextLink
                 :href="register()"
                 :tabindex="5"
-                class="font-medium text-[#8a6d3b] no-underline transition-colors hover:text-[#d4a056]"
-                >Daftar</TextLink
+                class="font-semibold text-[#211922] no-underline hover:text-[#e60023]"
             >
+                Daftar
+            </TextLink>
         </div>
     </Form>
 </template>
-
-<style scoped>
-:deep(.py-5\.5) {
-    padding-top: 0.875rem;
-    padding-bottom: 0.875rem;
-}
-</style>

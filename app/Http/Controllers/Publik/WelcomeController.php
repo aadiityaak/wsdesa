@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Budget;
 use App\Models\Event;
 use App\Models\Post;
+use App\Models\Profile;
 use App\Models\Resident;
 use App\Models\Slider;
 use Illuminate\Support\Facades\DB;
@@ -118,6 +119,7 @@ class WelcomeController extends Controller
                 'byAgeGroup' => $byAgeGroup,
             ],
             'budgetSummary' => $budgetSummary,
+            'jamKerja' => fn () => Profile::first()?->jamKerja()->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")->get(),
         ]);
     }
 }

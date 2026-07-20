@@ -10,6 +10,7 @@ import {
     Calendar,
     ChevronLeft,
     ChevronRight,
+    Clock,
     Download,
     ExternalLink,
     FileText,
@@ -70,12 +71,21 @@ interface BudgetSummary {
     pembiayaan: BudgetCategorySummary;
 }
 
+interface JamKerjaItem {
+    id?: number;
+    hari: string;
+    jam_buka: string | null;
+    jam_tutup: string | null;
+    is_libur: boolean;
+}
+
 const props = defineProps<{
     sliders: SliderItem[];
     latestPosts: PostItem[];
     upcomingEvents: EventItem[];
     stats: StatsData;
     budgetSummary: BudgetSummary;
+    jamKerja: JamKerjaItem[] | null;
 }>();
 
 // --- Hero Slider ---
@@ -339,6 +349,46 @@ const budgetChartOptions = {
                 <h3 class="mt-4 font-semibold text-zinc-900 dark:text-white">Download</h3>
                 <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Unduh dokumen dan berkas penting</p>
             </Link>
+        </div>
+    </section>
+
+    <!-- ==================== Jam Kerja ==================== -->
+    <section v-if="jamKerja && jamKerja.length > 0" class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+        <div class="mb-8 flex items-center gap-3">
+            <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600">
+                <Clock class="size-5" />
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-white">Jam Kerja</h2>
+                <p class="mt-1 text-zinc-500 dark:text-zinc-400">Jadwal operasional kantor desa</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7">
+            <div
+                v-for="jk in jamKerja"
+                :key="jk.hari"
+                class="flex flex-col items-center rounded-xl border p-4 text-center transition-all hover:shadow-sm"
+                :class="jk.is_libur
+                    ? 'border-rose-200 bg-rose-50 dark:border-rose-900/50 dark:bg-rose-950/30'
+                    : 'border-zinc-200/60 bg-white dark:border-zinc-700/60 dark:bg-zinc-900'"
+            >
+                <span
+                    class="text-sm font-semibold"
+                    :class="jk.is_libur ? 'text-rose-500 dark:text-rose-400' : 'text-zinc-800 dark:text-zinc-200'"
+                >
+                    {{ jk.hari }}
+                </span>
+                <template v-if="jk.is_libur">
+                    <span class="mt-2 rounded-full bg-rose-100 px-3 py-0.5 text-xs font-medium text-rose-600 dark:bg-rose-900/40 dark:text-rose-400">Libur</span>
+                </template>
+                <template v-else>
+                    <span class="mt-2 text-xs text-zinc-400 dark:text-zinc-500">Buka</span>
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ jk.jam_buka?.slice(0, 5) ?? '—' }}</span>
+                    <span class="text-xs text-zinc-400 dark:text-zinc-500">Tutup</span>
+                    <span class="text-sm font-medium text-zinc-700 dark:text-zinc-300">{{ jk.jam_tutup?.slice(0, 5) ?? '—' }}</span>
+                </template>
+            </div>
         </div>
     </section>
 

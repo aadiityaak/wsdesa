@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\JamKerja;
 use App\Models\Profile;
 use Illuminate\Database\Seeder;
 
@@ -9,7 +10,7 @@ class ProfileSeeder extends Seeder
 {
     public function run(): void
     {
-        Profile::updateOrCreate(['nama_desa' => 'Desa Digital'], [
+        $profile = Profile::updateOrCreate(['nama_desa' => 'Desa Digital'], [
             'kode_desa' => '3201234567',
             'kecamatan' => 'Kecamatan Contoh',
             'kabupaten' => 'Kabupaten Maju Jaya',
@@ -45,5 +46,23 @@ Kini Desa Digital terus berbenah diri untuk menjadi desa yang mandiri, sejahtera
             'youtube' => 'https://youtube.com/@desadigital',
             'tiktok' => 'https://tiktok.com/@desadigital',
         ]);
+
+        // Jam Kerja
+        $jamKerjaData = [
+            ['hari' => 'Senin', 'jam_buka' => '08:00', 'jam_tutup' => '16:00', 'is_libur' => false],
+            ['hari' => 'Selasa', 'jam_buka' => '08:00', 'jam_tutup' => '16:00', 'is_libur' => false],
+            ['hari' => 'Rabu', 'jam_buka' => '08:00', 'jam_tutup' => '16:00', 'is_libur' => false],
+            ['hari' => 'Kamis', 'jam_buka' => '08:00', 'jam_tutup' => '16:00', 'is_libur' => false],
+            ['hari' => 'Jumat', 'jam_buka' => '08:00', 'jam_tutup' => '14:30', 'is_libur' => false],
+            ['hari' => 'Sabtu', 'jam_buka' => null, 'jam_tutup' => null, 'is_libur' => true],
+            ['hari' => 'Minggu', 'jam_buka' => null, 'jam_tutup' => null, 'is_libur' => true],
+        ];
+
+        foreach ($jamKerjaData as $jk) {
+            JamKerja::updateOrCreate(
+                ['profile_id' => $profile->id, 'hari' => $jk['hari']],
+                $jk,
+            );
+        }
     }
 }
