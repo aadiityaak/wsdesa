@@ -4,10 +4,55 @@ import AppLogoIcon from '@/components/AppLogoIcon.vue';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Globe, Mail, MapPin, Target, BookOpen, Compass, ExternalLink, Quote, Camera, Play, Music } from '@lucide/vue';
+import { computed, nextTick, onMounted, onUnmounted, ref } from 'vue';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
-defineProps<{
+const props = defineProps<{
     profile: Record<string, any> | null;
 }>();
+
+// SVG marker icon (sama seperti di admin)
+const markerIcon = L.divIcon({
+    html: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#e11d48;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><path d="m9 10 2 2 4-4"/></svg>`,
+    className: 'custom-marker',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36],
+});
+
+// Leaflet map
+const mapContainer = ref<HTMLDivElement | null>(null);
+let map: L.Map | null = null;
+
+const hasCoords = computed(() => props.profile?.latitude && props.profile?.longitude);
+
+const initMap = () => {
+    if (!mapContainer.value || map || !hasCoords.value) return;
+    const lat = parseFloat(props.profile!.latitude);
+    const lng = parseFloat(props.profile!.longitude);
+
+    map = L.map(mapContainer.value, {
+        center: [lat, lng],
+        zoom: 14,
+        zoomControl: true,
+        scrollWheelZoom: false,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+    }).addTo(map);
+
+    L.marker([lat, lng], { icon: markerIcon })
+        .addTo(map)
+        .bindPopup(props.profile!.nama_desa || 'Lokasi Desa');
+
+    setTimeout(() => map?.invalidateSize(), 100);
+};
+
+onMounted(() => nextTick(() => initMap()));
+onUnmounted(() => { if (map) { map.remove(); map = null; } });
 </script>
 
 <template>
@@ -56,8 +101,14 @@ defineProps<{
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
+
+        <!-- Map lokasi -->
+        <div v-if="hasCoords" class="mx-auto -mt-4 max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div ref="mapContainer" class="h-[300px] w-full overflow-hidden rounded-xl border border-zinc-200 shadow-md sm:h-[380px] dark:border-zinc-700" />
+        </div>
 
         <div class="mx-auto max-w-7xl space-y-10 px-4 py-12 sm:px-6 lg:px-8 md:py-16">
             <!-- Data Dasar -->
