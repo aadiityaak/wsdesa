@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Eye, Calendar, ArrowLeft } from '@lucide/vue';
+import { computed } from 'vue';
 
 interface PostCategory {
     id: number;
@@ -26,13 +27,14 @@ interface Post {
     slug: string;
     ringkasan: string | null;
     konten: string;
-    gambar: string | null;
+    thumbnail: string | null;
+    thumbnail_url: string | null;
     views: number;
     published_at: string;
     category: PostCategory | null;
 }
 
-defineProps<{
+const props = defineProps<{
     post: Post;
     comments: Comment[];
 }>();
@@ -53,7 +55,11 @@ const submitComment = () => {
 const formatDate = (date: string) =>
     new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
 
-const imageUrl = (path: string | null) => (path ? `/storage/${path}` : null);
+const imageUrl = computed(() => {
+    if (props.post.thumbnail_url) return props.post.thumbnail_url;
+    if (props.post.thumbnail) return `/storage/${props.post.thumbnail}`;
+    return null;
+});
 
 const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 </script>
@@ -87,8 +93,8 @@ const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
         </h1>
 
         <!-- Thumbnail -->
-        <div v-if="post.gambar" class="mb-8 overflow-hidden rounded-lg">
-            <img :src="imageUrl(post.gambar)" :alt="post.judul" class="w-full object-cover" />
+        <div v-if="imageUrl" class="mb-8 overflow-hidden rounded-lg">
+            <img :src="imageUrl" :alt="post.judul" class="w-full object-cover" />
         </div>
 
         <!-- Content -->

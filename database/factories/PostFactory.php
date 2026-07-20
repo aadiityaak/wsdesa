@@ -21,7 +21,7 @@ class PostFactory extends Factory
         $judul = fake('id_ID')->sentence(8);
 
         return [
-            'post_category_id' => PostCategory::factory(),
+            'post_category_id' => PostCategory::query()->inRandomOrder()->value('id'),
             'judul' => $judul,
             'slug' => Str::slug($judul).'-'.fake()->unique()->randomNumber(5),
             'thumbnail' => PlaceholderImage::generate($judul),

@@ -30,6 +30,7 @@ Route::get('/pemerintahan', [PemerintahanController::class, 'index'])->name('pem
 
 Route::prefix('berita')->group(function () {
     Route::get('/', [BeritaController::class, 'index'])->name('berita.index');
+    Route::get('/kategori/{category}', [BeritaController::class, 'index'])->name('berita.category');
     Route::post('/{post}/komentar', [BeritaController::class, 'storeComment'])->name('berita.comment.store');
     Route::get('/{slug}', [BeritaController::class, 'show'])->name('berita.show');
 });

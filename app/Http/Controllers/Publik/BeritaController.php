@@ -12,8 +12,10 @@ use Inertia\Response;
 
 class BeritaController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(Request $request, ?string $category = null): Response
     {
+        $categorySlug = $category ?? $request->query('category');
+
         $posts = Post::with(['category', 'user'])
             ->where('status', 'publish')
             ->when($request->search, function ($query, $search) {
@@ -22,9 +24,9 @@ class BeritaController extends Controller
                         ->orWhere('ringkasan', 'like', "%{$search}%");
                 });
             })
-            ->when($request->category, function ($query, $category) {
-                $query->whereHas('category', function ($q) use ($category) {
-                    $q->where('slug', $category);
+            ->when($categorySlug, function ($query, $slug) {
+                $query->whereHas('category', function ($q) use ($slug) {
+                    $q->where('slug', $slug);
                 });
             })
             ->latest('published_at')
@@ -37,7 +39,8 @@ class BeritaController extends Controller
         return Inertia::render('Publik/Berita/Index', [
             'posts' => $posts,
             'categories' => $categories,
-            'filters' => $request->only(['search', 'category']),
+            'search' => $request->search,
+            'categorySlug' => $categorySlug,
         ]);
     }
 

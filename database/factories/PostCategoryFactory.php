@@ -16,11 +16,10 @@ class PostCategoryFactory extends Factory
     public function definition(): array
     {
         $nama = fake()->randomElement(['Berita Desa', 'Kegiatan', 'Pengumuman', 'Pembangunan', 'Kesehatan']);
-        $slug = Str::slug($nama).'-'.fake()->unique()->randomNumber(5);
 
         return [
             'nama' => $nama,
-            'slug' => $slug,
+            'slug' => Str::slug($nama),
             'deskripsi' => fake()->sentence(),
         ];
     }

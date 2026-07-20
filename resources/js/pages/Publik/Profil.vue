@@ -62,68 +62,140 @@ defineProps<{
         <div class="mx-auto max-w-7xl space-y-10 px-4 py-12 sm:px-6 lg:px-8 md:py-16">
             <!-- Data Dasar -->
             <section>
-                <div class="mb-6 flex items-center gap-3">
-                    <MapPin class="size-5 text-emerald-600 dark:text-emerald-400" />
-                    <h2 class="text-xl font-bold text-zinc-900 sm:text-2xl dark:text-white">Data Dasar</h2>
+                <div class="mb-8 flex items-center gap-4">
+                    <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
+                        <MapPin class="size-5" />
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-bold text-zinc-900 sm:text-2xl dark:text-white">Data Dasar</h2>
+                        <p class="text-sm text-zinc-500 dark:text-zinc-400">Informasi identitas dan kontak Desa {{ profile.nama_desa }}</p>
+                    </div>
                 </div>
-                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    <Card v-if="profile.nama_desa" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Nama Desa</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.nama_desa }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.kode_desa" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Kode Desa</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.kode_desa }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.kecamatan" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Kecamatan</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.kecamatan }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.kabupaten" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Kabupaten</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.kabupaten }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.provinsi" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Provinsi</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.provinsi }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.alamat" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Alamat</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.alamat }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.kode_pos" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Kode Pos</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.kode_pos }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.telepon" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Telepon</p>
-                            <p class="mt-1 font-medium text-zinc-900 dark:text-white">{{ profile.telepon }}</p>
-                        </CardContent>
-                    </Card>
-                    <Card v-if="profile.email" class="border-zinc-200/60 dark:border-zinc-700/60">
-                        <CardContent class="p-4">
-                            <p class="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Email</p>
-                            <p class="mt-1 flex items-center gap-1 font-medium text-emerald-600 dark:text-emerald-400">
-                                <Mail class="size-3.5" />
-                                {{ profile.email }}
-                            </p>
-                        </CardContent>
-                    </Card>
+
+                <div class="space-y-6">
+                    <!-- Sub: Identitas -->
+                    <div>
+                        <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Identitas</h3>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                            <Card v-if="profile.nama_desa" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                                        <MapPin class="size-4" />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Nama Desa</p>
+                                        <p class="mt-0.5 truncate font-semibold text-zinc-900 dark:text-white">{{ profile.nama_desa }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.kode_desa" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-violet-50 text-violet-600 dark:bg-violet-900/30 dark:text-violet-400">
+                                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" /><path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" /></svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Kode Desa</p>
+                                        <p class="mt-0.5 truncate font-semibold text-zinc-900 dark:text-white">{{ profile.kode_desa }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.kecamatan" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400">
+                                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21" /></svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Kecamatan</p>
+                                        <p class="mt-0.5 truncate font-semibold text-zinc-900 dark:text-white">{{ profile.kecamatan }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.kabupaten" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-rose-50 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400">
+                                        <Globe class="size-4" />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Kabupaten</p>
+                                        <p class="mt-0.5 truncate font-semibold text-zinc-900 dark:text-white">{{ profile.kabupaten }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.provinsi" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-600 dark:bg-teal-900/30 dark:text-teal-400">
+                                        <MapPin class="size-4" />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Provinsi</p>
+                                        <p class="mt-0.5 truncate font-semibold text-zinc-900 dark:text-white">{{ profile.provinsi }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
+
+                    <!-- Sub: Alamat & Kontak -->
+                    <div>
+                        <h3 class="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Alamat &amp; Kontak</h3>
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                            <Card v-if="profile.alamat" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600 dark:bg-orange-900/30 dark:text-orange-400">
+                                        <MapPin class="size-4" />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Alamat</p>
+                                        <p class="mt-0.5 font-semibold text-zinc-900 dark:text-white">{{ profile.alamat }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.kode_pos" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400">
+                                        <span class="text-sm font-bold">#</span>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Kode Pos</p>
+                                        <p class="mt-0.5 font-semibold text-zinc-900 dark:text-white">{{ profile.kode_pos }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.telepon" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                                        <svg class="size-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Telepon</p>
+                                        <p class="mt-0.5 font-semibold text-zinc-900 dark:text-white">{{ profile.telepon }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.email" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-pink-50 text-pink-600 dark:bg-pink-900/30 dark:text-pink-400">
+                                        <Mail class="size-4" />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Email</p>
+                                        <p class="mt-0.5 truncate font-semibold text-zinc-900 dark:text-white">{{ profile.email }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                            <Card v-if="profile.website" class="group border-zinc-200/60 transition-shadow hover:shadow-md dark:border-zinc-700/60">
+                                <CardContent class="flex items-start gap-3 p-5">
+                                    <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400">
+                                        <Globe class="size-4" />
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">Website</p>
+                                        <p class="mt-0.5 truncate font-semibold text-zinc-900 dark:text-white">{{ profile.website }}</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </div>
+                    </div>
                 </div>
             </section>
 
