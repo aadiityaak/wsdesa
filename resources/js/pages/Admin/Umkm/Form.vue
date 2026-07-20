@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, nextTick, onMounted, onUnmounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -13,6 +13,8 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { ArrowLeft, Camera, Save, Store } from '@lucide/vue';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface Category {
     id: number;
@@ -83,6 +85,76 @@ const submitForm = () => {
         });
     }
 };
+
+// Leaflet map
+const markerIcon = L.divIcon({
+    html: `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="currentColor" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:#e11d48;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`,
+    className: 'custom-marker',
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36],
+});
+
+const mapContainer = ref<HTMLDivElement | null>(null);
+let map: L.Map | null = null;
+let marker: L.Marker | null = null;
+
+const defaultLat = props.umkm?.latitude ? parseFloat(String(props.umkm.latitude)) : -6.2;
+const defaultLng = props.umkm?.longitude ? parseFloat(String(props.umkm.longitude)) : 106.8;
+
+const initMap = () => {
+    if (!mapContainer.value || map) return;
+
+    map = L.map(mapContainer.value, {
+        center: [defaultLat, defaultLng],
+        zoom: 15,
+        zoomControl: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19,
+    }).addTo(map);
+
+    marker = L.marker([defaultLat, defaultLng], { draggable: true, icon: markerIcon }).addTo(map);
+
+    marker.on('dragend', () => {
+        if (!marker) return;
+        const pos = marker.getLatLng();
+        form.latitude = pos.lat.toFixed(7);
+        form.longitude = pos.lng.toFixed(7);
+    });
+
+    map.on('click', (e: L.LeafletMouseEvent) => {
+        if (!marker) {
+            marker = L.marker(e.latlng, { draggable: true, icon: markerIcon }).addTo(map!);
+            marker.on('dragend', () => {
+                if (!marker) return;
+                const pos = marker.getLatLng();
+                form.latitude = pos.lat.toFixed(7);
+                form.longitude = pos.lng.toFixed(7);
+            });
+        } else {
+            marker.setLatLng(e.latlng);
+        }
+        form.latitude = e.latlng.lat.toFixed(7);
+        form.longitude = e.latlng.lng.toFixed(7);
+    });
+
+    setTimeout(() => map?.invalidateSize(), 100);
+};
+
+onMounted(() => {
+    nextTick(initMap);
+});
+
+onUnmounted(() => {
+    if (map) {
+        map.remove();
+        map = null;
+        marker = null;
+    }
+});
 </script>
 
 <template>
@@ -184,8 +256,18 @@ const submitForm = () => {
                         </div>
                     </div>
 
-                    <!-- Koordinat -->
+                    <!-- Lokasi & Map -->
                     <div class="rounded-2xl border border-zinc-100 bg-white p-6 shadow-sm dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
+                        <h3 class="mb-4 text-sm font-semibold text-zinc-800 dark:text-zinc-200">Lokasi & Koordinat</h3>
+
+                        <!-- Map container -->
+                        <div class="mb-4 overflow-hidden rounded-xl border border-zinc-200 dark:border-zinc-700">
+                            <div ref="mapContainer" class="h-[300px] w-full"></div>
+                        </div>
+                        <p class="mb-4 text-xs text-zinc-400 dark:text-zinc-500">
+                            Klik pada peta atau geser pin untuk mengatur koordinat lokasi UMKM.
+                        </p>
+
                         <div class="grid gap-4 sm:grid-cols-2">
                             <div class="grid gap-1.5">
                                 <Label for="latitude" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Latitude</Label>
@@ -193,7 +275,8 @@ const submitForm = () => {
                                     id="latitude"
                                     v-model="form.latitude"
                                     placeholder="Masukkan latitude..."
-                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                    class="rounded-xl border-zinc-200 text-sm focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                    readonly
                                 />
                                 <p v-if="form.errors.latitude" class="text-sm text-red-500">{{ form.errors.latitude }}</p>
                             </div>
@@ -203,7 +286,8 @@ const submitForm = () => {
                                     id="longitude"
                                     v-model="form.longitude"
                                     placeholder="Masukkan longitude..."
-                                    class="rounded-xl border-zinc-200 focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                    class="rounded-xl border-zinc-200 text-sm focus:border-rose-300 focus:ring-rose-200 dark:border-zinc-700"
+                                    readonly
                                 />
                                 <p v-if="form.errors.longitude" class="text-sm text-red-500">{{ form.errors.longitude }}</p>
                             </div>
