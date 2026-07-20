@@ -51,6 +51,7 @@ class HandleInertiaRequests extends Middleware
                 'header_style' => $profile->header_style ?? 'default',
                 'footer_style' => $profile->footer_style ?? 'default',
                 'font_style' => $profile->font_style ?? 'inter',
+                'heading_font' => $profile->heading_font ?? 'inter',
             ] : null,
         ];
     }

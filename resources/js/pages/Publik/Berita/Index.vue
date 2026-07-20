@@ -212,9 +212,7 @@ const uniqueCategories = computed(() => {
                     </Link>
 
                     <!-- Excerpt -->
-                    <p v-if="post.ringkasan" class="text-sm leading-relaxed text-zinc-500 line-clamp-3 dark:text-zinc-400">
-                        {{ post.ringkasan }}
-                    </p>
+                    <p v-if="post.ringkasan" class="text-sm leading-relaxed text-zinc-500 line-clamp-3 dark:text-zinc-400" v-html="post.ringkasan" />
 
                     <!-- Read more -->
                     <Link

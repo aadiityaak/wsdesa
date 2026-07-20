@@ -107,40 +107,140 @@
             'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
             'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
             'Noto Color Emoji';
+        font-family:
+            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
     }
 
     .font-style-serif {
         --font-sans:
+            'Source Serif 4', Georgia, Cambria, 'Times New Roman', Times, serif;
+        font-family:
             'Source Serif 4', Georgia, Cambria, 'Times New Roman', Times, serif;
     }
 
     .font-style-mono {
         --font-sans:
             'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, 'Cascadia Code', Consolas, monospace;
+        font-family:
+            'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, 'Cascadia Code', Consolas, monospace;
     }
 
     .font-style-rounded {
         --font-sans:
+            'Nunito', 'Inter', ui-sans-serif, system-ui, sans-serif;
+        font-family:
             'Nunito', 'Inter', ui-sans-serif, system-ui, sans-serif;
     }
 
     .font-style-poppins {
         --font-sans:
             'Poppins', ui-sans-serif, system-ui, sans-serif;
+        font-family:
+            'Poppins', ui-sans-serif, system-ui, sans-serif;
     }
 
     .font-style-playfair {
         --font-sans:
+            'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
+        font-family:
             'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
     }
 
     .font-style-bricolage {
         --font-sans:
             'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+        font-family:
+            'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
     }
 
     .font-style-jakarta {
         --font-sans:
+            'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+        font-family:
+            'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .heading-font-inter h1,
+    .heading-font-inter h2,
+    .heading-font-inter h3,
+    .heading-font-inter h4,
+    .heading-font-inter h5,
+    .heading-font-inter h6 {
+        font-family:
+            'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
+            'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+            'Noto Color Emoji';
+    }
+
+    .heading-font-serif h1,
+    .heading-font-serif h2,
+    .heading-font-serif h3,
+    .heading-font-serif h4,
+    .heading-font-serif h5,
+    .heading-font-serif h6 {
+        font-family:
+            'Source Serif 4', Georgia, Cambria, 'Times New Roman', Times, serif;
+    }
+
+    .heading-font-mono h1,
+    .heading-font-mono h2,
+    .heading-font-mono h3,
+    .heading-font-mono h4,
+    .heading-font-mono h5,
+    .heading-font-mono h6 {
+        font-family:
+            'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, 'Cascadia Code', Consolas, monospace;
+    }
+
+    .heading-font-rounded h1,
+    .heading-font-rounded h2,
+    .heading-font-rounded h3,
+    .heading-font-rounded h4,
+    .heading-font-rounded h5,
+    .heading-font-rounded h6 {
+        font-family:
+            'Nunito', 'Inter', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .heading-font-poppins h1,
+    .heading-font-poppins h2,
+    .heading-font-poppins h3,
+    .heading-font-poppins h4,
+    .heading-font-poppins h5,
+    .heading-font-poppins h6 {
+        font-family:
+            'Poppins', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .heading-font-playfair h1,
+    .heading-font-playfair h2,
+    .heading-font-playfair h3,
+    .heading-font-playfair h4,
+    .heading-font-playfair h5,
+    .heading-font-playfair h6 {
+        font-family:
+            'Playfair Display', Georgia, Cambria, 'Times New Roman', Times, serif;
+    }
+
+    .heading-font-bricolage h1,
+    .heading-font-bricolage h2,
+    .heading-font-bricolage h3,
+    .heading-font-bricolage h4,
+    .heading-font-bricolage h5,
+    .heading-font-bricolage h6 {
+        font-family:
+            'Bricolage Grotesque', ui-sans-serif, system-ui, sans-serif;
+    }
+
+    .heading-font-jakarta h1,
+    .heading-font-jakarta h2,
+    .heading-font-jakarta h3,
+    .heading-font-jakarta h4,
+    .heading-font-jakarta h5,
+    .heading-font-jakarta h6 {
+        font-family:
             'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif;
     }
 

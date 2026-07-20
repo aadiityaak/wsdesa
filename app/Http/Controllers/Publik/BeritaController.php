@@ -54,6 +54,7 @@ class BeritaController extends Controller
 
         return Inertia::render('Publik/Berita/Show', [
             'post' => $post,
+            'comments' => $post->comments,
         ]);
     }
 

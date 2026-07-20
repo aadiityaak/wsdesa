@@ -62,9 +62,7 @@ const imageUrl = (path: string) => `/storage/${path}`;
             </span>
         </div>
 
-        <div class="mb-8 text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line">
-            {{ umkm.deskripsi }}
-        </div>
+        <div class="mb-8 text-zinc-600 dark:text-zinc-300 leading-relaxed whitespace-pre-line" v-html="umkm.deskripsi" />
 
         <!-- Image Gallery -->
         <div v-if="umkm.images?.length">

@@ -604,9 +604,7 @@ const budgetChartOptions = {
                             {{ post.judul }}
                         </h3>
                     </Link>
-                    <p v-if="post.ringkasan" class="mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">
-                        {{ post.ringkasan }}
-                    </p>
+                    <p v-if="post.ringkasan" class="mt-1 line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400" v-html="post.ringkasan" />
                     <p class="mt-2 text-xs text-zinc-400 dark:text-zinc-500">
                         {{ formatDate(post.published_at) }}
                     </p>
@@ -679,9 +677,7 @@ const budgetChartOptions = {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <p v-if="event.deskripsi" class="line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400">
-                            {{ event.deskripsi }}
-                        </p>
+                        <p v-if="event.deskripsi" class="line-clamp-2 text-sm text-zinc-500 dark:text-zinc-400" v-html="event.deskripsi" />
                         <p v-if="event.lokasi" class="mt-2 flex items-center gap-1 text-xs text-zinc-400 dark:text-zinc-500">
                             <MapPin class="size-3" />
                             {{ event.lokasi }}

@@ -78,7 +78,7 @@ const statusVariant = (status: string) => {
                                     {{ formatRupiah(dev.anggaran) }}
                                 </span>
                             </div>
-                            <p v-if="dev.deskripsi" class="text-sm text-zinc-600 dark:text-zinc-400">{{ dev.deskripsi }}</p>
+                            <p v-if="dev.deskripsi" class="text-sm text-zinc-600 dark:text-zinc-400" v-html="dev.deskripsi" />
                         </div>
                     </div>
 

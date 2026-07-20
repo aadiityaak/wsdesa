@@ -130,7 +130,7 @@ const imageUrl = (path: string | null) => path ? `/storage/${path}` : null;
                             <Star class="size-3" />
                             {{ umkm.pemilik }}
                         </p>
-                        <p class="mb-2 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400">{{ umkm.deskripsi }}</p>
+                        <p class="mb-2 line-clamp-2 text-sm text-zinc-600 dark:text-zinc-400" v-html="umkm.deskripsi" />
                         <div class="flex flex-wrap gap-2 text-xs text-zinc-400">
                             <span v-if="umkm.alamat" class="inline-flex items-center gap-1">
                                 <MapPin class="size-3" />

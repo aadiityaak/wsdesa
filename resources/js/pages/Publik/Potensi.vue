@@ -48,7 +48,7 @@ const imageUrl = (path: string | null) => (path ? `/storage/${path}` : null);
                 <CardContent class="space-y-2 p-4">
                     <h3 class="font-semibold text-zinc-900 dark:text-white">{{ pot.nama }}</h3>
                     <p class="text-xs font-medium text-emerald-600 dark:text-emerald-400">{{ pot.kategori }}</p>
-                    <p class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-3">{{ pot.deskripsi }}</p>
+                    <p class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-3" v-html="pot.deskripsi" />
                 </CardContent>
             </Card>
         </div>

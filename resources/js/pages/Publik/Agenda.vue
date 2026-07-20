@@ -64,7 +64,7 @@ const formatDate = (date: string) =>
                             {{ event.lokasi }}
                         </span>
                     </div>
-                    <p v-if="event.deskripsi" class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-3">{{ event.deskripsi }}</p>
+                    <p v-if="event.deskripsi" class="text-sm text-zinc-600 dark:text-zinc-400 line-clamp-3" v-html="event.deskripsi" />
                 </CardContent>
             </Card>
         </div>

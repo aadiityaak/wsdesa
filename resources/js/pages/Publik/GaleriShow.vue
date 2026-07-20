@@ -33,7 +33,7 @@ const imageUrl = (path: string) => `/storage/${path}`;
         </Link>
 
         <h1 class="mb-2 text-3xl font-bold text-zinc-900 dark:text-white">{{ gallery.nama }}</h1>
-        <p v-if="gallery.deskripsi" class="mb-8 text-zinc-500 dark:text-zinc-400">{{ gallery.deskripsi }}</p>
+        <p v-if="gallery.deskripsi" class="mb-8 text-zinc-500 dark:text-zinc-400" v-html="gallery.deskripsi" />
 
         <div v-if="gallery.images.length === 0" class="flex min-h-[30vh] items-center justify-center rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
             <div class="text-center p-8">
