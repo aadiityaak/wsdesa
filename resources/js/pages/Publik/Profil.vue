@@ -31,7 +31,13 @@ defineProps<{
             <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex flex-col items-center gap-5 text-center md:flex-row md:gap-8 md:text-left">
                     <div class="flex size-24 shrink-0 items-center justify-center rounded-full bg-white/20 p-4 backdrop-blur-sm md:size-28">
-                        <AppLogoIcon class="h-full w-full text-white" />
+                        <img
+                            v-if="profile.logo"
+                            :src="'/storage/' + profile.logo"
+                            alt="Logo Desa"
+                            class="h-full w-full rounded-full object-cover"
+                        />
+                        <AppLogoIcon v-else class="h-full w-full text-white" />
                     </div>
                     <div>
                         <h1 class="text-balance text-2xl font-bold text-white sm:text-3xl md:text-4xl">

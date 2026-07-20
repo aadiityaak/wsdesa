@@ -82,7 +82,7 @@ const form = useForm({
     sejarah: props.profile.sejarah ?? '',
 });
 
-const logoPreview = ref<string | null>(props.profile.logo ?? null);
+const logoPreview = ref<string | null>(props.profile.logo ? `/storage/${props.profile.logo}` : null);
 
 const onLogoChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
@@ -94,7 +94,9 @@ const onLogoChange = (e: Event) => {
 };
 
 const submit = () => {
-    form.put('/admin/profil', {
+    form.post('/admin/profil', {
+        _method: 'put',
+        forceFormData: true,
         onSuccess: () => {
             toast.success('Profil desa berhasil diperbarui.');
         },

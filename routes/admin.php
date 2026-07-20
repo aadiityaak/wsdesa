@@ -30,7 +30,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Profil Desa
     Route::get('/profil', [ProfileController::class, 'edit'])->name('profil.edit');
-    Route::put('/profil', [ProfileController::class, 'update'])->name('profil.update');
+    Route::post('/profil', [ProfileController::class, 'update'])->name('profil.update');
+    Route::put('/profil', [ProfileController::class, 'update'])->name('profil.update.put');
 
     // Pemerintahan - Perangkat Desa
     Route::get('/pemerintahan', [GovernmentStaffController::class, 'index'])->name('pemerintahan.index');

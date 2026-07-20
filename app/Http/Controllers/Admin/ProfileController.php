@@ -7,6 +7,7 @@ use App\Models\Profile;
 use App\Models\Wilayah;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -15,7 +16,10 @@ class ProfileController extends Controller
 {
     public function edit(): Response
     {
-        $profile = Profile::firstOrCreate(['nama_desa' => 'Desa Digital']);
+        $profile = Profile::first();
+        if (! $profile) {
+            $profile = Profile::create(['nama_desa' => 'Desa Digital']);
+        }
 
         return Inertia::render('Admin/Profil/Edit', [
             'profile' => $profile,
@@ -62,16 +66,26 @@ class ProfileController extends Controller
             'tiktok' => ['nullable', 'url', 'max:200'],
         ]);
 
+        // Hapus logo dari validated agar tidak ikut di-fill (logo ditangani terpisah)
+        unset($validated['logo']);
+
+        $profile->fill($validated);
+
+        // Tangani upload logo secara terpisah
         if ($request->hasFile('logo')) {
             if ($profile->logo) {
                 Storage::disk('public')->delete($profile->logo);
             }
-            $validated['logo'] = $request->file('logo')->store('profiles', 'public');
-        } else {
-            unset($validated['logo']);
+            try {
+                $profile->logo = $request->file('logo')->store('profiles', 'public');
+            } catch (\Exception $e) {
+                Log::error('Logo upload failed: '.$e->getMessage());
+
+                return back()->with('error', 'Gagal mengupload logo. Silakan coba lagi.');
+            }
         }
 
-        $profile->update($validated);
+        $profile->save();
 
         return back()->with('success', 'Profil desa berhasil diperbarui.');
     }
