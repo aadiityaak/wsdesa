@@ -29,9 +29,24 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
     // Profil Desa
-    Route::get('/profil', [ProfileController::class, 'edit'])->name('profil.edit');
-    Route::post('/profil', [ProfileController::class, 'update'])->name('profil.update');
-    Route::put('/profil', [ProfileController::class, 'update'])->name('profil.update.put');
+    Route::redirect('/profil', '/admin/profil/data-desa');
+
+    Route::prefix('profil')->name('profil.')->group(function () {
+        Route::get('/data-desa', [ProfileController::class, 'dataDesa'])->name('data-desa.edit');
+        Route::match(['put', 'post'], '/data-desa', [ProfileController::class, 'updateDataDesa'])->name('data-desa.update');
+
+        Route::get('/jam-kerja', [ProfileController::class, 'jamKerja'])->name('jam-kerja.edit');
+        Route::match(['put', 'post'], '/jam-kerja', [ProfileController::class, 'updateJamKerja'])->name('jam-kerja.update');
+
+        Route::get('/media', [ProfileController::class, 'media'])->name('media.edit');
+        Route::match(['put', 'post'], '/media', [ProfileController::class, 'updateMedia'])->name('media.update');
+
+        Route::get('/geografi', [ProfileController::class, 'geografi'])->name('geografi.edit');
+        Route::match(['put', 'post'], '/geografi', [ProfileController::class, 'updateGeografi'])->name('geografi.update');
+
+        Route::get('/visi', [ProfileController::class, 'visi'])->name('visi.edit');
+        Route::match(['put', 'post'], '/visi', [ProfileController::class, 'updateVisi'])->name('visi.update');
+    });
 
     // Pemerintahan - Perangkat Desa
     Route::get('/pemerintahan', [GovernmentStaffController::class, 'index'])->name('pemerintahan.index');

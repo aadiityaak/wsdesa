@@ -14,6 +14,14 @@ interface WilayahItem {
     nama: string;
 }
 
+interface JamKerjaItem {
+    id?: number;
+    hari: string;
+    jam_buka: string | null;
+    jam_tutup: string | null;
+    is_libur: boolean;
+}
+
 interface Profile {
     id: number;
     nama_desa: string;
@@ -43,6 +51,7 @@ interface Profile {
     visi: string;
     misi: string;
     sejarah: string;
+    jam_kerja: JamKerjaItem[];
 }
 
 const props = defineProps<{
@@ -84,6 +93,27 @@ const form = useForm({
 
 const logoPreview = ref<string | null>(props.profile.logo ? `/storage/${props.profile.logo}` : null);
 
+const HARI = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+const jamKerja = ref<JamKerjaItem[]>(
+    HARI.map((hari) => {
+        const existing = props.profile.jam_kerja?.find((j) => j.hari === hari);
+        return existing ?? { hari, jam_buka: '08:00', jam_tutup: '16:00', is_libur: false };
+    }),
+);
+
+const onLiburToggle = (index: number) => {
+    const item = jamKerja.value[index];
+    item.is_libur = !item.is_libur;
+    if (item.is_libur) {
+        item.jam_buka = null;
+        item.jam_tutup = null;
+    } else {
+        item.jam_buka = '08:00';
+        item.jam_tutup = '16:00';
+    }
+};
+
 const onLogoChange = (e: Event) => {
     const target = e.target as HTMLInputElement;
     const file = target.files?.[0];
@@ -94,6 +124,7 @@ const onLogoChange = (e: Event) => {
 };
 
 const submit = () => {
+    form.jam_kerja = jamKerja.value;
     form.post('/admin/profil', {
         _method: 'put',
         forceFormData: true,
@@ -174,22 +205,24 @@ const geoFields: { key: keyof typeof form; label: string }[] = [
     { key: 'longitude', label: 'Longitude' },
 ];
 
-const activeTab = ref<'data' | 'media' | 'geo' | 'visi'>('data');
+const activeTab = ref<'data' | 'jam' | 'media' | 'geo' | 'visi'>('data');
 
 const dataSection = ref<HTMLElement | null>(null);
+const jamSection = ref<HTMLElement | null>(null);
 const mediaSection = ref<HTMLElement | null>(null);
 const geoSection = ref<HTMLElement | null>(null);
 const visiSection = ref<HTMLElement | null>(null);
 
 const sectionMap: Record<string, typeof dataSection> = {
     data: dataSection,
+    jam: jamSection,
     media: mediaSection,
     geo: geoSection,
     visi: visiSection,
 };
 
 const scrollTo = (key: string) => {
-    activeTab.value = key as 'data' | 'media' | 'geo' | 'visi';
+    activeTab.value = key as 'data' | 'jam' | 'media' | 'geo' | 'visi';
     sectionMap[key]?.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
@@ -306,6 +339,7 @@ if (typeof window !== 'undefined') {
                     <button
                         v-for="tab in [
                             { key: 'data', label: 'Data Desa' },
+                            { key: 'jam', label: 'Jam Kerja' },
                             { key: 'media', label: 'Media' },
                             { key: 'geo', label: 'Geografi' },
                             { key: 'visi', label: 'Visi & Sejarah' },
@@ -481,13 +515,87 @@ if (typeof window !== 'undefined') {
                 </div>
             </section>
 
+            <!-- ────────────── JAM KERJA ────────────── -->
+            <section ref="jamSection" class="scroll-mt-24">
+                <div class="mb-4 flex items-center gap-3">
+                    <div
+                        class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
+                    >
+                        <span class="text-sm font-bold">2</span>
+                    </div>
+                    <h2 class="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
+                        Jam Kerja
+                    </h2>
+                </div>
+                <div
+                    class="rounded-2xl border border-zinc-100 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                    <!-- Table-like rows -->
+                    <div
+                        v-for="(jk, index) in jamKerja"
+                        :key="jk.hari"
+                        class="flex flex-wrap items-center gap-4 border-b border-zinc-100 px-6 py-4 last:border-b-0 dark:border-zinc-800 sm:flex-nowrap"
+                    >
+                        <!-- Hari -->
+                        <div class="flex w-20 shrink-0 items-center gap-2">
+                            <span class="text-sm font-semibold text-zinc-800 dark:text-zinc-200">{{ jk.hari }}</span>
+                        </div>
+
+                        <!-- Libur toggle -->
+                        <label class="inline-flex shrink-0 cursor-pointer items-center gap-2">
+                            <span class="text-xs text-zinc-500 dark:text-zinc-400">Libur</span>
+                            <button
+                                type="button"
+                                role="switch"
+                                :aria-checked="jk.is_libur"
+                                class="relative inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-rose-300 focus:ring-offset-1"
+                                :class="jk.is_libur ? 'bg-rose-500' : 'bg-zinc-300 dark:bg-zinc-600'"
+                                @click="onLiburToggle(index)"
+                            >
+                                <span
+                                    class="inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform"
+                                    :class="jk.is_libur ? 'translate-x-5' : 'translate-x-1'"
+                                />
+                            </button>
+                        </label>
+
+                        <template v-if="!jk.is_libur">
+                            <!-- Jam Buka -->
+                            <div class="flex items-center gap-2">
+                                <Label :for="`jam_buka_${index}`" class="text-xs text-zinc-500 dark:text-zinc-400">Buka</Label>
+                                <Input
+                                    :id="`jam_buka_${index}`"
+                                    v-model="jk.jam_buka"
+                                    type="time"
+                                    class="h-9 w-32 rounded-lg border-zinc-200 text-sm dark:border-zinc-700"
+                                />
+                            </div>
+
+                            <!-- Jam Tutup -->
+                            <div class="flex items-center gap-2">
+                                <Label :for="`jam_tutup_${index}`" class="text-xs text-zinc-500 dark:text-zinc-400">Tutup</Label>
+                                <Input
+                                    :id="`jam_tutup_${index}`"
+                                    v-model="jk.jam_tutup"
+                                    type="time"
+                                    class="h-9 w-32 rounded-lg border-zinc-200 text-sm dark:border-zinc-700"
+                                />
+                            </div>
+                        </template>
+                        <div v-else class="text-sm italic text-zinc-400 dark:text-zinc-500">
+                            Libur
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- ────────────── MEDIA ────────────── -->
             <section ref="mediaSection" class="scroll-mt-24">
                 <div class="mb-4 flex items-center gap-3">
                     <div
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
                     >
-                        <span class="text-sm font-bold">2</span>
+                        <span class="text-sm font-bold">3</span>
                     </div>
                     <h2 class="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
                         Media & Sosial
@@ -526,7 +634,7 @@ if (typeof window !== 'undefined') {
                     <div
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
                     >
-                        <span class="text-sm font-bold">3</span>
+                        <span class="text-sm font-bold">4</span>
                     </div>
                     <h2 class="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
                         Geografi & Batas Wilayah
@@ -564,7 +672,7 @@ if (typeof window !== 'undefined') {
                     <div
                         class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-100 text-rose-600 dark:bg-rose-900/30 dark:text-rose-400"
                     >
-                        <span class="text-sm font-bold">4</span>
+                        <span class="text-sm font-bold">5</span>
                     </div>
                     <h2 class="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
                         Visi, Misi & Sejarah

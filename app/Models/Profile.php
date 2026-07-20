@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Profile extends Model
 {
@@ -19,4 +20,9 @@ class Profile extends Model
         'orbitasi_ke_kecamatan', 'orbitasi_ke_kabupaten',
         'facebook', 'instagram', 'youtube', 'tiktok',
     ];
+
+    public function jamKerja(): HasMany
+    {
+        return $this->hasMany(JamKerja::class);
+    }
 }
