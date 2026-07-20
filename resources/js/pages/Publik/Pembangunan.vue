@@ -2,6 +2,8 @@
 import { Head } from '@inertiajs/vue3';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Construction } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 import { MapPin, Calendar, ImageIcon } from '@lucide/vue';
 
 interface DevelopmentImage {
@@ -43,8 +45,13 @@ const statusVariant = (status: string) => {
 <template>
     <Head title="Pembangunan" />
 
+    <PageHero title="Pembangunan Desa" description="Informasi perkembangan pembangunan dan infrastruktur desa">
+        <template #icon>
+            <Construction class="size-6 text-white" />
+        </template>
+    </PageHero>
+
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 class="mb-8 text-3xl font-bold text-zinc-900 dark:text-white">Pembangunan</h1>
 
         <div v-if="developments.length === 0" class="flex min-h-[40vh] items-center justify-center rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
             <div class="text-center p-8">

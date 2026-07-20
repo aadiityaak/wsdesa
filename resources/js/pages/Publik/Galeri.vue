@@ -2,6 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import { Card, CardContent } from '@/components/ui/card';
 import { ImageIcon } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 interface Gallery {
     id: number;
@@ -29,9 +30,13 @@ const imageUrl = (path: string | null) => (path ? `/storage/${path}` : null);
 <template>
     <Head title="Galeri" />
 
-    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 class="mb-8 text-3xl font-bold text-zinc-900 dark:text-white">Galeri</h1>
+    <PageHero title="Galeri" description="Kumpulan galeri foto dan album kegiatan desa">
+        <template #icon>
+            <ImageIcon class="size-6 text-white" />
+        </template>
+    </PageHero>
 
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div v-if="galleries.data.length === 0" class="flex min-h-[40vh] items-center justify-center rounded-lg border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-800">
             <div class="text-center p-8">
                 <ImageIcon class="mx-auto size-12 text-zinc-300 dark:text-zinc-600" />

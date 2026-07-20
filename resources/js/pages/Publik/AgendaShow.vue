@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { Badge } from '@/components/ui/badge';
+import PageHero from '@/components/PageHero.vue';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 import { Calendar, MapPin, ArrowLeft } from '@lucide/vue';
 
 interface Event {
@@ -24,13 +26,19 @@ const formatDate = (date: string) =>
 <template>
     <Head :title="event.judul" />
 
-    <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/agenda" class="mb-6 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
-            <ArrowLeft class="size-4" />
-            Kembali
-        </Link>
+    <PageHero :title="event.judul" description="Detail agenda kegiatan desa">
+        <template #icon>
+            <Calendar class="size-6 text-white" />
+        </template>
+    </PageHero>
 
-        <div class="mb-2 flex items-center gap-2">
+    <div class="mx-auto max-w-3xl px-4 py-4 sm:px-6 lg:px-8">
+        <Breadcrumb :items="[
+            { label: 'Agenda', href: '/agenda' },
+            { label: event.judul },
+        ]" />
+
+        <div class="mt-6 flex flex-wrap items-center gap-2">
             <Badge>{{ event.status || 'Akan Datang' }}</Badge>
         </div>
         <h1 class="mb-4 text-3xl font-bold text-zinc-900 dark:text-white">{{ event.judul }}</h1>

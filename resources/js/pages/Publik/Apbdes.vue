@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Bar, Doughnut } from 'vue-chartjs';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Landmark, TrendingUp, CheckCircle, PieChart } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -153,18 +154,13 @@ const tipeChartOptions = {
 <template>
     <Head title="APBDes" />
 
-    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <!-- Header -->
-        <div class="mb-10 flex items-center gap-4">
-            <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400">
-                <Landmark class="h-6 w-6" />
-            </div>
-            <div>
-                <h1 class="text-2xl font-bold text-zinc-900 sm:text-3xl dark:text-white">APBDes</h1>
-                <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">Anggaran Pendapatan dan Belanja Desa</p>
-            </div>
-        </div>
+    <PageHero title="APB Desa" description="Anggaran Pendapatan dan Belanja Desa — transparansi keuangan desa">
+        <template #icon>
+            <Landmark class="size-6 text-white" />
+        </template>
+    </PageHero>
 
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <!-- Year Tabs -->
         <div class="mb-8 flex flex-wrap items-center gap-2">
             <span class="mr-1 text-sm font-medium text-zinc-500 dark:text-zinc-400">Tahun:</span>

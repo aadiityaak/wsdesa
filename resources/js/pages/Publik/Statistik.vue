@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Users, UserCheck, UserRound, Home, Heart, MapPin } from '@lucide/vue';
+import { Users, UserCheck, UserRound, Home, Heart, MapPin, BarChart3 } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 defineProps<{
     totalResidents: number;
@@ -19,13 +20,21 @@ const maxValue = (arr: { total: number }[]) => Math.max(...arr.map((i) => i.tota
 </script>
 
 <template>
-    <Head title="Statistik Penduduk" />
+    <Head title="Statistik" />
+
+    <PageHero title="Statistik Penduduk" description="Data demografi dan kependudukan desa">
+        <template #icon>
+            <BarChart3 class="size-6 text-white" />
+        </template>
+    </PageHero>
 
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <h1 class="mb-8 text-3xl font-bold text-zinc-900 dark:text-white">Statistik Penduduk</h1>
-
-        <!-- Stat Cards -->
-        <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div v-if="!stats" class="flex min-h-[40vh] items-center justify-center">
+            <p class="text-zinc-500">Memuat data statistik...</p>
+        </div>
+        <div v-else>
+            <!-- Stat Cards -->
+            <div class="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <Card>
                 <CardContent class="flex items-center gap-4 p-5">
                     <div class="flex size-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
@@ -208,6 +217,7 @@ const maxValue = (arr: { total: number }[]) => Math.max(...arr.map((i) => i.tota
                     </div>
                 </CardContent>
             </Card>
+        </div>
         </div>
     </div>
 </template>

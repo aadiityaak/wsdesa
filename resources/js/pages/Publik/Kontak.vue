@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import InputError from '@/components/InputError.vue';
 import { MapPin, Phone, Mail, Clock, Send, CheckCircle2 } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 const form = useForm({
     nama: '',
@@ -31,14 +32,11 @@ const submitForm = () => {
 <template>
     <Head title="Kontak" />
 
-    <!-- Hero -->
-    <section class="bg-gradient-to-br from-sky-600 to-sky-800 py-12 md:py-16">
-        <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <Mail class="mx-auto size-10 text-sky-200" />
-            <h1 class="mt-4 text-2xl font-bold text-white sm:text-3xl">Hubungi Kami</h1>
-            <p class="mt-2 text-sky-100">Kami siap membantu. Kirim pesan atau kunjungi kantor desa.</p>
-        </div>
-    </section>
+    <PageHero title="Hubungi Kami" description="Kami siap membantu. Kirim pesan atau kunjungi kantor desa.">
+        <template #icon>
+            <Mail class="size-6 text-white" />
+        </template>
+    </PageHero>
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 

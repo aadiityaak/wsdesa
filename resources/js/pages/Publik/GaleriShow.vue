@@ -2,6 +2,8 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowLeft, ImageIcon, X, ChevronLeft, ChevronRight } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 interface GalleryImage {
     id: number;
@@ -64,11 +66,20 @@ onUnmounted(() => window.removeEventListener('keydown', handleKeydown));
 <template>
     <Head :title="gallery.nama" />
 
-    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/galeri" class="mb-6 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
-            <ArrowLeft class="size-4" />
-            Kembali ke Galeri
-        </Link>
+    <PageHero :title="gallery.nama" description="Album galeri foto">
+        <template #icon>
+            <ImageIcon class="size-6 text-white" />
+        </template>
+    </PageHero>
+
+    <div class="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
+        <Breadcrumb :items="[
+            { label: 'Galeri', href: '/galeri' },
+            { label: gallery.nama },
+        ]" />
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
 
         <h1 class="mb-2 text-3xl font-bold text-zinc-900 dark:text-white">{{ gallery.nama }}</h1>
         <p v-if="gallery.deskripsi" class="mb-8 text-zinc-500 dark:text-zinc-400" v-html="gallery.deskripsi" />

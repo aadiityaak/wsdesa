@@ -5,8 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Eye, Calendar, ArrowLeft } from '@lucide/vue';
+import { Eye, Calendar } from '@lucide/vue';
 import { computed } from 'vue';
+import PageHero from '@/components/PageHero.vue';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 interface PostCategory {
     id: number;
@@ -67,14 +69,12 @@ const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 <template>
     <Head :title="post.judul" />
 
-    <article class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <!-- Back Link -->
-        <Link href="/berita" class="mb-6 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
-            <ArrowLeft class="size-4" />
-            Kembali ke Berita
-        </Link>
+    <article class="mx-auto max-w-4xl px-4 py-4 sm:px-6 lg:px-8">
+        <Breadcrumb :items="[
+            { label: 'Berita', href: '/berita' },
+            { label: post.judul },
+        ]" />
 
-        <!-- Category Badge & Meta -->
         <div class="mb-4 flex flex-wrap items-center gap-3">
             <Badge v-if="post.category" variant="secondary">{{ post.category.nama }}</Badge>
             <span class="flex items-center gap-1 text-sm text-zinc-500">

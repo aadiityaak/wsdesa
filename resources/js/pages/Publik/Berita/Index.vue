@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Calendar, Eye, Search, Newspaper, ArrowRight } from '@lucide/vue';
 import { computed } from 'vue';
+import PageHero from '@/components/PageHero.vue';
 
 interface PostCategory {
     id: number;
@@ -67,30 +68,11 @@ const uniqueCategories = computed(() => {
 <template>
     <Head :title="categorySlug ? `Berita - ${activeCategoryName || categorySlug}` : 'Berita'" />
 
-    <!-- Hero -->
-    <section class="relative bg-gradient-to-br from-blue-600 to-indigo-900 py-12 md:py-16">
-        <div class="absolute inset-0 bg-black/20" />
-        <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 backdrop-blur-sm">
-                    <Newspaper class="h-7 w-7 text-white" />
-                </div>
-                <h1 class="text-2xl font-bold text-white sm:text-3xl md:text-4xl">
-                    {{ categorySlug && activeCategoryName ? activeCategoryName : 'Berita Desa' }}
-                </h1>
-                <p class="mt-3 text-emerald-100 sm:text-lg">
-                    {{ categorySlug
-                        ? `Kumpulan berita kategori ${activeCategoryName || categorySlug}`
-                        : 'Informasi, kegiatan, dan pengumuman terbaru seputar desa kami'
-                    }}
-                </p>
-                <div class="mt-4 flex items-center justify-center gap-2 text-sm text-emerald-200/70">
-                    <span>{{ posts.total }} berita</span>
-                    <span v-if="search">ditemukan untuk "{{ search }}"</span>
-                </div>
-            </div>
-        </div>
-    </section>
+    <PageHero :title="categorySlug && activeCategoryName ? activeCategoryName : 'Berita Desa'" :description="categorySlug ? 'Kumpulan berita kategori ' + (activeCategoryName || categorySlug) : 'Informasi, kegiatan, dan pengumuman terbaru seputar desa kami'">
+        <template #icon>
+            <Newspaper class="size-6 text-white" />
+        </template>
+    </PageHero>
 
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <!-- Search & Category Filters -->

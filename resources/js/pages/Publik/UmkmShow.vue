@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { ArrowLeft, ImageIcon, MapPin, Phone, Store } from '@lucide/vue';
+import { ArrowLeft, MapPin, Phone, Store } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
+import Breadcrumb from '@/components/Breadcrumb.vue';
 
 interface UmkmImage {
     id: number;
@@ -37,13 +39,21 @@ const imageUrl = (path: string) => `/storage/${path}`;
 <template>
     <Head :title="umkm.nama_usaha" />
 
-    <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-        <Link href="/umkm" class="mb-6 inline-flex items-center gap-1 text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200">
-            <ArrowLeft class="size-4" />
-            Kembali ke UMKM
-        </Link>
+    <PageHero :title="umkm.nama_usaha" :description="umkm.category?.nama || 'UMKM Desa'">
+        <template #icon>
+            <Store class="size-6 text-white" />
+        </template>
+    </PageHero>
 
-        <h1 class="mb-4 text-3xl font-bold text-zinc-900 dark:text-white">{{ umkm.nama_usaha }}</h1>
+    <div class="mx-auto max-w-4xl px-4 py-4 sm:px-6 lg:px-8">
+        <Breadcrumb :items="[
+            { label: 'UMKM', href: '/umkm' },
+            { label: umkm.nama_usaha },
+        ]" />
+    </div>
+
+    <div class="mx-auto max-w-4xl px-4 pb-8 sm:px-6 lg:px-8">
+
         <div class="mb-6 flex flex-wrap gap-3">
             <span class="inline-flex items-center gap-1 rounded-full bg-blue-50 px-3 py-1 text-sm font-medium text-blue-700 dark:bg-blue-950 dark:text-blue-300">
                 {{ umkm.category?.nama || 'Umum' }}

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 const form = useForm({
     kode_tracking: '',
@@ -26,8 +27,13 @@ const checkStatus = () => {
 <template>
     <Head title="Cek Status Pengaduan" />
 
-    <div class="mx-auto max-w-2xl px-4 py-12 sm:px-6 lg:px-8">
-        <h1 class="mb-2 text-3xl font-bold text-zinc-900 dark:text-white">Cek Status Pengaduan</h1>
+    <PageHero title="Cek Status Pengaduan" description="Pantau status dan tindak lanjut pengaduan Anda">
+        <template #icon>
+            <Search class="size-6 text-white" />
+        </template>
+    </PageHero>
+
+    <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
         <p class="mb-8 text-zinc-500 dark:text-zinc-400">Masukkan kode tracking untuk melihat status pengaduan Anda.</p>
 
         <Card>

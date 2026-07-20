@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectItemText, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
+import PageHero from '@/components/PageHero.vue';
 import {
     FileText, ClipboardList, Send, Search, CheckCircle2, Clock, ArrowRight,
     CheckSquare, User, MapPin, Calendar, Heart, X,
@@ -138,14 +139,11 @@ const formatDate = (date: Date | string | null): string | null => {
 <template>
     <Head title="Layanan Surat" />
 
-    <!-- Hero -->
-    <section class="bg-gradient-to-br from-blue-600 to-blue-800 py-12 md:py-16">
-        <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <FileText class="mx-auto size-10 text-blue-200" />
-            <h1 class="mt-4 text-2xl font-bold text-white sm:text-3xl">Layanan Surat Online</h1>
-            <p class="mt-2 text-blue-100">Ajukan surat secara online tanpa perlu datang ke kantor desa.</p>
-        </div>
-    </section>
+    <PageHero title="Layanan Surat Online" description="Ajukan surat secara online tanpa perlu datang ke kantor desa">
+        <template #icon>
+            <FileText class="size-6 text-white" />
+        </template>
+    </PageHero>
 
     <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
 

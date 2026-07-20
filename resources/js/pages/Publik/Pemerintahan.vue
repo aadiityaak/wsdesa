@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import { Building2 } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 defineProps<{
     staff: Array<{
@@ -21,14 +23,11 @@ defineProps<{
 <template>
     <Head title="Pemerintahan" />
 
-    <!-- Hero Section -->
-    <section class="relative bg-gradient-to-br from-blue-600 to-indigo-800 py-16">
-        <div class="absolute inset-0 bg-black/20"></div>
-        <div class="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-white sm:text-4xl">Pemerintahan Desa</h1>
-            <p class="mt-3 text-lg text-blue-100">Struktur organisasi dan perangkat pemerintahan desa</p>
-        </div>
-    </section>
+    <PageHero title="Pemerintahan Desa" description="Struktur organisasi dan perangkat pemerintahan desa">
+        <template #icon>
+            <Building2 class="size-6 text-white" />
+        </template>
+    </PageHero>
 
     <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <!-- Perangkat Desa Section -->

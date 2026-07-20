@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import {
     Store, MapPin, Phone, Search, Star,
 } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 interface UmkmImage {
     id: number;
@@ -62,18 +63,15 @@ const imageUrl = (path: string | null) => path ? `/storage/${path}` : null;
 </script>
 
 <template>
-    <Head title="UMKM Desa" />
+    <Head title="UMKM" />
 
-    <!-- Hero -->
-    <section class="bg-gradient-to-br from-emerald-600 to-emerald-800 py-12 md:py-16">
-        <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <Store class="mx-auto size-10 text-emerald-200" />
-            <h1 class="mt-4 text-2xl font-bold text-white sm:text-3xl">UMKM Desa</h1>
-            <p class="mt-2 text-emerald-100">Jelajahi produk dan usaha mikro, kecil, dan menengah di desa kami.</p>
-        </div>
-    </section>
+    <PageHero title="UMKM Desa" description="Jelajahi produk dan usaha mikro, kecil, dan menengah di desa kami">
+        <template #icon>
+            <Store class="size-6 text-white" />
+        </template>
+    </PageHero>
 
-    <div class="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <!-- Search -->
         <div class="relative mb-8">
             <Search class="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />

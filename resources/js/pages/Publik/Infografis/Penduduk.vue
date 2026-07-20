@@ -5,7 +5,8 @@ import { Doughnut, Bar } from 'vue-chartjs';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement } from 'chart.js';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, Home, ArrowRight, User, Briefcase, BookOpen, Heart, MapPin, Church } from '@lucide/vue';
+import { Users, Home, ArrowRight, User, Briefcase, BookOpen, Heart, MapPin, Church, PieChart } from '@lucide/vue';
+import PageHero from '@/components/PageHero.vue';
 
 ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement);
 
@@ -99,38 +100,61 @@ const perkawinanOpts = { plugins: { legend: { position: 'right' as const, labels
 <template>
     <Head title="Infografis Penduduk" />
 
-    <!-- Hero Stats -->
-    <section class="bg-gradient-to-br from-emerald-600 to-emerald-800 py-12 md:py-16">
-        <div class="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
-            <h1 class="text-2xl font-bold text-white sm:text-3xl">Demografi Penduduk</h1>
-            <p class="mt-2 text-emerald-100">Data kependudukan Desa Digital</p>
-
-            <div class="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
-                <div class="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                    <Users class="mx-auto size-6 text-emerald-200" />
-                    <p class="mt-2 text-3xl font-bold text-white">{{ totalResidents }}</p>
-                    <p class="text-xs text-emerald-200">Total Penduduk</p>
-                </div>
-                <div class="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                    <Home class="mx-auto size-6 text-emerald-200" />
-                    <p class="mt-2 text-3xl font-bold text-white">{{ totalKK }}</p>
-                    <p class="text-xs text-emerald-200">Kepala Keluarga</p>
-                </div>
-                <div class="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                    <User class="mx-auto size-6 text-emerald-200" />
-                    <p class="mt-2 text-3xl font-bold text-white">{{ byGender?.L ?? 0 }}</p>
-                    <p class="text-xs text-emerald-200">Laki-Laki</p>
-                </div>
-                <div class="rounded-xl bg-white/10 p-5 backdrop-blur-sm">
-                    <User class="mx-auto size-6 text-emerald-200" />
-                    <p class="mt-2 text-3xl font-bold text-white">{{ byGender?.P ?? 0 }}</p>
-                    <p class="text-xs text-emerald-200">Perempuan</p>
-                </div>
-            </div>
-        </div>
-    </section>
+    <PageHero title="Infografis Penduduk" description="Visualisasi data kependudukan desa dalam bentuk grafik">
+        <template #icon>
+            <PieChart class="size-6 text-white" />
+        </template>
+    </PageHero>
 
     <div class="mx-auto max-w-7xl space-y-10 px-4 py-12 sm:px-6 lg:px-8 md:py-16">
+        <!-- Stat Cards -->
+        <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="flex items-center gap-4 p-5">
+                    <div class="flex size-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900">
+                        <Users class="size-6 text-emerald-600 dark:text-emerald-400" />
+                    </div>
+                    <div>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Total Penduduk</p>
+                        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ totalResidents.toLocaleString('id-ID') }}</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="flex items-center gap-4 p-5">
+                    <div class="flex size-12 items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900">
+                        <Home class="size-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Kepala Keluarga</p>
+                        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ totalKK.toLocaleString('id-ID') }}</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="flex items-center gap-4 p-5">
+                    <div class="flex size-12 items-center justify-center rounded-full bg-sky-100 dark:bg-sky-900">
+                        <User class="size-6 text-sky-600 dark:text-sky-400" />
+                    </div>
+                    <div>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Laki-Laki</p>
+                        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ (byGender?.L ?? 0).toLocaleString('id-ID') }}</p>
+                    </div>
+                </CardContent>
+            </Card>
+            <Card class="border-zinc-200/60 dark:border-zinc-700/60">
+                <CardContent class="flex items-center gap-4 p-5">
+                    <div class="flex size-12 items-center justify-center rounded-full bg-pink-100 dark:bg-pink-900">
+                        <User class="size-6 text-pink-600 dark:text-pink-400" />
+                    </div>
+                    <div>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400">Perempuan</p>
+                        <p class="text-2xl font-bold text-zinc-900 dark:text-white">{{ (byGender?.P ?? 0).toLocaleString('id-ID') }}</p>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+
         <!-- Gender + Age -->
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <Card class="border-zinc-200/60 dark:border-zinc-700/60">

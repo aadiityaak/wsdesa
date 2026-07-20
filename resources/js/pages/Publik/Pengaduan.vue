@@ -39,12 +39,13 @@ const submitForm = () => {
 <template>
     <Head title="Pengaduan" />
 
+    <PageHero title="Pengaduan Masyarakat" description="Sampaikan aspirasi, keluhan, atau masukan untuk kemajuan desa">
+        <template #icon>
+            <MessageSquare class="size-6 text-white" />
+        </template>
+    </PageHero>
+
     <div class="mx-auto max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-        <div class="mb-8 text-center">
-            <MessageSquareWarning class="mx-auto size-12 text-blue-600 dark:text-blue-400" />
-            <h1 class="mt-4 text-3xl font-bold text-zinc-900 dark:text-white">Pengaduan</h1>
-            <p class="mt-2 text-zinc-500 dark:text-zinc-400">Sampaikan pengaduan atau aspirasi Anda kepada pemerintah desa.</p>
-        </div>
 
         <div v-if="successTrackingCode" class="rounded-lg bg-green-50 p-6 text-center dark:bg-green-950">
             <p class="text-sm font-medium text-green-800 dark:text-green-200">Pengaduan berhasil dikirim!</p>
