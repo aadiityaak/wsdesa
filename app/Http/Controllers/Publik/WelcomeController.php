@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Publik;
 use App\Http\Controllers\Controller;
 use App\Models\Budget;
 use App\Models\Event;
+use App\Models\GovernmentStaff;
 use App\Models\Post;
 use App\Models\Profile;
 use App\Models\Resident;
@@ -120,6 +121,13 @@ class WelcomeController extends Controller
             ],
             'budgetSummary' => $budgetSummary,
             'jamKerja' => fn () => Profile::first()?->jamKerja()->orderByRaw("FIELD(hari, 'Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu')")->get(),
+            'staff' => fn () => GovernmentStaff::orderBy('urutan')->get()->map(fn ($s) => [
+                'id' => $s->id,
+                'nama' => $s->nama,
+                'nip' => $s->nip,
+                'jabatan' => $s->jabatan,
+                'foto_url' => $s->foto ? asset('storage/'.$s->foto) : null,
+            ])->values(),
         ]);
     }
 }
