@@ -67,6 +67,8 @@ class ProfileController extends Controller
                 Storage::disk('public')->delete($profile->logo);
             }
             $validated['logo'] = $request->file('logo')->store('profiles', 'public');
+        } else {
+            unset($validated['logo']);
         }
 
         $profile->update($validated);

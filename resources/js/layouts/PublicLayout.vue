@@ -6,6 +6,10 @@ import AppLogo from '@/components/AppLogo.vue';
 import { useAppearance } from '@/composables/useAppearance';
 import { X, Menu, Sun, Moon } from '@lucide/vue';
 
+const page = usePage();
+const sharedProfile = computed<{ nama_desa?: string } | null>(() => page.props.sharedProfile as { nama_desa?: string } | null);
+const desaName = computed(() => sharedProfile.value?.nama_desa || 'Desa Digital');
+
 const isMobileMenuOpen = ref(false);
 const { appearance, updateAppearance } = useAppearance();
 
@@ -21,7 +25,7 @@ function toggleAppearance() {
             <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
                 <Link href="/" class="flex items-center gap-2">
                     <AppLogo class="h-8 w-8" />
-                    <span class="text-lg font-bold text-zinc-900 dark:text-white">Desa Digital</span>
+                    <span class="text-lg font-bold text-zinc-900 dark:text-white">{{ desaName }}</span>
                 </Link>
 
                 <!-- Desktop Nav -->
@@ -186,7 +190,7 @@ function toggleAppearance() {
                     </div>
                 </div>
                 <div class="mt-8 border-t border-zinc-200 pt-4 text-center text-sm text-zinc-500 dark:border-zinc-800 dark:text-zinc-400">
-                    &copy; {{ new Date().getFullYear() }} Desa Digital. Seluruh hak cipta dilindungi.
+                    &copy; {{ new Date().getFullYear() }} {{ desaName }}. Seluruh hak cipta dilindungi.
                 </div>
             </div>
         </footer>

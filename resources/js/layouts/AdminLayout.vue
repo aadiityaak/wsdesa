@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import { Toaster } from '@/components/ui/sonner';
 import AppLogoIcon from '@/components/AppLogoIcon.vue';
@@ -39,6 +39,7 @@ import {
     UsersRound,
 } from '@lucide/vue';
 import type { Component } from 'vue';
+import { computed } from 'vue';
 
 type NavItem = {
     title: string;
@@ -100,6 +101,7 @@ const navGroups: NavGroup[] = [
 ];
 
 const page = usePage();
+const desaName = computed(() => (page.props.sharedProfile as { nama_desa?: string } | null)?.nama_desa || 'Admin Desa');
 </script>
 
 <template>
@@ -111,7 +113,7 @@ const page = usePage();
                         <SidebarMenuButton size="lg" as-child>
                             <Link href="/admin">
                                 <AppLogoIcon class="size-8 rounded-md" />
-                                <span class="font-semibold">Admin Desa</span>
+                                <span class="font-semibold">{{ desaName }}</span>
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>

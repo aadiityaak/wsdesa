@@ -31,9 +31,17 @@
             }
         </style>
 
-        <link rel="icon" href="/favicon.ico" sizes="any">
-        <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @php
+            $profileLogo = data_get($page, 'props.sharedProfile.logo');
+        @endphp
+        @if ($profileLogo)
+            <link rel="icon" href="{{ $profileLogo }}" sizes="any">
+            <link rel="apple-touch-icon" href="{{ $profileLogo }}">
+        @else
+            <link rel="icon" href="/favicon.ico" sizes="any">
+            <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+            <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+        @endif
 
         @fonts
 

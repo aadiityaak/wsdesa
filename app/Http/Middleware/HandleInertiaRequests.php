@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Profile;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -35,6 +36,8 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $profile = Profile::first();
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
@@ -42,6 +45,10 @@ class HandleInertiaRequests extends Middleware
                 'user' => $request->user(),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'sharedProfile' => $profile ? [
+                'nama_desa' => $profile->nama_desa,
+                'logo' => $profile->logo ? asset('storage/'.$profile->logo) : null,
+            ] : null,
         ];
     }
 }

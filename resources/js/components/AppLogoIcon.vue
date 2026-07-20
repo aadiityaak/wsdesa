@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import type { HTMLAttributes } from 'vue';
 
 defineOptions({
@@ -10,10 +12,21 @@ type Props = {
 };
 
 defineProps<Props>();
+
+const page = usePage();
+const sharedProfile = computed<{ logo?: string | null } | null>(() => page.props.sharedProfile as { logo?: string | null } | null);
 </script>
 
 <template>
+    <img
+        v-if="sharedProfile?.logo"
+        :src="sharedProfile.logo"
+        alt="Logo"
+        :class="className"
+        v-bind="$attrs"
+    />
     <svg
+        v-else
         xmlns="http://www.w3.org/2000/svg"
         viewBox="0 0 40 42"
         :class="className"
