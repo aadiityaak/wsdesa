@@ -21,6 +21,7 @@ interface Category {
 
 interface Umkm {
     id: number;
+    slug: string;
     nama_usaha: string;
     pemilik: string;
     umkm_category_id: number;
@@ -66,7 +67,7 @@ const onGambarChange = (e: Event) => {
 
 const submitForm = () => {
     if (isEdit.value) {
-        const url = `/admin/umkm/${props.umkm!.id}`;
+        const url = `/admin/umkm/${props.umkm!.slug}`;
         if (form.thumbnail instanceof File) {
             form.transform((data) => ({ ...data, _method: 'put' })).post(url, {
                 onSuccess: () => router.visit('/admin/umkm'),

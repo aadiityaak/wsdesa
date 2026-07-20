@@ -20,6 +20,7 @@ interface UmkmCategory {
 
 interface Umkm {
     id: number;
+    slug: string;
     nama_usaha: string;
     pemilik: string;
     umkm_category_id: number;
@@ -44,7 +45,7 @@ const props = defineProps<{
     categories: UmkmCategory[];
 }>();
 
-const deleteConfirmId = ref<number | null>(null);
+const deleteConfirmSlug = ref<string | null>(null);
 const deleteForm = useForm({});
 
 const currentPage = computed(() => props.umkms.current_page);
@@ -72,15 +73,15 @@ const goToPage = (page: number) => {
     router.get('/admin/umkm', { page }, { preserveState: true });
 };
 
-const confirmDelete = (id: number) => {
-    deleteConfirmId.value = id;
+const confirmDelete = (slug: string) => {
+    deleteConfirmSlug.value = slug;
 };
 
 const executeDelete = () => {
-    if (deleteConfirmId.value) {
-        deleteForm.delete(`/admin/umkm/${deleteConfirmId.value}`, {
+    if (deleteConfirmSlug.value) {
+        deleteForm.delete(`/admin/umkm/${deleteConfirmSlug.value}`, {
             onSuccess: () => {
-                deleteConfirmId.value = null;
+                deleteConfirmSlug.value = null;
                 toast.success('UMKM berhasil dihapus.');
             },
         });
@@ -217,10 +218,10 @@ if (typeof window !== 'undefined') {
                             </td>
                             <td class="px-4 py-3 text-right">
                                 <div class="flex items-center justify-end gap-1">
-                                    <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/umkm/${item.id}/edit`" class="rounded-lg">
+                                    <Button variant="ghost" size="icon-sm" as="a" :href="`/admin/umkm/${item.slug}/edit`" class="rounded-lg">
                                         <Pencil class="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.id)">
+                                    <Button variant="ghost" size="icon-sm" class="rounded-lg" @click="confirmDelete(item.slug)">
                                         <Trash2 class="h-4 w-4 text-red-500" />
                                     </Button>
                                 </div>
@@ -259,7 +260,7 @@ if (typeof window !== 'undefined') {
         </div>
 
         <!-- Delete Confirm -->
-        <Dialog :open="deleteConfirmId !== null" @update:open="() => (deleteConfirmId = null)">
+        <Dialog :open="deleteConfirmSlug !== null" @update:open="() => (deleteConfirmSlug = null)">
             <DialogContent class="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle>Konfirmasi Hapus</DialogTitle>
@@ -268,7 +269,7 @@ if (typeof window !== 'undefined') {
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <Button variant="outline" class="rounded-full" @click="deleteConfirmId = null">Batal</Button>
+                    <Button variant="outline" class="rounded-full" @click="deleteConfirmSlug = null">Batal</Button>
                     <Button variant="destructive" class="rounded-full" :disabled="deleteForm.processing" @click="executeDelete">
                         Hapus
                     </Button>
