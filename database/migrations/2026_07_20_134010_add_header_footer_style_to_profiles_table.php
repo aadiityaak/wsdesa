@@ -1,0 +1,29 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('profiles', function (Blueprint $table) {
+            $table->string('header_style')->default('default')->after('tiktok');
+            $table->string('footer_style')->default('default')->after('header_style');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('profiles', function (Blueprint $table) {
+            $table->dropColumn(['header_style', 'footer_style']);
+        });
+    }
+};

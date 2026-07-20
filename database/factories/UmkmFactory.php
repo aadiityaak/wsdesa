@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Umkm;
 use App\Helpers\PlaceholderImage;
+use App\Models\Umkm;
 use App\Models\UmkmCategory;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;

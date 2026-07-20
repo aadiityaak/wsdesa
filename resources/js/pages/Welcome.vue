@@ -129,6 +129,9 @@ function onDragEnd() {
 
 // --- Hero Slider ---
 const currentSlide = ref(0);
+const sliderSectionRef = ref<HTMLDivElement | null>(null);
+const isSliderDragging = ref(false);
+const sliderDragStartX = ref(0);
 
 function nextSlide() {
     if (props.sliders.length > 0) {
@@ -139,6 +142,42 @@ function nextSlide() {
 function prevSlide() {
     if (props.sliders.length > 0) {
         currentSlide.value = (currentSlide.value - 1 + props.sliders.length) % props.sliders.length;
+    }
+}
+
+function onSliderDragStart(e: MouseEvent | TouchEvent) {
+    if (props.sliders.length <= 1) return;
+    isSliderDragging.value = true;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    sliderDragStartX.value = clientX;
+    if (sliderSectionRef.value) {
+        sliderSectionRef.value.style.cursor = 'grabbing';
+    }
+}
+
+function onSliderDragMove(e: MouseEvent | TouchEvent) {
+    if (!isSliderDragging.value) return;
+    // prevent only during drag to avoid interfering with scrolling
+    e.preventDefault();
+}
+
+function onSliderDragEnd(e: MouseEvent | TouchEvent) {
+    if (!isSliderDragging.value) return;
+    isSliderDragging.value = false;
+    if (sliderSectionRef.value) {
+        sliderSectionRef.value.style.cursor = 'grab';
+    }
+
+    const clientX = 'changedTouches' in e ? e.changedTouches[0].clientX : e.clientX;
+    const diff = sliderDragStartX.value - clientX;
+    const threshold = 60;
+
+    if (Math.abs(diff) > threshold) {
+        if (diff > 0) {
+            nextSlide();
+        } else {
+            prevSlide();
+        }
     }
 }
 
@@ -255,10 +294,19 @@ const budgetChartOptions = {
     <!-- ==================== Hero Slider ==================== -->
     <section
         v-if="sliders.length > 0"
+        ref="sliderSectionRef"
         role="region"
         aria-roledescription="carousel"
         aria-label="Slider Beranda"
         class="relative min-h-[50vh] overflow-hidden md:min-h-[60vh]"
+        :class="sliders.length > 1 ? 'cursor-grab' : ''"
+        @mousedown="onSliderDragStart"
+        @mousemove="onSliderDragMove"
+        @mouseup="onSliderDragEnd"
+        @mouseleave="onSliderDragEnd"
+        @touchstart="onSliderDragStart"
+        @touchmove="onSliderDragMove"
+        @touchend="onSliderDragEnd"
     >
         <div
             v-for="(slide, index) in sliders"

@@ -48,6 +48,8 @@ class HandleInertiaRequests extends Middleware
             'sharedProfile' => $profile ? [
                 'nama_desa' => $profile->nama_desa,
                 'logo' => $profile->logo ? asset('storage/'.$profile->logo) : null,
+                'header_style' => $profile->header_style ?? 'default',
+                'footer_style' => $profile->footer_style ?? 'default',
             ] : null,
         ];
     }

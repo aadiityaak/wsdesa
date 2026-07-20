@@ -37,6 +37,7 @@ import {
     Megaphone,
     Download,
     UsersRound,
+    Palette,
 } from '@lucide/vue';
 import type { Component } from 'vue';
 import { computed } from 'vue';
@@ -96,6 +97,7 @@ const navGroups: NavGroup[] = [
             { title: 'Pengumuman', href: '/admin/pengumuman', icon: Megaphone },
             { title: 'Download', href: '/admin/download', icon: Download },
             { title: 'Pengguna', href: '/admin/pengguna', icon: UsersRound },
+            { title: 'Tampilan', href: '/admin/tampilan', icon: Palette },
         ],
     },
 ];

@@ -153,6 +153,29 @@ class ProfileController extends Controller
         return back()->with('success', 'Data geografi berhasil diperbarui.');
     }
 
+    /* ───── Tampilan ───── */
+
+    public function tampilan(): Response
+    {
+        return Inertia::render('Admin/Tampilan', [
+            'profile' => $this->getProfile(),
+        ]);
+    }
+
+    public function updateTampilan(Request $request): RedirectResponse
+    {
+        $profile = Profile::firstOrFail();
+
+        $validated = $request->validate([
+            'header_style' => ['required', 'string', 'in:default,modern,classic,minimal'],
+            'footer_style' => ['required', 'string', 'in:default,modern,classic,minimal'],
+        ]);
+
+        $profile->fill($validated)->save();
+
+        return back()->with('success', 'Pengaturan tampilan berhasil disimpan.');
+    }
+
     /* ───── Visi ───── */
 
     public function visi(): Response

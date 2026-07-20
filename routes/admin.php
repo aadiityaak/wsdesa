@@ -225,4 +225,8 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Pengguna
     Route::get('/pengguna', [DashboardController::class, 'users'])->name('users.index');
+
+    // Tampilan
+    Route::get('/tampilan', [ProfileController::class, 'tampilan'])->name('tampilan.edit');
+    Route::match(['put', 'post'], '/tampilan', [ProfileController::class, 'updateTampilan'])->name('tampilan.update');
 });

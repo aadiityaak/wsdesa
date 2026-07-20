@@ -19,6 +19,7 @@ class Profile extends Model
         'batas_utara', 'batas_selatan', 'batas_timur', 'batas_barat',
         'orbitasi_ke_kecamatan', 'orbitasi_ke_kabupaten',
         'facebook', 'instagram', 'youtube', 'tiktok',
+        'header_style', 'footer_style',
     ];
 
     public function jamKerja(): HasMany
